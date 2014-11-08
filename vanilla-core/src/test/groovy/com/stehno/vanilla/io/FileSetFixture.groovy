@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-
 package com.stehno.vanilla.io
 
 import org.junit.rules.ExternalResource
