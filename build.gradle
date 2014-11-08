@@ -1,0 +1,47 @@
+subprojects {
+    group = 'com.stehno.vanilla'
+
+    apply plugin: 'groovy'
+    apply plugin: 'maven-publish'
+    apply plugin: 'codenarc'
+    apply plugin: 'jacoco'
+
+    compileJava {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+    }
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    }
+
+    codenarcMain {
+        ignoreFailures false
+        configFile file('../config/codenarc-main.rules')
+
+        maxPriority1Violations 0
+        maxPriority2Violations 10
+        maxPriority3Violations 20
+    }
+
+    codenarcTest {
+        ignoreFailures true
+        configFile file('../config/codenarc-test.rules')
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination "${buildDir}/reports/coverage"
+        }
+    }
+
+    task wrapper(type: Wrapper) {
+        gradleVersion = '2.1'
+    }
+}
