@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2014 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 subprojects {
     group = 'com.stehno.vanilla'
 
@@ -15,8 +31,25 @@ subprojects {
         jcenter()
     }
 
+    configurations {
+        groovyDoc
+    }
+
     dependencies {
         compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+
+        testCompile 'junit:junit:4.11'
+
+        groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
+        groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
+    }
+
+    test {
+        jvmArgs '-Xverify:none'
+    }
+
+    groovydoc {
+        groovyClasspath = configurations.groovyDoc
     }
 
     codenarcMain {
@@ -40,8 +73,8 @@ subprojects {
             html.destination "${buildDir}/reports/coverage"
         }
     }
+}
 
-    task wrapper(type: Wrapper) {
-        gradleVersion = '2.1'
-    }
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.1'
 }

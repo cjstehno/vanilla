@@ -104,7 +104,6 @@ ruleset {
     ImplementationAsType
     LocaleSetDefault
     PrivateFieldCouldBeFinal
-    PublicInstanceField
     ReturnsNullInsteadOfEmptyArray
     ReturnsNullInsteadOfEmptyCollection
     SimpleDateFormatMissingLocale
@@ -145,16 +144,13 @@ ruleset {
     ThrowThrowable
 
     // rulesets/formatting.xml
-    BlankLineBeforePackage
     BracesForClass
     BracesForForLoop
     BracesForIfElse
     BracesForMethod
     BracesForTryCatchFinally
-    ClassJavadoc
     ClosureStatementOnOpeningLineOfMultipleLineClosure
     ConsecutiveBlankLines
-    FileEndsWithoutNewline
     LineLength
     MissingBlankLineAfterImports
     MissingBlankLineAfterPackage
@@ -291,7 +287,6 @@ ruleset {
     FactoryMethodName
     FieldName
     InterfaceName
-    MethodName
     ObjectOverrideMisspelledMethodName
     PackageName
     ParameterName
@@ -301,7 +296,6 @@ ruleset {
     // rulesets/security.xml
     FileCreateTempFile
     InsecureRandom
-    JavaIoPackageAccess
     NonFinalPublicField
     NonFinalSubclassOfSensitiveInterface
     ObjectFinalize
