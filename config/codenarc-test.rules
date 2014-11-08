@@ -151,7 +151,7 @@ ruleset {
     BracesForTryCatchFinally
     ClosureStatementOnOpeningLineOfMultipleLineClosure
     ConsecutiveBlankLines
-    LineLength
+    LineLength { length = 150 }
     MissingBlankLineAfterImports
     MissingBlankLineAfterPackage
     SpaceAfterCatch
@@ -291,7 +291,6 @@ ruleset {
     PackageName
     ParameterName
     PropertyName
-    VariableName
 
     // rulesets/security.xml
     FileCreateTempFile

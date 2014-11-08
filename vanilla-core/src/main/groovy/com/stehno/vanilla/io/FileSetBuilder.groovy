@@ -16,7 +16,7 @@
 
 
 
-package com.stehno.vanilla
+package com.stehno.vanilla.io
 
 import groovy.io.FileType
 

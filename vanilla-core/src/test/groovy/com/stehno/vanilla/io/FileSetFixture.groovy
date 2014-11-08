@@ -16,7 +16,7 @@
 
 
 
-package com.stehno.vanilla
+package com.stehno.vanilla.io
 
 import org.junit.rules.ExternalResource
 import org.junit.rules.TemporaryFolder

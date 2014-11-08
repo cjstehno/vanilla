@@ -16,9 +16,9 @@
 
 
 
-package com.stehno.vanilla
+package com.stehno.vanilla.io
 
-import static com.stehno.vanilla.FileSet.fileSet
+import static FileSet.fileSet
 
 import org.junit.Rule
 import org.junit.Test

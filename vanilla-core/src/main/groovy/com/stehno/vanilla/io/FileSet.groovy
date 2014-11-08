@@ -16,7 +16,7 @@
 
 
 
-package com.stehno.vanilla
+package com.stehno.vanilla.io
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
