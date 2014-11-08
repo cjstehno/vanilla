@@ -57,8 +57,8 @@ subprojects {
         configFile file('../config/codenarc-main.rules')
 
         maxPriority1Violations 0
-        maxPriority2Violations 10
-        maxPriority3Violations 20
+        maxPriority2Violations 5
+        maxPriority3Violations 10
     }
 
     codenarcTest {

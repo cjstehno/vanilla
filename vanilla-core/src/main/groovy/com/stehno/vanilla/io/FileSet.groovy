@@ -21,10 +21,20 @@ import groovy.transform.Immutable
 
 /**
  * Unique collection of File object representing a set of files. FileSets are immutable and should be created with the DSL or builder directly.
+ *
+ * <pre>
+ * FileSet.fileSet {*     dirs '/some/top/dir'
+ *     file '/myfile.txt'
+ *     dir( '/another/dir' ){ f->
+ *         f.name.endsWith('.txt')
+ *}*}* </pre>
  */
 @Immutable @CompileStatic
 class FileSet {
 
+    /**
+     * The files contained in the file set.
+     */
     Set<File> files
 
     /**
