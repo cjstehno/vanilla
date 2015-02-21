@@ -10,7 +10,9 @@ class PropertyRandomizer {
     private final List<Class> ignoredTypes = [Class]
     private final List<String> ignoredProperties = []
 
+    @SuppressWarnings('InsecureRandom')
     private final Random rng = new Random()
+    
     private final Class target
 
     // FIXME: need to handle arrays, collections and maps
