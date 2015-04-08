@@ -41,7 +41,7 @@ class FileSetFixture extends ExternalResource {
         deltaFile = folder.newFile 'charlie/delta.bin'
         echoFile = folder.newFile 'charlie/echo.txt'
 
-        foxtrotDir = folder.newFolder 'charlie/foxtrot'
+        foxtrotDir = folder.newFolder 'charlie', 'foxtrot'
 
         golfFile = folder.newFile 'charlie/foxtrot/golf.txt'
         hotelFile = folder.newFile 'charlie/foxtrot/hotel.bin'

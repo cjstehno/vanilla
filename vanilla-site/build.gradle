@@ -1,0 +1,48 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'me.champeau.gradle:jbake-gradle-plugin:0.2'
+        classpath 'org.jbake:jbake-core:2.3.2'
+        classpath 'org.pegdown:pegdown:1.4.2'
+        classpath 'org.asciidoctor:asciidoctorj:1.5.2'
+    }
+}
+
+apply plugin: 'me.champeau.jbake'
+
+task publish(type: GradleBuild) {           
+    buildFile = 'publish.gradle'
+    tasks = ['publishGhPages']
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+task clean() << {
+    ant.delete dir: 'build/jbake'
+}
+
+// TODO: this is pulled from Effigy - should be a plugin at some point
+
+task aggregate(group: 'Aggregate', description: 'Aggregates external content into the site.', dependsOn:'jbake'){
+    logger.info 'Aggregating external content...'
+
+    def siteRoot = file('build/jbake')
+    if (!siteRoot.exists()) {
+        siteRoot.mkdirs()
+    }
+
+    ant.copy(todir: 'build/jbake/core') {
+        fileset(dir: '../vanilla-core/build/docs', includes: '**/**')
+        fileset(dir: '../vanilla-core/build/reports', includes: '**/**')
+    }
+    
+    ant.copy(todir: 'build/jbake/testing') {
+        fileset(dir: '../vanilla-testing/build/docs', includes: '**/**')
+        fileset(dir: '../vanilla-testing/build/reports', includes: '**/**')
+    }
+}
