@@ -1,9 +1,11 @@
 package com.stehno.vanilla.test
 
 import static com.stehno.vanilla.test.Randomizers.*
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 /**
- * Builder-style utility for injecting random property values into POJOs and POGOs for testing.
+ * Utility for injecting random property values into POJOs and POGOs for testing. This utility may be used directly as a builder or as a DSL for
+ * configuring a randomizer.
  */
 class PropertyRandomizer {
 
@@ -12,12 +14,10 @@ class PropertyRandomizer {
 
     @SuppressWarnings('InsecureRandom')
     private final Random rng = new Random()
-    
+
     private final Class target
 
-    // FIXME: need to handle arrays, collections and maps
-
-    private final Map<Class, Closure> typeRandomizers = [
+    private final Map<Class, Closure> classRandomizers = [
         (String)   : forString(),
         (int)      : forInteger(80),
         (Integer)  : forInteger(80),
@@ -37,20 +37,30 @@ class PropertyRandomizer {
         (Double)   : forDouble()
     ]
 
-    private final Map<String, Closure> propertyRandomizers = [:]
+    private final Map<String, Closure> nameRandomizers = [:]
 
     private PropertyRandomizer(Class target) {
         this.target = target
     }
 
     /**
-     * Creates a new randomizer for the provided target class.
+     * Creates a new randomizer for the provided target class. If a closure parameter is provided, it will be used to configure the randomizer.
+     * The returned PropertyRandomizer may continue to be configured with or without a configuration closure.
      *
      * @param target the class to be provided random property values
+     * @param closure the closure containing the DSL-style randomizer configuration
      * @return the configured PropertyRandomizer for use or further configuration.
      */
-    static PropertyRandomizer randomize(Class target) {
-        new PropertyRandomizer(target)
+    static PropertyRandomizer randomize(Class target, @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
+        def rando = new PropertyRandomizer(target)
+
+        if (closure) {
+            closure.delegate = rando
+            closure.resolveStrategy = DELEGATE_FIRST
+            closure()
+        }
+
+        rando
     }
 
     /**
@@ -81,16 +91,21 @@ class PropertyRandomizer {
      * set; however, if the clean parameter is specified as "true", the provided map of randomizers will
      * be used as the inclusive configuration set.
      *
-     * The randomizer closure may accept zero or one parameter - where the parameter is the instance of the
-     * object being randomized.
+     * The randomizer closure may accept zero, one, or two parameters - where the parameters are the random number generator (Random) as the first
+     * parameter, and the instance being populated as the second parameter.
      *
      * @param randomizers the type randomizers to be used
      * @param clean whether or not to replace all existing randomizers with the provided set (defaults to false)
      * @return the PropertyRandomizer instance
      */
-    PropertyRandomizer withTypeRandomizers(Map<Class, Closure> randomizers, boolean clean = false) {
-        if (clean) typeRandomizers.clear()
-        typeRandomizers.putAll(randomizers)
+    PropertyRandomizer typeRandomizers(Map<Class, Closure> randomizers, boolean clean = false) {
+        if (clean) classRandomizers.clear()
+        classRandomizers.putAll(randomizers)
+        this
+    }
+
+    PropertyRandomizer typeRandomizer(Class type, Closure randomizer) {
+        classRandomizers.put(type, randomizer)
         this
     }
 
@@ -98,14 +113,19 @@ class PropertyRandomizer {
      * Configures randomizers for specific properties of the object being randomized. Specific property randomizations
      * will override any configured type randomizers.
      *
-     * The randomizer closure may accept zero or one parameter - where the parameter is the instance of the
-     * object being randomized.
+     * The randomizer closure may accept zero, one, or two parameters - where the parameters are the random number generator (Random) as the first
+     * parameter, and the instance being populated as the second parameter.
      *
      * @param randomizers the property randomizers to be used
      * @return the PropertyRandomizer instance
      */
-    PropertyRandomizer withPropertyRandomizers(Map<String, Closure> randomizers) {
-        propertyRandomizers.putAll(randomizers)
+    PropertyRandomizer propertyRandomizers(Map<String, Closure> randomizers) {
+        nameRandomizers.putAll(randomizers)
+        this
+    }
+
+    PropertyRandomizer propertyRandomizer(String name, Closure randomizer) {
+        nameRandomizers.put(name, randomizer)
         this
     }
 
@@ -119,7 +139,7 @@ class PropertyRandomizer {
         def inst = target.newInstance()
         target.metaClass.properties.each { p ->
             if (!(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
-                def randomizer = propertyRandomizers[p.name] ?: typeRandomizers[p.type]
+                def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
 
                 if (!randomizer) throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
 
@@ -130,7 +150,6 @@ class PropertyRandomizer {
     }
 
     private callRandomizer(instance, Closure randomizer) {
-        // FIXME: update the docs to reflect this!
         switch (randomizer.maximumNumberOfParameters) {
             case 2:
                 return randomizer.call(rng, instance)

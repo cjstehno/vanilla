@@ -22,10 +22,8 @@ subprojects {
     apply plugin: 'codenarc'
     apply plugin: 'jacoco'
 
-    compileJava {
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
-    }
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 
     repositories {
         jcenter()
@@ -38,7 +36,7 @@ subprojects {
     dependencies {
         compile "org.codehaus.groovy:groovy-all:$groovyVersion"
 
-        testCompile 'junit:junit:4.11'
+        testCompile 'junit:junit:4.12'
 
         groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
         groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"

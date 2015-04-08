@@ -32,12 +32,41 @@ class PropertyRandomizerTest {
     @Test void 'randomize: complex'() {
         def rando = randomize(Person)
             .ignoringProperties('bankPin')
-            .withTypeRandomizers(
+            .typeRandomizers(
+            (Date): { new Date() },
+            (Pet): { randomize(Pet).one() },
+            (String[]): forStringArray()
+        )
+            .propertyRandomizers(name: { 'FixedValue' })
+
+        def one = rando.one()
+        assert one instanceof Person
+        assertPopulated one, ['bankPin']
+        assert !one.bankPin
+
+        def three = rando.times(3)
+        assert three.size() == 3
+        three.each {
+            assertPopulated it, ['bankPin']
+        }
+
+        def four = rando * 4
+        assert four.size() == 4
+        four.each {
+            assertPopulated it, ['bankPin']
+        }
+    }
+
+    @Test void 'randomize: complex (DSL)'() {
+        def rando = randomize(Person) {
+            ignoringProperties 'bankPin'
+            typeRandomizers(
                 (Date): { new Date() },
-                (Pet): { randomize(Pet).one() },
-                (String[]): forStringArray()
+                (Pet): { randomize(Pet).one() }
             )
-            .withPropertyRandomizers(name: { 'FixedValue' })
+            typeRandomizer String[], forStringArray()
+            propertyRandomizer 'name', { 'FixedValue' }
+        }
 
         def one = rando.one()
         assert one instanceof Person
