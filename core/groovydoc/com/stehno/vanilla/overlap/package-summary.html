@@ -19,8 +19,8 @@
 <html>
 <head>
 
-<title>com.stehno.vanilla.io (vanilla-core 0.0.2 API)</title>
-<meta name="keywords" content="com.stehno.vanilla.io package">
+<title>com.stehno.vanilla.overlap (vanilla-core 0.0.2 API)</title>
+<meta name="keywords" content="com.stehno.vanilla.overlap package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" title="Style">
 <link href="../../../../groovy.ico" type="image/x-icon" rel="shortcut icon">
@@ -28,7 +28,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.stehno.vanilla.io (vanilla-core 0.0.2 API)";
+    parent.document.title="com.stehno.vanilla.overlap (vanilla-core 0.0.2 API)";
 }
 </script>
 <noscript>
@@ -57,7 +57,7 @@ function windowTitle()
 
 <div class="subNav">
     <ul class="navList">
-        <li><a href="../../../../index.html?com/stehno/vanilla/io/package-summary.html" target="_top">Frames</a></li>
+        <li><a href="../../../../index.html?com/stehno/vanilla/overlap/package-summary.html" target="_top">Frames</a></li>
         <li><a href="package-summary.html" target="_top">No Frames</a></li>
     </ul>
 </div>
@@ -65,14 +65,74 @@ function windowTitle()
 <!-- ========= END OF TOP NAVBAR ========= -->
 
 <div class="header">
-    <h1 class="title">Package com.stehno.vanilla.io</h1>
+    <h1 class="title">Package com.stehno.vanilla.overlap</h1>
 </div>
 
+
+<h2 title="Package com.stehno.vanilla.overlap Description" class="title">Package com.stehno.vanilla.overlap Description</h2>
+<div class="header"> The overlap API stems from a demo library used in my blog posting about how to determine the overlap of objects based on multiple variable axes.
+
+ See <a href="http://coffeaelectronica.com/blog/2011/overlap-ccross-multiple-variables.html">Determining Overlap Across Multiple Variables</a>
+ 
+</div>
 
 
 <div class="contentContainer">
 
 
+    <div class="summary">
+        <ul class="blockList">
+            <li class="blockList">
+                <table border="0" cellpadding="3" cellspacing="0" summary="Interface Summary">
+                    <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                    <tbody>
+                    <tr>
+                        <th class="colFirst" scope="col">Interface</th>
+                        <th class="colLast" scope="col">Description</th>
+                    </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="Lobe.html" title="class in com/stehno/vanilla/overlap">
+                                    Lobe
+                                </a></strong>
+                            </td>
+                            <td>Lobes are the discrete dimensions of an overlap comparison, e.g. a single variable of an object used to build the whole overlap-comparison basis.
+ </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </li>
+            </ul>
+        </div>
+    
+
+
+    <div class="summary">
+        <ul class="blockList">
+            <li class="blockList">
+                <table border="0" cellpadding="3" cellspacing="0" summary="Trait Summary">
+                    <caption><span>Trait Summary</span><span class="tabEnd">&nbsp;</span></caption>
+                    <tbody>
+                    <tr>
+                        <th class="colFirst" scope="col">Trait</th>
+                        <th class="colLast" scope="col">Description</th>
+                    </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="Overlappable.html" title="class in com/stehno/vanilla/overlap">
+                                    Overlappable
+                                </a></strong>
+                            </td>
+                            <td>Trait providing a means of determining whether or not two objects overlap. </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </li>
+            </ul>
+        </div>
+    
 
 
     <div class="summary">
@@ -87,27 +147,19 @@ function windowTitle()
                     </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="FileSet.html" title="class in com/stehno/vanilla/io">
-                                    FileSet
+                                <strong><a href="ComparableLobe.html" title="class in com/stehno/vanilla/overlap">
+                                    ComparableLobe
                                 </a></strong>
                             </td>
-                            <td>Unique collection of File object representing a set of files. </td>
+                            <td>A ComparableLobe is a Lobe implementation providing support for single Comparable values, Comparable range values and combinations of either type.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="FileSetBuilder.html" title="class in com/stehno/vanilla/io">
-                                    FileSetBuilder
+                                <strong><a href="OverlapBuilder.html" title="class in com/stehno/vanilla/overlap">
+                                    OverlapBuilder
                                 </a></strong>
                             </td>
-                            <td>Builder used to create an immutable file set, may be used directly or via the DSL (see FileSet.fileSet(Closure)).</td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="ZipBuilder.html" title="class in com/stehno/vanilla/io">
-                                    ZipBuilder
-                                </a></strong>
-                            </td>
-                            <td>Uses the fluent builder pattern to build zip files.</td>
+                            <td>The OverlapBuilder is used to build the overlap comparison by appending the lobes for comparison. </td>
                         </tr>
 
                     </tbody>
