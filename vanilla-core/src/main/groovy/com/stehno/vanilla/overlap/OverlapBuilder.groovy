@@ -1,25 +1,37 @@
+/*
+ * Copyright (c) 2015 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.stehno.vanilla.overlap
 
 /**
- * The OverlapBuilder is used to build the overlap comparison by appending the lobes for comparison. This class is generally used inside the overlap
- * method implementation of an Overlappable object.
+ * The OverlapBuilder is used to build the overlap comparison by appending the lobes for comparison. This class used inside the Overlappable
+ * trait; however, it may be used outside of the trait as needed.
  *
  * The lobes should always be appended in the same order when comparing.
- *
- * @author cjstehno
  */
 class OverlapBuilder {
-
-    // FIXME: consider refactoring this overlap stuff into a trait or two
 
     private final lobePairs = []
 
     /**
      * Appends the lobes for comparison.
      *
-     * @param lobeA
-     * @param lobeB
-     * @return
+     * @param lobeA the first lobe
+     * @param lobeB the second lobe
+     * @return an instance of the OverlapBuilder
      */
     OverlapBuilder appendLobe(Lobe lobeA, Lobe lobeB) {
         if (!lobeA && !lobeB) {
@@ -27,15 +39,15 @@ class OverlapBuilder {
         }
 
         lobePairs << [lobeA, lobeB]
-        return this
+        this
     }
 
     /**
      * Shortcut helper for appending Comparable items as ComparableLobes.
      *
-     * @param comparableA
-     * @param comparableB
-     * @return
+     * @param comparableA the first comparable object
+     * @param comparableB the second comparable object
+     * @return an instance of the OverlapBuilder
      */
     OverlapBuilder appendComparable(comparableA, comparableB) {
         appendLobe(new ComparableLobe(comparableA), new ComparableLobe(comparableB))
@@ -49,11 +61,13 @@ class OverlapBuilder {
     boolean overlaps() {
         boolean overlap = lobePairs.size() > 0
 
-        for( def pair : lobePairs ){
+        for (def pair : lobePairs) {
             Lobe lobeA = pair[0]
             Lobe lobeB = pair[1]
 
-            if (!lobeA || !lobeB) throw new IllegalArgumentException('Lobes array cannot have null elements.')
+            if (!lobeA || !lobeB) {
+                throw new IllegalArgumentException('Lobes array cannot have null elements.')
+            }
 
             if (!lobeA.overlaps(lobeB)) {
                 overlap = false
@@ -61,6 +75,6 @@ class OverlapBuilder {
             }
         }
 
-        return overlap
+        overlap
     }
 }

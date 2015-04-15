@@ -3,7 +3,7 @@ package com.stehno.vanilla.overlap
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static com.stehno.vanilla.overlap.ComparableLobe.ANY
+import static com.stehno.vanilla.overlap.Lobe.ANY
 
 class ComparableLobeSpec extends Specification {
 

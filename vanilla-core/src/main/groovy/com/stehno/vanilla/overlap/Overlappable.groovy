@@ -1,22 +1,56 @@
+/*
+ * Copyright (c) 2015 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.stehno.vanilla.overlap
 
 /**
- * An Overlappable object is one that can be compared with another Overlappable object of the same type to determine whether the to objects
- * overlap/intersect along a specific set of comparable dimensions.
+ * Trait providing a means of determining whether or not two objects overlap. In this case, overlapping means that all of the configured Lobes for
+ * each object overlap individually.
  *
- * It is strongly suggested that Overlappable implementations also implement a proper equals() method and use it in the determination of overlap, as
- * two objects that are equal are overlapping by definition.
+ * This is based loosely on a blog post that I wrote: http://coffeaelectronica.com/blog/2011/overlap-ccross-multiple-variables.html
  */
-interface Overlappable {
+trait Overlappable {
 
     /**
-     * Determines whether or not the given Overlappable object overlaps with this Overlappable object across the appropriate dimensions for the
-     * implementing type.
+     * Determines whether or not the two objects overlap across all their comparison lobes.
      *
-     * Generally, compared Overlappable objects should be of the same type.
-     *
-     * @param other the Overlappable being compared with this Overlappable
-     * @return true if there is overlap
+     * @param other the other Overlappable object
+     * @return true, if all lobes overlap
      */
-    boolean overlaps( Overlappable other )
+    boolean overlaps(Overlappable other) {
+        def builder = new OverlapBuilder()
+
+        lobes.eachWithIndex { lobe, idx ->
+            if (lobe instanceof Lobe) {
+                builder.appendLobe(lobe, other.lobes[idx])
+            } else {
+                builder.appendComparable(lobe, other.lobes[idx])
+            }
+        }
+
+        builder.overlaps()
+    }
+
+    /**
+     * Provides the list of lobes to be used in overlap determination. This list must be have a determinate order and be the same order between the
+     * two objects being compared. They do not need to be the same type of object as long as they have the same number of Lobes in the same order.
+     *
+     * This method will also allow raw Comparable types, which will be wrapped in a ComparableLobe object internally.
+     *
+     * @return a List of Lobes to be compared
+     */
+    abstract List getLobes()
 }
