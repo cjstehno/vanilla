@@ -37,6 +37,7 @@ subprojects {
         compile "org.codehaus.groovy:groovy-all:$groovyVersion"
 
         testCompile 'junit:junit:4.12'
+        testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
 
         groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
         groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
