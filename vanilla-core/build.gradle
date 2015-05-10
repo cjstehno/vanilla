@@ -1,4 +1,31 @@
+plugins {
+    id 'com.jfrog.bintray' version '1.2'
+}
 
 dependencies {
-    
+
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+// NOTE: run bintrayUpload and then go to web and publish.
+bintray {
+    user = project.hasProperty('bintray-user') ? property('bintray-user') : null
+    key = project.hasProperty('bintray-key') ? property('bintray-key') : null
+
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'stehno'
+        name = 'vanilla-core'
+        desc = 'Reusable Groovy libraries.'
+        licenses = ['Apache-2.0']
+        labels = ['groovy']
+    }
 }
