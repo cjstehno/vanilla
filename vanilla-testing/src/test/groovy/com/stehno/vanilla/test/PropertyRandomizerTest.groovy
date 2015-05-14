@@ -86,6 +86,64 @@ class PropertyRandomizerTest {
         }
     }
 
+    @Test void 'randomize: simple type'(){
+        def rando = randomize(String)
+
+        def one = rando.one()
+        assert one
+
+        def three = rando * 3
+        assert three.size() == 3
+    }
+
+    @Test void 'conversion to Map'(){
+        def rando = randomize(Person) {
+            ignoringProperties 'bankPin'
+            typeRandomizers(
+                (Date): { new Date() },
+                (Pet): { randomize(Pet).one() }
+            )
+            typeRandomizer String[], forStringArray()
+            propertyRandomizer 'name', { 'FixedValue' }
+        }
+
+        def one = rando.one()
+        def map = one as Map
+
+        map.each {k,v->
+            assert one[k] == v
+        }
+    }
+
+    @Test void 'randomizer: using PropertyRandomizer as typeRandomizer'(){
+        def rando = randomize(Person) {
+            ignoringProperties 'bankPin'
+            typeRandomizers(
+                (Date): { new Date() },
+                (Pet): randomize(Pet)
+            )
+            typeRandomizer String[], forStringArray()
+            propertyRandomizer 'name', { 'FixedValue' }
+        }
+
+        def one = rando.one()
+        assert one instanceof Person
+        assertPopulated one, ['bankPin']
+        assert !one.bankPin
+
+        def three = rando.times(3)
+        assert three.size() == 3
+        three.each {
+            assertPopulated it, ['bankPin']
+        }
+
+        def four = rando * 4
+        assert four.size() == 4
+        four.each {
+            assertPopulated it, ['bankPin']
+        }
+    }
+
     static void assertPopulated(Object obj, List<String> ignoredProperties = [], List<Class> ignoredTypes = [Class]) {
         obj.metaClass.properties.each { p ->
             if (!(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {

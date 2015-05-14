@@ -6,6 +6,9 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 /**
  * Utility for injecting random property values into POJOs and POGOs for testing. This utility may be used directly as a builder or as a DSL for
  * configuring a randomizer.
+ *
+ * If the target type matches one of the configured class randomizers, that randomizer will be used to randomize the object itself
+ * rather than it's internal fields. This allows the randomization of simple types.
  */
 class PropertyRandomizer {
 
@@ -17,7 +20,7 @@ class PropertyRandomizer {
 
     private final Class target
 
-    private final Map<Class, Closure> classRandomizers = [
+    private final Map<Class, Object> classRandomizers = [
         (String)   : forString(),
         (int)      : forInteger(80),
         (Integer)  : forInteger(80),
@@ -37,7 +40,7 @@ class PropertyRandomizer {
         (Double)   : forDouble()
     ]
 
-    private final Map<String, Closure> nameRandomizers = [:]
+    private final Map<String, Object> nameRandomizers = [:]
 
     private PropertyRandomizer(Class target) {
         this.target = target
@@ -98,13 +101,13 @@ class PropertyRandomizer {
      * @param clean whether or not to replace all existing randomizers with the provided set (defaults to false)
      * @return the PropertyRandomizer instance
      */
-    PropertyRandomizer typeRandomizers(Map<Class, Closure> randomizers, boolean clean = false) {
+    PropertyRandomizer typeRandomizers(Map<Class, Object> randomizers, boolean clean = false) {
         if (clean) classRandomizers.clear()
         classRandomizers.putAll(randomizers)
         this
     }
 
-    PropertyRandomizer typeRandomizer(Class type, Closure randomizer) {
+    PropertyRandomizer typeRandomizer(Class type, Object randomizer) {
         classRandomizers.put(type, randomizer)
         this
     }
@@ -119,12 +122,12 @@ class PropertyRandomizer {
      * @param randomizers the property randomizers to be used
      * @return the PropertyRandomizer instance
      */
-    PropertyRandomizer propertyRandomizers(Map<String, Closure> randomizers) {
+    PropertyRandomizer propertyRandomizers(Map<String, Object> randomizers) {
         nameRandomizers.putAll(randomizers)
         this
     }
 
-    PropertyRandomizer propertyRandomizer(String name, Closure randomizer) {
+    PropertyRandomizer propertyRandomizer(String name, Object randomizer) {
         nameRandomizers.put(name, randomizer)
         this
     }
@@ -133,30 +136,63 @@ class PropertyRandomizer {
      * Used to retrieve a single randomized instance of the target class. Each call to this method will
      * return a new randomized object.
      *
+     * The randomized instance of the object will also be convertible to a Map using the "asType(Class)" method or using the
+     * "as Map" operation. This map will be immutable and only contain the randomized properties. Simple types whose class
+     * randomizers are found directly in the configured randomizers will not have this added functionality.
+     *
      * @return a single randomized instance of the target class
      */
     def one() {
         def inst = target.newInstance()
-        target.metaClass.properties.each { p ->
-            if (!(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
-                def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
 
-                if (!randomizer) throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
+        if (classRandomizers.containsKey(target)) {
+            inst = callRandomizer(inst, classRandomizers[target])
 
-                inst[p.name] = callRandomizer(inst, randomizer)
+        } else {
+            def props = [:]
+
+            target.metaClass.properties.each { p ->
+                if (!(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
+                    def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
+
+                    if (!randomizer) throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
+
+                    def value = callRandomizer(inst, randomizer)
+                    inst[p.name] = value
+                    props[p.name] = value
+                }
+            }
+
+            def originalAsType = target.metaClass.getMetaMethod('asType', [Class] as Class[])
+
+            inst.metaClass.asType = { Class type ->
+                if (type.isAssignableFrom(Map)) {
+                    return props.asImmutable()
+                } else {
+                    return originalAsType.invoke(delegate)
+                }
             }
         }
+
         inst
     }
 
-    private callRandomizer(instance, Closure randomizer) {
-        switch (randomizer.maximumNumberOfParameters) {
-            case 2:
-                return randomizer.call(rng, instance)
-            case 1:
-                return randomizer.call(rng)
-            default:
-                return randomizer.call()
+    private callRandomizer(instance, Object randomizer) {
+        if( randomizer instanceof PropertyRandomizer ){
+            return randomizer.one()
+
+        } else if(randomizer instanceof Closure){
+            switch (randomizer.maximumNumberOfParameters) {
+                case 2:
+                    return randomizer.call(rng, instance)
+                case 1:
+                    return randomizer.call(rng)
+                default:
+                    return randomizer.call()
+            }
+
+        } else {
+            throw new IllegalArgumentException("Randomizers of type ${randomizer.class} are not supported.")
         }
     }
 
