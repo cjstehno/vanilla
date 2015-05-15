@@ -162,6 +162,10 @@ class Person {
     String bankPin
 
     String[] children
+
+    int getChildCount(){
+        children?.size() ?: 0
+    }
 }
 
 @ToString

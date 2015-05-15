@@ -152,7 +152,7 @@ class PropertyRandomizer {
             def props = [:]
 
             target.metaClass.properties.each { p ->
-                if (!(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
+                if (p.setter && !(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
                     def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
 
                     if (!randomizer) throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
@@ -178,10 +178,10 @@ class PropertyRandomizer {
     }
 
     private callRandomizer(instance, Object randomizer) {
-        if( randomizer instanceof PropertyRandomizer ){
+        if (randomizer instanceof PropertyRandomizer) {
             return randomizer.one()
 
-        } else if(randomizer instanceof Closure){
+        } else if (randomizer instanceof Closure) {
             switch (randomizer.maximumNumberOfParameters) {
                 case 2:
                     return randomizer.call(rng, instance)
