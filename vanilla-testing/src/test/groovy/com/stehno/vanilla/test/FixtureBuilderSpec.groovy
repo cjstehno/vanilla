@@ -21,6 +21,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.stehno.vanilla.test.FixtureBuilder.define
+import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 
 @SuppressWarnings('GroovyPointlessBoolean')
 class FixtureBuilderSpec extends Specification {
@@ -55,7 +56,18 @@ class FixtureBuilderSpec extends Specification {
         'bravo' || [name: 'Joe', stooge: false]
     }
 
-    def 'maps: non-existent key'(){
+    def 'maps: with extra attrs'() {
+        expect:
+        fixture.map(attrs, fix) == value
+
+        where:
+        fix     | attrs          || value
+        null    | [age: 42]      || [name: 'Larry', stooge: true, age: 42]
+        'alpha' | [:]            || [name: 'Larry', stooge: true]
+        'bravo' | [stooge: true] || [name: 'Joe', stooge: true]
+    }
+
+    def 'maps: non-existent key'() {
         when:
         define {}.map('blah')
 
@@ -63,7 +75,7 @@ class FixtureBuilderSpec extends Specification {
         thrown(AssertionError)
     }
 
-    def 'maps: empty call on default fix'(){
+    def 'maps: empty call on default fix'() {
         when:
         define {}.map()
 
@@ -73,13 +85,24 @@ class FixtureBuilderSpec extends Specification {
 
     def 'objects'() {
         expect:
-        fixture.object(Comedians, fix) == value
+        fixture.object(Comedian, fix) == value
 
         where:
         fix     || value
-        null    || new Comedians(name: 'Larry', stooge: true)
-        'alpha' || new Comedians(name: 'Larry', stooge: true)
-        'bravo' || new Comedians(name: 'Joe', stooge: false)
+        null    || new Comedian(name: 'Larry', stooge: true)
+        'alpha' || new Comedian(name: 'Larry', stooge: true)
+        'bravo' || new Comedian(name: 'Joe', stooge: false)
+    }
+
+    def 'objects: with extra attrs'() {
+        expect:
+        fixture.object(attrs, Comedian, fix) == value
+
+        where:
+        fix     | attrs          || value
+        null    | [:]            || new Comedian(name: 'Larry', stooge: true)
+        'alpha' | [name: 'Moe']  || new Comedian(name: 'Moe', stooge: true)
+        'bravo' | [stooge: true] || new Comedian(name: 'Joe', stooge: true)
     }
 
     def 'verifications'() {
@@ -87,16 +110,44 @@ class FixtureBuilderSpec extends Specification {
         fixture.verify(actual, fix) == value
 
         where:
-        actual                                     | fix     || value
-        new Comedians(name: 'Larry', stooge: true) | null    || true
-        new Comedians(name: 'Larry', stooge: true) | 'alpha' || true
-        new Comedians(name: 'Joe', stooge: false)  | 'bravo' || true
-        new Comedians(name: 'Moe', stooge: true)  | 'bravo' || false
+        actual                      | fix     || value
+        new Comedian('Larry', true) | null    || true
+        new Comedian('Larry', true) | 'alpha' || true
+        new Comedian('Joe', false)  | 'bravo' || true
+        new Comedian('Moe', true)   | 'bravo' || false
+    }
+
+    def 'verifications: with extra attrs'() {
+        expect:
+        fixture.verify(attrs, actual, fix) == value
+
+        where:
+        actual                      | fix     | attrs          || value
+        new Comedian('Larry', true) | null    | [:]            || true
+        new Comedian('Bob', true)   | 'alpha' | [name: 'Bob']  || true
+        new Comedian('Joe', true)   | 'bravo' | [stooge: true] || true
+    }
+
+    def 'fix with PropertyRandomizer'() {
+        when:
+        def randomFixture = define {
+            fix 'rand-A', randomize(Comedian)
+            fix 'rand-B', randomize(Comedian).one() as Map
+        }
+
+        def a = randomFixture.map('rand-A')
+        def b = randomFixture.map('rand-B')
+
+        then:
+        a.size() == 2
+        a.every { k, v -> v != null }
+        b.size() == 2
+        b.every { k, v -> v != null }
     }
 }
 
 @Canonical
-class Comedians {
+class Comedian {
     String name
     boolean stooge
 }

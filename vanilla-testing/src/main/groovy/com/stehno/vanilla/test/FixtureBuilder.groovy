@@ -8,11 +8,9 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * Builder used to simplify the reuse of testing fixtures based on maps of data.
  *
  * <pre>
- *     Fixture fixture = define {
- *         fix 'MyFixture', [ name:'Alpha', number: 42]
+ *     Fixture fixture = define {*         fix 'MyFixture', [ name:'Alpha', number: 42]
  *         fix 'OtherFixture', [name:'Bravo', number:56]
- *     }
- * </pre>
+ *}* </pre>
  */
 class FixtureBuilder {
 
@@ -40,8 +38,20 @@ class FixtureBuilder {
      * @param attrs the map of attributes for the fixture
      * @returns an instance of the builder for chained use
      */
-    FixtureBuilder fix(Object fix, Map attrs){
+    FixtureBuilder fix(Object fix, Map attrs) {
         fixtures[fix] = attrs.asImmutable()
+        this
+    }
+
+    /**
+     * Called to configure a fixture built using the given PropertyRandomizer instance.
+     *
+     * @param fix the fixture identifier
+     * @param randomizer the PropertyRandomizer used to generate the fixture property (at configuration time).
+     * @return an instance of the FixtureBuilder for chained use
+     */
+    FixtureBuilder fix(Object fix, PropertyRandomizer randomizer) {
+        fixtures[fix] = randomizer.one() as Map
         this
     }
 
@@ -51,7 +61,7 @@ class FixtureBuilder {
      *
      * @return the configured Fixture.
      */
-    Fixture build(){
+    Fixture build() {
         new Fixture(fixtures.asImmutable())
     }
 }
@@ -82,38 +92,53 @@ class Fixture {
      * Used to retrieve the immutable map of fixture data for the specified fixture. If no fixture key is specified, the first configured fixture will be
      * returned. If no fixtures are found, an assertion error is thrown.
      *
+     * @param attrs optional extra attributes to be applied to the map to override or add properties of the fixture (internal fixture is unchanged)
      * @param fix the fixture key
      * @return the map of fixture data
      */
-    Map<String, Object> map(Object fix = null) {
-        def fixture = fix ? fixtures[fix] : (fixtures ? fixtures.entrySet().first().value : null )
+    Map<String, Object> map(Map<String, Object> attrs, Object fix = null) {
+        def fixture = fix ? fixtures[fix] : (fixtures ? fixtures.entrySet().first().value : null)
         assert fixture, "Fixture($fix) does not exist."
-        fixture
+        fixture + attrs
+    }
+
+    Map<String, Object> map(Object fix = null) {
+        map([:], fix)
     }
 
     /**
      * Instantiates an instance of the specified type using the fixture data from the designated fixture. The class must allow a map-based
      * constructor.
      *
+     * @param attrs optional extra attributes to be applied to the map to override or add properties of the fixture (internal fixture is unchanged)
      * @param type the type to be instantiated
      * @param fix the fixture key
      * @return a new instance of the specified type populated with the fixture data
      */
+    def object(Map<String, Object> attrs, Class type, Object fix = null) {
+        type.newInstance(map(attrs, fix))
+    }
+
     def object(Class type, Object fix = null) {
-        type.newInstance(map(fix))
+        object([:], type, fix)
     }
 
     /**
      * Used to verify that the contents of the given object match the properties defined by the specified fixture. Only the properties defined in
      * the fixture will be tested.
      *
+     * @param attrs optional extra attributes to be applied to the map to override or add properties of the fixture (internal fixture is unchanged)
      * @param actual the instance to be tested
      * @param fix the fixture key
      * @returns true if all the properties match the expected fixture values
      */
-    boolean verify(actual, Object fix = null) {
-        map(fix).every { name, val->
+    boolean verify(Map<String, Object> attrs, actual, Object fix = null) {
+        map(attrs, fix).every { name, val ->
             actual[name] == val
         }
+    }
+
+    boolean verify(actual, Object fix = null) {
+        verify([:], actual, fix)
     }
 }
