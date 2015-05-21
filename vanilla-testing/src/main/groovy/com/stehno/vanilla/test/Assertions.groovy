@@ -21,61 +21,60 @@ import static java.util.Calendar.*
 /**
  *  Reusable assertions for testing common coding constructs.
  */
-class Assertions {
+final class Assertions {
+
+    private Assertions(){}
 
     /**
-     * Tests the given set objects for proper equals(Object) and hashCode() behavior. The "same" objects should all be equivalent, but not the same
-     * instance of the object. The "different" object should not be equivalent to the other three.
+     * Tests the given set objects for proper equals(Object) and hashCode() behavior. The three objects being tested
+     * must be of the same class.
      *
-     * @param sameA
-     * @param sameB
-     * @param sameC
-     * @param differentA
+     * The instances used for A, B, and C should be instances of the same class, with equivalent data, but not being
+     * references to the same instance of the object.
      *
-     * @see "Effective Java" - Joshua Bloch
+     * The instance used for D should be an instance of the same class but with non-equivalent data.
+     *
+     * @param objA an equivalent instance
+     * @param objB an equivalent instance
+     * @param objC an equivalent instance
+     * @param objD a non-equivalent instance
      */
     @SuppressWarnings(['ExplicitCallToEqualsMethod', 'ComparisonWithSelf'])
-    static void assertValidEqualsAndHashcode(final Object sameA, final Object sameB, final Object sameC, final Object differentA) {
-        assert sameA.equals(sameA)
-        assert sameA.hashCode() == sameA.hashCode()
-        assert sameA.hashCode() == sameB.hashCode()
+    static void assertValidEqualsAndHashcode(final Object objA, final Object objB, final Object objC, final Object objD) {
+        assert [objA, objB, objC, objD].every { it.class == objA.class }
 
-        assert sameA.equals(sameB)
-        assert sameB.equals(sameA)
+        // Symmetry: For two references, a and b, a.equals(b) if and only if b.equals(a)
 
-        assert sameA.equals(differentA)
-        assert differentA.equals(sameA)
+        assert objA.equals(objB), 'Object equality (A:B) is not symmetrical.'
+        assert objB.equals(objA), 'Object equality (B:A) is not symmetrical.'
 
-        assert sameA.hashCode() != differentA.hashCode()
+        assert !objA.equals(objD), 'Object equality (A:D) is not symmetrical.'
+        assert !objB.equals(objD), 'Object equality (B:D) is not symmetrical.'
+        assert !objC.equals(objD), 'Object equality (C:D) is not symmetrical.'
 
-        assert sameA.equals(sameB)
-        assert sameB.equals(sameC)
-        assert sameC.equals(sameA)
+        assert !objD.equals(objA), 'Object equality (D:A) is not symmetrical.'
+        assert !objD.equals(objB), 'Object equality (D:B) is not symmetrical.'
+        assert !objD.equals(objC), 'Object equality (D:C) is not symmetrical.'
 
-        assert sameA.equals(sameB)
-        assert sameA.equals(sameB)
+        // Reflexivity: For all non-null references, a.equals(a)
 
-        assert sameA.equals(differentA)
-        assert sameA.equals(differentA)
+        assert objA.equals(objA), 'Object equality (A) is not reflexive.'
+        assert objB.equals(objB), 'Object equality (B) is not reflexive.'
+        assert objC.equals(objC), 'Object equality (D) is not reflexive.'
+        assert objD.equals(objD), 'Object equality (D) is not reflexive.'
 
-        assert sameA.hashCode() == sameB.hashCode()
-        assert sameA.hashCode() == sameB.hashCode()
+        // Transitivity: If a.equals(b) and b.equals(c), then a.equals(c)
 
-        assert sameA.equals(null)
-    }
+        assert objA.equals(objC), 'Object equality (A:C) is not transitive.'
+        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'
+        assert objB.equals(objC), 'Object equality (B:C) is not transitive.'
+        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'
 
-    /**
-     * Asserts that the toString() method of a given object returns a String containing the given properties. Useful when using the Groovy Apache
-     * Commons toString() helpers.
-     *
-     * @param obj the object
-     * @param contains a map of property names and values to be verified
-     */
-    static void assertToString(final Object obj, Map<String, Object> contains) {
-        String string = obj as String
-        contains.each { name, value ->
-            assert string.contains("$name=$value")
-        }
+        // Consistency with hashCode(): Two equal objects must have the same hashCode() value
+
+        assert objA.hashCode() == objB.hashCode(), 'Object hashCode (A:B) is not consistent.'
+        assert objA.hashCode() == objC.hashCode(), 'Object hashCode (A:C) is not consistent.'
+        assert objB.hashCode() == objC.hashCode(), 'Object hashCode (B:C) is not consistent.'
     }
 
     /**
@@ -93,7 +92,7 @@ class Assertions {
         expected.each { k, v ->
             def actualVal = actual[k]
             if (v instanceof Closure) {
-                v(actualVal)
+                assert v(actualVal)
             } else {
                 assert v == actualVal, "$k: expected $v but was $actualVal"
             }
