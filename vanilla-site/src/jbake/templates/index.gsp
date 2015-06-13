@@ -18,8 +18,12 @@
 
 	<h2>Usage</h2>
 
-	<p>Currently, the only way to use the Vanilla APIs is to build them yourself:</p>
+	<p>The Vanilla libraries are available via the JCenter repository:</p>
 
-	<pre>./gradle clean build</pre>
+	<pre>
+// for Gradle builds
+compile 'com.stehno.vanilla:vanilla-core:0.0.6'
+testCompile 'com.stehno.vanilla:vanilla-testing:0.0.6'
+	</pre>
 
 <%include "footer.gsp"%>
