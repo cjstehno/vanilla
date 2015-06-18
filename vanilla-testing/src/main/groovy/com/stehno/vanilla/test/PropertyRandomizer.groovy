@@ -169,7 +169,7 @@ class PropertyRandomizer {
                 if (type.isAssignableFrom(Map)) {
                     return props.asImmutable()
                 } else {
-                    return originalAsType.invoke(delegate)
+                    return originalAsType.invoke(delegate, [type] as Object[])
                 }
             }
         }
