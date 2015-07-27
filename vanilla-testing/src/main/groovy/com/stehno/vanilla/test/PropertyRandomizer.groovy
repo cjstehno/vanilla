@@ -9,6 +9,20 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  *
  * If the target type matches one of the configured class randomizers, that randomizer will be used to randomize the object itself
  * rather than it's internal fields. This allows the randomization of simple types.
+ *
+ * An example usage, would be similar to the following:
+ *
+ * ```
+ * def rando = randomize(Person){
+ *     typeRandomizers(
+ *         (Date):{ new Date() },
+ *         (Pet): { randomize(Pet).one() }
+ *     )
+ * }
+ * def instance = rando.one()
+ * ```
+ *
+ * More information may be found in my blog post, "[Property Randomization for Testing](http://coffeaelectronica.com/blog/2015/property-randomization.html)"
  */
 class PropertyRandomizer {
 
