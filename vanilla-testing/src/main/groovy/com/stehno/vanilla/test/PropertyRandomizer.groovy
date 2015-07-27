@@ -3,6 +3,7 @@ package com.stehno.vanilla.test
 import static com.stehno.vanilla.test.Randomizers.*
 import static groovy.lang.Closure.DELEGATE_FIRST
 
+//@formatter:off
 /**
  * Utility for injecting random property values into POJOs and POGOs for testing. This utility may be used directly as a builder or as a DSL for
  * configuring a randomizer.
@@ -23,7 +24,9 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * ```
  *
  * More information may be found in my blog post, "[Property Randomization for Testing](http://coffeaelectronica.com/blog/2015/property-randomization.html)"
+ *
  */
+//@formatter:on
 class PropertyRandomizer {
 
     private final List<Class> ignoredTypes = [Class]
