@@ -23,12 +23,17 @@ import java.lang.annotation.*
 
 /**
  * FIXME: document me
+ *
+ * - this annotation provides a simple means of converting to/from immutable/mutable object
+ * - only immutable objects are allowed as fields, see rules for Immutable annotation.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 @Documented
 @GroovyASTTransformationClass(classes = [UnmodifiableTransform])
-public @interface Unmodifiable {
+@interface Unmodifiable {
+
+    // FIXME: let's rename this to LazyImmutable
 
     /**
      * Allows you to provide the generated Immutable class with a list of classes which are deemed immutable. By supplying a class in this list,
@@ -48,5 +53,5 @@ public @interface Unmodifiable {
      * version of the object, though in the later case, the resulting object will itself be a new instance of the mutable version
      * of the object.
      */
-    boolean copyWith() default false;
+    boolean copyWith() default false
 }

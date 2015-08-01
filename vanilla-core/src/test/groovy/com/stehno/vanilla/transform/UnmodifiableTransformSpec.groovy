@@ -16,10 +16,15 @@
 
 package com.stehno.vanilla.transform
 
+import groovy.transform.Canonical
 import org.junit.Rule
 import spock.lang.Specification
 
 class UnmodifiableTransformSpec extends Specification {
+
+    /*
+        FIXME: test equality - should immutable be = to mutable with same props?
+     */
 
     @Rule GroovyShellEnvironment shell
 
@@ -44,11 +49,8 @@ class UnmodifiableTransformSpec extends Specification {
         then:
         results.size() == 3
 
-        results[0].name == 'Larry'
-        results[0].age == 42
-
-        results[1].name == 'Moe'
-        results[1].age == 50
+        assertPerson results[0], name: 'Larry', age: 42
+        assertPerson results[1], name: 'Moe', age: 50
 
         !results[2].name
         !results[2].age
@@ -71,59 +73,147 @@ class UnmodifiableTransformSpec extends Specification {
             [moe, immutable, immutable.asMutable()]
         ''')
 
-        results.eachWithIndex{ res, idx ->
+        results.eachWithIndex { res, idx ->
             res.age = res.age + idx + 1
         }
 
         then:
         results.size() == 3
 
-        results[0].name == 'Moe'
-        results[0].age == 54
-
-        results[1].name == 'Moe'
-        results[1].age == 53
-
-        results[2].name == 'Moe'
-        results[2].age == 56
+        assertPerson results[0], name: 'Moe', age: 54
+        assertPerson results[1], name: 'Moe', age: 53
+        assertPerson results[2], name: 'Moe', age: 56
     }
 
-    // FIXME: there is an issue with typed collections
-
-    def 'simple immutable object usage with collection'() {
+    def 'simple usage with builder'() {
         when:
         def results = shell.evaluate('''
             package testing
-            import groovy.transform.Canonical
+            import groovy.transform.builder.Builder
             import com.stehno.vanilla.annotation.Unmodifiable
-            @Canonical @Unmodifiable(knownImmutables=['pets'])
+            @Unmodifiable @Builder
             class Person {
                 String name
                 int age
-                def pets = []
             }
 
-            def moe = new Person('Moe',53, ['Fido'])
+            def moe = Person.builder().name('Moe').age(42).build()
             def immutable = moe.asImmutable()
             [moe, immutable, immutable.asMutable()]
         ''')
 
-        results.eachWithIndex{ res, idx ->
-            res.age = res.age + idx + 1
-        }
+        then:
+        results.size() == 3
+
+        assertPerson results[0], name: 'Moe', age: 42
+        assertPerson results[1], name: 'Moe', age: 42
+        assertPerson results[2], name: 'Moe', age: 42
+    }
+
+    def 'immutable with known immutable (class)'() {
+        when:
+        def results = shell.evaluate('''
+            package testing
+
+            import groovy.transform.Canonical
+            import com.stehno.vanilla.annotation.Unmodifiable
+            import com.stehno.vanilla.transform.SomeImmutable
+
+            @Canonical
+            @Unmodifiable(knownImmutableClasses=[SomeImmutable])
+            class Person {
+                String name
+                int age
+                SomeImmutable value
+            }
+
+            def moe = new Person('Moe',53, new SomeImmutable(86))
+            def immutable = moe.asImmutable()
+            [moe, immutable, immutable.asMutable()]
+        ''')
 
         then:
         results.size() == 3
 
-        results[0].name == 'Moe'
-        results[0].age == 54
+        assertPerson results[0], name: 'Moe', age: 53, value: new SomeImmutable(86)
+        assertPerson results[1], name: 'Moe', age: 53, value: new SomeImmutable(86)
+        assertPerson results[2], name: 'Moe', age: 53, value: new SomeImmutable(86)
+    }
 
-        results[1].name == 'Moe'
-        results[1].age == 53
+    def 'immutable with known immutable (property)'() {
+        when:
+        def results = shell.evaluate('''
+            package testing
 
-        results[2].name == 'Moe'
-        results[2].age == 56
+            import groovy.transform.Canonical
+            import com.stehno.vanilla.annotation.Unmodifiable
+            import com.stehno.vanilla.transform.SomeImmutable
+
+            @Canonical
+            @Unmodifiable(knownImmutables=['value'])
+            class Person {
+                String name
+                int age
+                SomeImmutable value
+            }
+
+            def moe = new Person('Moe',53, new SomeImmutable(86))
+            def immutable = moe.asImmutable()
+            [moe, immutable, immutable.asMutable()]
+        ''')
+
+        then:
+        results.size() == 3
+
+        assertPerson results[0], name: 'Moe', age: 53, value: new SomeImmutable(86)
+        assertPerson results[1], name: 'Moe', age: 53, value: new SomeImmutable(86)
+        assertPerson results[2], name: 'Moe', age: 53, value: new SomeImmutable(86)
+    }
+
+    def 'copyWith usage'() {
+        when:
+        def (moe, immutable, mutable) = shell.evaluate('''
+            package testing
+            import groovy.transform.Canonical
+            import com.stehno.vanilla.annotation.Unmodifiable
+            @Canonical @Unmodifiable(copyWith=true)
+            class Person {
+                String name
+                int age
+            }
+
+            def moe = new Person('Moe',53)
+            def immutable = moe.asImmutable()
+            [moe, immutable, immutable.asMutable()]
+        ''')
+
+        moe = moe.copyWith(name: 'Bob', age: 42)
+        immutable = immutable.copyWith(name: 'Blaine', age: 23)
+        mutable = mutable.copyWith(name: 'Claire', age: 21)
+
+        then:
+        assertPerson moe, name: 'Bob', age: 42
+        assertPerson immutable, name: 'Blaine', age: 23
+        assertPerson mutable, name: 'Claire', age: 21
+    }
+
+    private static boolean assertPerson(Map attrs, object) {
+        attrs.every { k, v ->
+            object[k] == v
+        }
     }
 }
 
+@Canonical
+class SomeImmutable {
 
+    private final int value
+
+    SomeImmutable(final int value) {
+        this.value = value
+    }
+
+    int getValue() {
+        return value
+    }
+}

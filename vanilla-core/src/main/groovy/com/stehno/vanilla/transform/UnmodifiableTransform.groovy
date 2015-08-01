@@ -19,6 +19,9 @@ package com.stehno.vanilla.transform
 import groovy.transform.Immutable
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.EmptyExpression
+import org.codehaus.groovy.ast.expr.MapEntryExpression
+import org.codehaus.groovy.ast.expr.MapExpression
+import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
@@ -26,6 +29,7 @@ import org.codehaus.groovy.transform.ImmutableASTTransformation
 
 import static java.lang.reflect.Modifier.PROTECTED
 import static java.lang.reflect.Modifier.PUBLIC
+import static org.codehaus.groovy.ast.ClassHelper.MAP_TYPE
 import static org.codehaus.groovy.ast.ClassHelper.make
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
@@ -37,10 +41,10 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 @GroovyASTTransformation(phase = CANONICALIZATION)
 class UnmodifiableTransform extends AbstractASTTransformation {
 
-
     private static final String KNOWN_IMMUTABLE_CLASSES = 'knownImmutableClasses'
     private static final String KNOWN_IMMUTABLES = 'knownImmutables'
     private static final String COPY_WITH = 'copyWith'
+    private static final String ATTRS = 'attrs'
 
     @Override
     void visit(final ASTNode[] nodes, final SourceUnit source) {
@@ -54,15 +58,22 @@ class UnmodifiableTransform extends AbstractASTTransformation {
 
             addAsImmutableMethod(classNode, immutableClassNode)
 
+            if (unmodifiableNode.getMember(COPY_WITH)) {
+                addCopyWithMethod(classNode)
+            }
+
         } catch (Exception ex) {
             addError("Problem making ${classNode.name} unmodifiable: ${ex.message}", classNode)
-            ex.printStackTrace()
         }
     }
 
     private static ClassNode createImmutableClass(ClassNode classNode, AnnotationNode unmodifiableNode, SourceUnit source) {
         // TODO: would like this as a static InnerClassNode, but there were issues
-        ClassNode immutableClassNode = new ClassNode("${classNode.packageName}.Immutable${classNode.nameWithoutPackage}", PROTECTED, classNode)
+        ClassNode immutableClassNode = new ClassNode(
+            "${classNode.packageName}.Immutable${classNode.nameWithoutPackage}",
+            PROTECTED,
+            newClass(classNode)
+        )
 
         // Immutable transformation needs property reference on itself - the extends should do this, but I think
         // that happens after this compile phase (or at runtime).
@@ -81,24 +92,21 @@ class UnmodifiableTransform extends AbstractASTTransformation {
         def annotationNode = buildImmutableAnnotation(unmodifiableNode)
         immutableClassNode.addAnnotation(annotationNode)
 
-        // TODO: add support for the mutable version of the copyWith() method
-
-        immutableClassNode.addMethod(new MethodNode(
-            "asMutable",
-            PUBLIC,
-            newClass(classNode),
-            params(),
-            [] as ClassNode[],
-            block(returnS(ctorX(newClass(classNode), args(
-                classNode.properties.collect { PropertyNode pn -> varX(pn.name) }
-            ))))
+        immutableClassNode.addMethod(methodN(
+            classNode,
+            'asMutable',
+            block(returnS(ctorX(newClass(classNode), args(new MapExpression(
+                classNode.properties.collect { PropertyNode pn ->
+                    new MapEntryExpression(constX(pn.name), varX(pn.name))
+                }
+            )))))
         ))
 
         source.AST.addClass(immutableClassNode)
 
         new ImmutableASTTransformation().visit([annotationNode, immutableClassNode] as ASTNode[], source)
 
-        return immutableClassNode
+        immutableClassNode
     }
 
     private static AnnotationNode buildImmutableAnnotation(AnnotationNode unmodifiableNode) {
@@ -123,35 +131,40 @@ class UnmodifiableTransform extends AbstractASTTransformation {
     }
 
     private static void addAsImmutableMethod(ClassNode classNode, ClassNode immutableClassNode) {
-        def props = classNode.properties.collect { PropertyNode pn -> varX(pn.name, newClass(pn.type)) }
+        def props = classNode.properties.collect { PropertyNode pn ->
+            varX(pn.name, newClass(pn.type))
+        }
 
-        // TODO: should call .asImmutable() on collections
-
-        def code = block(returnS(ctorX(newClass(immutableClassNode), args(props))))
-
-        classNode.addMethod(new MethodNode(
-            "asImmutable",
-            PUBLIC,
-            newClass(classNode),
-            params(),
-            [] as ClassNode[],
-            code
+        classNode.addMethod(methodN(
+            classNode,
+            'asImmutable',
+            block(returnS(ctorX(newClass(immutableClassNode), args(props))))
         ))
     }
+
+    private static void addCopyWithMethod(ClassNode classNode) {
+        def code = block()
+
+        code.addStatement(returnS(ctorX(newClass(classNode), args(varX(ATTRS)))))
+
+        classNode.addMethod(methodN(
+            classNode,
+            COPY_WITH,
+            code,
+            params(
+                param(newClass(MAP_TYPE), ATTRS)
+            )
+        ))
+    }
+
+    private static MethodNode methodN(ClassNode returnType, String name, Statement code, Parameter[] args = params()) {
+        new MethodNode(
+            name,
+            PUBLIC,
+            newClass(returnType),
+            args,
+            [] as ClassNode[],
+            code
+        )
+    }
 }
-
-/*
-FIXME: I should probably check these on the Unmodifiable object since they are checked by Immutable
-    get knownImmutableClasses
-    get knownImmutables
-    ensure not interface
-    make class final
-    adjustPropertyForImmutability
-    check for tuple Annotation
-    support equalshashcode anno
-    support tostrign anno
-    cannonical?
-
-    test equality - should immutable be = to mutable with same props?
-    test mutable properties between mutable and immutable
-*/
