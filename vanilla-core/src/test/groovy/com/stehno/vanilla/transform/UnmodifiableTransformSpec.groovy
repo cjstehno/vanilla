@@ -96,7 +96,7 @@ class UnmodifiableTransformSpec extends Specification {
             package testing
             import groovy.transform.Canonical
             import com.stehno.vanilla.annotation.Unmodifiable
-            @Unmodifiable @Canonical
+            @Canonical @Unmodifiable(knownImmutables=['pets'])
             class Person {
                 String name
                 int age

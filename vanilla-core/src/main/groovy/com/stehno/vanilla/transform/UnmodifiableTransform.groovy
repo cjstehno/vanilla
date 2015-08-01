@@ -30,20 +30,27 @@ import static org.codehaus.groovy.ast.ClassHelper.make
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
+
 /**
  * FIXME: document me
  */
 @GroovyASTTransformation(phase = CANONICALIZATION)
 class UnmodifiableTransform extends AbstractASTTransformation {
 
+
+    private static final String KNOWN_IMMUTABLE_CLASSES = 'knownImmutableClasses'
+    private static final String KNOWN_IMMUTABLES = 'knownImmutables'
+    private static final String COPY_WITH = 'copyWith'
+
     @Override
     void visit(final ASTNode[] nodes, final SourceUnit source) {
+        AnnotationNode unmodifiableNode = nodes[0] as AnnotationNode
         ClassNode classNode = nodes[1] as ClassNode
         try {
 
             // TODO: should I do similar check as the Immutable transformer to pre-verify the object?
 
-            ClassNode immutableClassNode = createImmutableClass(classNode, source)
+            ClassNode immutableClassNode = createImmutableClass(classNode, unmodifiableNode, source)
 
             addAsImmutableMethod(classNode, immutableClassNode)
 
@@ -53,81 +60,83 @@ class UnmodifiableTransform extends AbstractASTTransformation {
         }
     }
 
-    private static ClassNode createImmutableClass(ClassNode classNode, SourceUnit source) {
-        try {
-            // TODO: would like this as a static InnerClassNode, but there were issues
-            ClassNode immutableClassNode = new ClassNode("${classNode.packageName}.Immutable${classNode.nameWithoutPackage}", PROTECTED, classNode)
+    private static ClassNode createImmutableClass(ClassNode classNode, AnnotationNode unmodifiableNode, SourceUnit source) {
+        // TODO: would like this as a static InnerClassNode, but there were issues
+        ClassNode immutableClassNode = new ClassNode("${classNode.packageName}.Immutable${classNode.nameWithoutPackage}", PROTECTED, classNode)
 
-            // Immutable transformation needs property reference on itself - the extends should do this, but I think
-            // that happens after this compile phase (or at runtime).
-            classNode.properties.each { PropertyNode propNode ->
-                def field = new FieldNode(
-                    propNode.field.name,
-                    propNode.field.modifiers,
-                    newClass(propNode.field.type),
-                    newClass(immutableClassNode),
-                    new EmptyExpression()
-                )
+        // Immutable transformation needs property reference on itself - the extends should do this, but I think
+        // that happens after this compile phase (or at runtime).
+        classNode.properties.each { PropertyNode propNode ->
+            def field = new FieldNode(
+                propNode.field.name,
+                propNode.field.modifiers,
+                newClass(propNode.field.type),
+                newClass(immutableClassNode),
+                new EmptyExpression()
+            )
 
-                immutableClassNode.addProperty(new PropertyNode(field, propNode.modifiers, null, null))
-            }
-
-            def annotationNode = buildImmutableAnnotation(immutableClassNode)
-
-            immutableClassNode.addMethod(new MethodNode(
-                "asMutable",
-                PUBLIC,
-                newClass(classNode),
-                params(),
-                [] as ClassNode[],
-                block(returnS(ctorX(newClass(classNode), args(
-                    classNode.properties.collect { PropertyNode pn -> varX(pn.name) }
-                ))))
-            ))
-
-            source.AST.addClass(immutableClassNode)
-
-            new ImmutableASTTransformation().visit([annotationNode, immutableClassNode] as ASTNode[], source)
-
-            return immutableClassNode
-        } catch (Exception ex) {
-            ex.printStackTrace()
-            return null
+            immutableClassNode.addProperty(new PropertyNode(field, propNode.modifiers, null, null))
         }
+
+        def annotationNode = buildImmutableAnnotation(unmodifiableNode)
+        immutableClassNode.addAnnotation(annotationNode)
+
+        // TODO: add support for the mutable version of the copyWith() method
+
+        immutableClassNode.addMethod(new MethodNode(
+            "asMutable",
+            PUBLIC,
+            newClass(classNode),
+            params(),
+            [] as ClassNode[],
+            block(returnS(ctorX(newClass(classNode), args(
+                classNode.properties.collect { PropertyNode pn -> varX(pn.name) }
+            ))))
+        ))
+
+        source.AST.addClass(immutableClassNode)
+
+        new ImmutableASTTransformation().visit([annotationNode, immutableClassNode] as ASTNode[], source)
+
+        return immutableClassNode
     }
 
-    private static AnnotationNode buildImmutableAnnotation(ClassNode immutableClassNode){
-        def annotationNode = new AnnotationNode(make(Immutable))
+    private static AnnotationNode buildImmutableAnnotation(AnnotationNode unmodifiableNode) {
+        def immutableNode = new AnnotationNode(make(Immutable))
 
-        annotationNode.setMember('knownImmutableClasses', )
-        annotationNode.setMember('knownImmutables', )
+        def knownImmutableClases = unmodifiableNode.getMember(KNOWN_IMMUTABLE_CLASSES)
+        if (knownImmutableClases) {
+            immutableNode.setMember(KNOWN_IMMUTABLE_CLASSES, knownImmutableClases)
+        }
 
-        /*
-        FIXME: these need to be transferred to the Immutable
-        final List<String> knownImmutableClasses = getKnownImmutableClasses(node);
-        final List<String> knownImmutables = getKnownImmutables(node);
-         */
+        def knownImmutables = unmodifiableNode.getMember(KNOWN_IMMUTABLES)
+        if (knownImmutables) {
+            immutableNode.setMember(KNOWN_IMMUTABLES, knownImmutables)
+        }
 
-        immutableClassNode.addAnnotation(annotationNode)
+        def copyWith = unmodifiableNode.getMember(COPY_WITH)
+        if (copyWith) {
+            immutableNode.setMember(COPY_WITH, copyWith)
+        }
+
+        immutableNode
     }
 
     private static void addAsImmutableMethod(ClassNode classNode, ClassNode immutableClassNode) {
-        try {
-            def props = classNode.properties.collect { PropertyNode pn -> varX(pn.name, newClass(pn.type)) }
+        def props = classNode.properties.collect { PropertyNode pn -> varX(pn.name, newClass(pn.type)) }
 
-            def code = block(returnS(ctorX(newClass(immutableClassNode), args(props))))
+        // TODO: should call .asImmutable() on collections
 
-            classNode.addMethod(new MethodNode(
-                "asImmutable",
-                PUBLIC,
-                newClass(classNode),
-                params(),
-                [] as ClassNode[],
-                code
-            ))
-        } catch (Exception ex) {
-            ex.printStackTrace()
-        }
+        def code = block(returnS(ctorX(newClass(immutableClassNode), args(props))))
+
+        classNode.addMethod(new MethodNode(
+            "asImmutable",
+            PUBLIC,
+            newClass(classNode),
+            params(),
+            [] as ClassNode[],
+            code
+        ))
     }
 }
 

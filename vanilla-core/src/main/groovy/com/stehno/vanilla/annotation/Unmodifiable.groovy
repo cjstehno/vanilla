@@ -28,7 +28,7 @@ import java.lang.annotation.*
 @Retention(RetentionPolicy.SOURCE)
 @Documented
 @GroovyASTTransformationClass(classes = [UnmodifiableTransform])
-@interface Unmodifiable {
+public @interface Unmodifiable {
 
     /**
      * Allows you to provide the generated Immutable class with a list of classes which are deemed immutable. By supplying a class in this list,
@@ -41,4 +41,12 @@ import java.lang.annotation.*
      * this list, you are vouching for its immutability the Immutable will do no further checks.
      */
     String[] knownImmutables() default []
+
+    /**
+     * If `true`, this adds a method `copyWith(Map)` which takes a Map of new property values and returns a new instance of
+     * the generated Immutable class with these values set. This method will be available on both the mutable and immutable
+     * version of the object, though in the later case, the resulting object will itself be a new instance of the mutable version
+     * of the object.
+     */
+    boolean copyWith() default false;
 }
