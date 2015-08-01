@@ -20,89 +20,114 @@ import groovy.transform.Immutable
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.EmptyExpression
 import org.codehaus.groovy.control.SourceUnit
-import org.codehaus.groovy.transform.ASTTransformation
+import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.codehaus.groovy.transform.ImmutableASTTransformation
 
+import static java.lang.reflect.Modifier.PROTECTED
 import static java.lang.reflect.Modifier.PUBLIC
 import static org.codehaus.groovy.ast.ClassHelper.make
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
-
 /**
  * FIXME: document me
  */
 @GroovyASTTransformation(phase = CANONICALIZATION)
-class UnmodifiableTransform implements ASTTransformation {
+class UnmodifiableTransform extends AbstractASTTransformation {
 
     @Override
     void visit(final ASTNode[] nodes, final SourceUnit source) {
+        ClassNode classNode = nodes[1] as ClassNode
         try {
-            ClassNode classNode = nodes[1] as ClassNode
 
-            // TODO: immutable object checks
+            // TODO: should I do similar check as the Immutable transformer to pre-verify the object?
 
             ClassNode immutableClassNode = createImmutableClass(classNode, source)
 
             addAsImmutableMethod(classNode, immutableClassNode)
 
-
         } catch (Exception ex) {
+            addError("Problem making ${classNode.name} unmodifiable: ${ex.message}", classNode)
             ex.printStackTrace()
         }
     }
 
     private static ClassNode createImmutableClass(ClassNode classNode, SourceUnit source) {
-        // TODO: would like this as a static InnerClassNode, but there were issues
-        ClassNode immutableClassNode = new ClassNode(
-            "${classNode.packageName}.Immutable${classNode.nameWithoutPackage}",
-            PUBLIC, // TODO: might be better as protected?
-            classNode
-        )
+        try {
+            // TODO: would like this as a static InnerClassNode, but there were issues
+            ClassNode immutableClassNode = new ClassNode("${classNode.packageName}.Immutable${classNode.nameWithoutPackage}", PROTECTED, classNode)
 
-        classNode.properties.each { PropertyNode propNode ->
-            def field = new FieldNode(
-                propNode.field.name,
-                propNode.field.modifiers,
-                propNode.field.type,
-                immutableClassNode,
-                new EmptyExpression()
-            )
+            // Immutable transformation needs property reference on itself - the extends should do this, but I think
+            // that happens after this compile phase (or at runtime).
+            classNode.properties.each { PropertyNode propNode ->
+                def field = new FieldNode(
+                    propNode.field.name,
+                    propNode.field.modifiers,
+                    newClass(propNode.field.type),
+                    newClass(immutableClassNode),
+                    new EmptyExpression()
+                )
 
-            //            immutableClassNode.addField(field)
-            immutableClassNode.addProperty(new PropertyNode(field, propNode.modifiers, null, null))
+                immutableClassNode.addProperty(new PropertyNode(field, propNode.modifiers, null, null))
+            }
+
+            def annotationNode = buildImmutableAnnotation(immutableClassNode)
+
+            immutableClassNode.addMethod(new MethodNode(
+                "asMutable",
+                PUBLIC,
+                newClass(classNode),
+                params(),
+                [] as ClassNode[],
+                block(returnS(ctorX(newClass(classNode), args(
+                    classNode.properties.collect { PropertyNode pn -> varX(pn.name) }
+                ))))
+            ))
+
+            source.AST.addClass(immutableClassNode)
+
+            new ImmutableASTTransformation().visit([annotationNode, immutableClassNode] as ASTNode[], source)
+
+            return immutableClassNode
+        } catch (Exception ex) {
+            ex.printStackTrace()
+            return null
         }
+    }
 
+    private static AnnotationNode buildImmutableAnnotation(ClassNode immutableClassNode){
         def annotationNode = new AnnotationNode(make(Immutable))
+
+        annotationNode.setMember('knownImmutableClasses', )
+        annotationNode.setMember('knownImmutables', )
+
+        /*
+        FIXME: these need to be transferred to the Immutable
+        final List<String> knownImmutableClasses = getKnownImmutableClasses(node);
+        final List<String> knownImmutables = getKnownImmutables(node);
+         */
+
         immutableClassNode.addAnnotation(annotationNode)
-
-        // TODO: add asMutable method
-
-        source.AST.addClass(immutableClassNode)
-
-        println "Added immutable class node to AST."
-
-        new ImmutableASTTransformation().visit([annotationNode, immutableClassNode] as ASTNode[], source)
-
-        println "Applied Immutable AST Transformation."
-
-        return immutableClassNode
     }
 
     private static void addAsImmutableMethod(ClassNode classNode, ClassNode immutableClassNode) {
-        classNode.addMethod(new MethodNode(
-            "asImmutable",
-            PUBLIC,
-            newClass(classNode),
-            params(),
-            [] as ClassNode[],
-            block(returnS(ctorX(immutableClassNode, args(
-                classNode.properties.collect { PropertyNode pn -> varX(pn.name) }
-            ))))
-        ))
+        try {
+            def props = classNode.properties.collect { PropertyNode pn -> varX(pn.name, newClass(pn.type)) }
 
-        println "Added asImmutable() method to the outer class."
+            def code = block(returnS(ctorX(newClass(immutableClassNode), args(props))))
+
+            classNode.addMethod(new MethodNode(
+                "asImmutable",
+                PUBLIC,
+                newClass(classNode),
+                params(),
+                [] as ClassNode[],
+                code
+            ))
+        } catch (Exception ex) {
+            ex.printStackTrace()
+        }
     }
 }
 
@@ -118,50 +143,6 @@ FIXME: I should probably check these on the Unmodifiable object since they are c
     support tostrign anno
     cannonical?
 
-
-----
-import groovy.transform.Immutable
-import groovy.transform.Canonical
-
-@Canonical
-class Person {
-    String name
-    int age
-    List<String> pets
-
-    Person asImmutable(){
-        new ImmutablePerson(name, age, pets)
-    }
-
-    @Immutable
-    static class ImmutablePerson extends Person {
-        String name
-        int age
-        List<String> pets
-
-        Person asMutable(){ new Person(name,age, [] + pets) }
-    }
-}
-
-def person = new Person('Chris',42, ['Fido'])
-def immutable = person.asImmutable()
-def mutable = immutable.asMutable()
-
-println person
-println immutable
-println mutable
-
-person.age = person.age+1
-person.pets << 'Rover'
-
-immutable.age = immutable.age * 2
-//immutable.pets << 'Fluffy'
-
-mutable.age = mutable.age + 5
-mutable.pets << 'Duke'
-
-println '--'
-println person
-println immutable
-println mutable
- */
+    test equality - should immutable be = to mutable with same props?
+    test mutable properties between mutable and immutable
+*/

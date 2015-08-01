@@ -67,13 +67,62 @@ class UnmodifiableTransformSpec extends Specification {
             }
 
             def moe = new Person('Moe',53)
-            moe.asImmutable()
+            def immutable = moe.asImmutable()
+            [moe, immutable, immutable.asMutable()]
         ''')
 
+        results.eachWithIndex{ res, idx ->
+            res.age = res.age + idx + 1
+        }
+
         then:
-        println results.dump()
-        results.name == 'Moe'
-        results.age == 53
+        results.size() == 3
+
+        results[0].name == 'Moe'
+        results[0].age == 54
+
+        results[1].name == 'Moe'
+        results[1].age == 53
+
+        results[2].name == 'Moe'
+        results[2].age == 56
+    }
+
+    // FIXME: there is an issue with typed collections
+
+    def 'simple immutable object usage with collection'() {
+        when:
+        def results = shell.evaluate('''
+            package testing
+            import groovy.transform.Canonical
+            import com.stehno.vanilla.annotation.Unmodifiable
+            @Unmodifiable @Canonical
+            class Person {
+                String name
+                int age
+                def pets = []
+            }
+
+            def moe = new Person('Moe',53, ['Fido'])
+            def immutable = moe.asImmutable()
+            [moe, immutable, immutable.asMutable()]
+        ''')
+
+        results.eachWithIndex{ res, idx ->
+            res.age = res.age + idx + 1
+        }
+
+        then:
+        results.size() == 3
+
+        results[0].name == 'Moe'
+        results[0].age == 54
+
+        results[1].name == 'Moe'
+        results[1].age == 53
+
+        results[2].name == 'Moe'
+        results[2].age == 56
     }
 }
 

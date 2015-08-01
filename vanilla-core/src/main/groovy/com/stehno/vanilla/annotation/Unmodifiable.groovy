@@ -30,4 +30,15 @@ import java.lang.annotation.*
 @GroovyASTTransformationClass(classes = [UnmodifiableTransform])
 @interface Unmodifiable {
 
+    /**
+     * Allows you to provide the generated Immutable class with a list of classes which are deemed immutable. By supplying a class in this list,
+     * you are vouching for its immutability and the Immutable will do no further checks.
+     */
+    Class[] knownImmutableClasses() default []
+
+    /**
+     * Allows you to provide the generated Immutable with a list of property names which are deemed immutable. By supplying a property's name in
+     * this list, you are vouching for its immutability the Immutable will do no further checks.
+     */
+    String[] knownImmutables() default []
 }
