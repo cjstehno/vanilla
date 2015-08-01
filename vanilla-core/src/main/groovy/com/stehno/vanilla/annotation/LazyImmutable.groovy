@@ -16,7 +16,7 @@
 
 package com.stehno.vanilla.annotation
 
-import com.stehno.vanilla.transform.UnmodifiableTransform
+import com.stehno.vanilla.transform.LazyImmutableTransform
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
 import java.lang.annotation.*
@@ -30,8 +30,8 @@ import java.lang.annotation.*
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 @Documented
-@GroovyASTTransformationClass(classes = [UnmodifiableTransform])
-@interface Unmodifiable {
+@GroovyASTTransformationClass(classes = [LazyImmutableTransform])
+@interface LazyImmutable {
 
     // FIXME: let's rename this to LazyImmutable
 

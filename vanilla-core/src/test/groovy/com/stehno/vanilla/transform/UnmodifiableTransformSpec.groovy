@@ -33,8 +33,8 @@ class UnmodifiableTransformSpec extends Specification {
         def results = shell.evaluate('''
             package testing
             import groovy.transform.Canonical
-            import com.stehno.vanilla.annotation.Unmodifiable
-            @Unmodifiable @Canonical
+            import com.stehno.vanilla.annotation.LazyImmutable
+            @LazyImmutable @Canonical
             class Person {
                 String name
                 int age
@@ -61,8 +61,8 @@ class UnmodifiableTransformSpec extends Specification {
         def results = shell.evaluate('''
             package testing
             import groovy.transform.Canonical
-            import com.stehno.vanilla.annotation.Unmodifiable
-            @Unmodifiable @Canonical
+            import com.stehno.vanilla.annotation.LazyImmutable
+            @LazyImmutable @Canonical
             class Person {
                 String name
                 int age
@@ -90,8 +90,8 @@ class UnmodifiableTransformSpec extends Specification {
         def results = shell.evaluate('''
             package testing
             import groovy.transform.builder.Builder
-            import com.stehno.vanilla.annotation.Unmodifiable
-            @Unmodifiable @Builder
+            import com.stehno.vanilla.annotation.LazyImmutable
+            @LazyImmutable @Builder
             class Person {
                 String name
                 int age
@@ -116,11 +116,11 @@ class UnmodifiableTransformSpec extends Specification {
             package testing
 
             import groovy.transform.Canonical
-            import com.stehno.vanilla.annotation.Unmodifiable
+            import com.stehno.vanilla.annotation.LazyImmutable
             import com.stehno.vanilla.transform.SomeImmutable
 
             @Canonical
-            @Unmodifiable(knownImmutableClasses=[SomeImmutable])
+            @LazyImmutable(knownImmutableClasses=[SomeImmutable])
             class Person {
                 String name
                 int age
@@ -146,11 +146,11 @@ class UnmodifiableTransformSpec extends Specification {
             package testing
 
             import groovy.transform.Canonical
-            import com.stehno.vanilla.annotation.Unmodifiable
+            import com.stehno.vanilla.annotation.LazyImmutable
             import com.stehno.vanilla.transform.SomeImmutable
 
             @Canonical
-            @Unmodifiable(knownImmutables=['value'])
+            @LazyImmutable(knownImmutables=['value'])
             class Person {
                 String name
                 int age
@@ -175,8 +175,8 @@ class UnmodifiableTransformSpec extends Specification {
         def (moe, immutable, mutable) = shell.evaluate('''
             package testing
             import groovy.transform.Canonical
-            import com.stehno.vanilla.annotation.Unmodifiable
-            @Canonical @Unmodifiable(copyWith=true)
+            import com.stehno.vanilla.annotation.LazyImmutable
+            @Canonical @LazyImmutable(copyWith=true)
             class Person {
                 String name
                 int age

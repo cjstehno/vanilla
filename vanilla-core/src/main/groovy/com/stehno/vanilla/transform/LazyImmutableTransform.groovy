@@ -39,7 +39,7 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
  * FIXME: document me
  */
 @GroovyASTTransformation(phase = CANONICALIZATION)
-class UnmodifiableTransform extends AbstractASTTransformation {
+class LazyImmutableTransform extends AbstractASTTransformation {
 
     private static final String KNOWN_IMMUTABLE_CLASSES = 'knownImmutableClasses'
     private static final String KNOWN_IMMUTABLES = 'knownImmutables'
