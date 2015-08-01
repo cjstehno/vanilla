@@ -17,12 +17,13 @@
 package com.stehno.vanilla.transform
 import groovy.transform.Immutable
 import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.expr.EmptyExpression
+import org.codehaus.groovy.ast.expr.MapEntryExpression
+import org.codehaus.groovy.ast.expr.MapExpression
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+import org.codehaus.groovy.transform.ImmutableASTTransformation
 
-import static java.lang.reflect.Modifier.PRIVATE
 import static java.lang.reflect.Modifier.PUBLIC
 import static org.codehaus.groovy.ast.ClassHelper.make
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
@@ -42,7 +43,9 @@ class UnmodifiableTransform implements ASTTransformation {
             // TODO: immutable object checks
 
             ClassNode immutableClassNode = createImmutableClass(classNode, source)
+
             addAsImmutableMethod(classNode, immutableClassNode)
+
 
         } catch (Exception ex) {
             ex.printStackTrace()
@@ -50,29 +53,15 @@ class UnmodifiableTransform implements ASTTransformation {
     }
 
     private static ClassNode createImmutableClass(ClassNode classNode, SourceUnit source) {
-        ClassNode immutableClassNode = new InnerClassNode(
-            classNode,
-            "${classNode.name}\$Immutable${classNode.nameWithoutPackage}",
+        // TODO: would like this as a static InnerClassNode, but there were issues
+        ClassNode immutableClassNode = new ClassNode(
+            "${classNode.packageName}.Immutable${classNode.nameWithoutPackage}",
             PUBLIC, // TODO: might be better as protected?
             classNode
         )
 
-        immutableClassNode.staticClass = true
-
-        immutableClassNode.addAnnotation(new AnnotationNode(make(Immutable)))
-
-        classNode.properties.each { PropertyNode propNode ->
-            def fieldNode = new FieldNode(
-                propNode.field.name,
-                PRIVATE,
-                newClass(propNode.field.type),
-                immutableClassNode,
-                new EmptyExpression()
-            )
-
-            immutableClassNode.addField fieldNode
-            immutableClassNode.addProperty new PropertyNode(fieldNode, PUBLIC, null, null)
-        }
+        def annotationNode = new AnnotationNode(make(Immutable))
+        immutableClassNode.addAnnotation(annotationNode)
 
         // TODO: add asMutable method
 
@@ -80,15 +69,23 @@ class UnmodifiableTransform implements ASTTransformation {
 
         println "Added immutable class node to AST."
 
+        new ImmutableASTTransformation().visit([annotationNode, immutableClassNode] as ASTNode[], source)
+
+        println "Applied Immutable AST Transformation."
+
         return immutableClassNode
     }
 
     private static void addAsImmutableMethod(ClassNode classNode, ClassNode immutableClassNode) {
         def code = block()
 
-        def parentProps = classNode.properties.collect { PropertyNode propNode ->
-            varX(propNode.name)
-        }
+        def parentProps = [
+            new MapExpression(
+                classNode.properties.collect { PropertyNode propNode->
+                    new MapEntryExpression(constX(propNode.name), varX(propNode.name))
+                }
+            )
+        ]
 
         code.addStatement returnS(ctorX(immutableClassNode, args(parentProps)))
 

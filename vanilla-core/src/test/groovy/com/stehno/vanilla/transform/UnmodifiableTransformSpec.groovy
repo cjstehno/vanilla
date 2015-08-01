@@ -26,6 +26,7 @@ class UnmodifiableTransformSpec extends Specification {
     def 'simple original object usage'() {
         when:
         def results = shell.evaluate('''
+            package testing
             import groovy.transform.Canonical
             import com.stehno.vanilla.annotation.Unmodifiable
             @Unmodifiable @Canonical
@@ -37,11 +38,11 @@ class UnmodifiableTransformSpec extends Specification {
             def moe = new Person('Moe',53)
             moe.age = 50
 
-            [ new Person('Larry', 42), moe/*, new Person()*/ ]
+            [ new Person('Larry', 42), moe, new Person() ]
         ''')
 
         then:
-//        results.size() == 3
+        results.size() == 3
 
         results[0].name == 'Larry'
         results[0].age == 42
@@ -49,8 +50,30 @@ class UnmodifiableTransformSpec extends Specification {
         results[1].name == 'Moe'
         results[1].age == 50
 
-//        !results[2].name
-//        !results[2].age
+        !results[2].name
+        !results[2].age
+    }
+
+    def 'simple immutable object usage'() {
+        when:
+        def results = shell.evaluate('''
+            package testing
+            import groovy.transform.Canonical
+            import com.stehno.vanilla.annotation.Unmodifiable
+            @Unmodifiable @Canonical
+            class Person {
+                String name
+                int age
+            }
+
+            def moe = new Person('Moe',53)
+            moe.asImmutable()
+        ''')
+
+        then:
+        println results.dump()
+        results.name == 'Moe'
+        results.age == 53
     }
 }
 
