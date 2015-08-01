@@ -15,10 +15,10 @@
  */
 
 package com.stehno.vanilla.transform
+
 import groovy.transform.Immutable
 import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.expr.MapEntryExpression
-import org.codehaus.groovy.ast.expr.MapExpression
+import org.codehaus.groovy.ast.expr.EmptyExpression
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
@@ -29,6 +29,7 @@ import static org.codehaus.groovy.ast.ClassHelper.make
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
+
 /**
  * FIXME: document me
  */
@@ -60,6 +61,19 @@ class UnmodifiableTransform implements ASTTransformation {
             classNode
         )
 
+        classNode.properties.each { PropertyNode propNode ->
+            def field = new FieldNode(
+                propNode.field.name,
+                propNode.field.modifiers,
+                propNode.field.type,
+                immutableClassNode,
+                new EmptyExpression()
+            )
+
+            //            immutableClassNode.addField(field)
+            immutableClassNode.addProperty(new PropertyNode(field, propNode.modifiers, null, null))
+        }
+
         def annotationNode = new AnnotationNode(make(Immutable))
         immutableClassNode.addAnnotation(annotationNode)
 
@@ -77,25 +91,15 @@ class UnmodifiableTransform implements ASTTransformation {
     }
 
     private static void addAsImmutableMethod(ClassNode classNode, ClassNode immutableClassNode) {
-        def code = block()
-
-        def parentProps = [
-            new MapExpression(
-                classNode.properties.collect { PropertyNode propNode->
-                    new MapEntryExpression(constX(propNode.name), varX(propNode.name))
-                }
-            )
-        ]
-
-        code.addStatement returnS(ctorX(immutableClassNode, args(parentProps)))
-
         classNode.addMethod(new MethodNode(
             "asImmutable",
             PUBLIC,
             newClass(classNode),
             params(),
             [] as ClassNode[],
-            code
+            block(returnS(ctorX(immutableClassNode, args(
+                classNode.properties.collect { PropertyNode pn -> varX(pn.name) }
+            ))))
         ))
 
         println "Added asImmutable() method to the outer class."
