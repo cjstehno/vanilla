@@ -20,7 +20,7 @@ import groovy.transform.Canonical
 import org.junit.Rule
 import spock.lang.Specification
 
-class UnmodifiableTransformSpec extends Specification {
+class LazyImmutableTransformSpec extends Specification {
 
     /*
         FIXME: test equality - should immutable be = to mutable with same props?
