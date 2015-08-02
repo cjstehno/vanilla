@@ -3,47 +3,64 @@
 import static com.stehno.vanilla.test.Randomizers.*
 import static groovy.lang.Closure.DELEGATE_FIRST
 
+//@formatter:off
 /**
  * Utility for injecting random property values into POJOs and POGOs for testing. This utility may be used directly as a builder or as a DSL for
  * configuring a randomizer.
  *
  * If the target type matches one of the configured class randomizers, that randomizer will be used to randomize the object itself
  * rather than it's internal fields. This allows the randomization of simple types.
+ *
+ * An example usage, would be similar to the following:
+ *
+ * ```
+ * def rando = randomize(Person){
+ *     typeRandomizers(
+ *         (Date):{ new Date() },
+ *         (Pet): { randomize(Pet).one() }
+ *     )
+ * }
+ * def instance = rando.one()
+ * ```
+ *
+ * More information may be found in my blog post, &quot;[Property Randomization for Testing](http://coffeaelectronica.com/blog/2015/property-randomization.html)&quot;
+ *
  */
+//@formatter:on
 class PropertyRandomizer {
 
-<span class="fc" id="L15">    private final List&lt;Class&gt; ignoredTypes = [Class]</span>
-<span class="fc" id="L16">    private final List&lt;String&gt; ignoredProperties = []</span>
+<span class="fc" id="L32">    private final List&lt;Class&gt; ignoredTypes = [Class]</span>
+<span class="fc" id="L33">    private final List&lt;String&gt; ignoredProperties = []</span>
 
     @SuppressWarnings('InsecureRandom')
-<span class="fc" id="L19">    private final Random rng = new Random()</span>
+<span class="fc" id="L36">    private final Random rng = new Random()</span>
 
     private final Class target
 
     private final Map&lt;Class, Object&gt; classRandomizers = [
-<span class="fc" id="L24">        (String)   : forString(),</span>
-<span class="fc" id="L25">        (int)      : forInteger(80),</span>
-<span class="fc" id="L26">        (Integer)  : forInteger(80),</span>
-<span class="fc" id="L27">        (byte)     : forByte(),</span>
-<span class="fc" id="L28">        (Byte)     : forByte(),</span>
-<span class="fc" id="L29">        (short)    : forShort(),</span>
-<span class="fc" id="L30">        (Short)    : forShort(),</span>
-<span class="fc" id="L31">        (char)     : forChar(),</span>
-<span class="fc" id="L32">        (Character): forChar(),</span>
-<span class="fc" id="L33">        (long)     : forLong(),</span>
-<span class="fc" id="L34">        (Long)     : forLong(),</span>
-<span class="fc" id="L35">        (boolean)  : forBoolean(),</span>
-<span class="fc" id="L36">        (Boolean)  : forBoolean(),</span>
-<span class="fc" id="L37">        (float)    : forFloat(),</span>
-<span class="fc" id="L38">        (Float)    : forFloat(),</span>
-<span class="fc" id="L39">        (double)   : forDouble(),</span>
-<span class="fc" id="L40">        (Double)   : forDouble()</span>
+<span class="fc" id="L41">        (String)   : forString(),</span>
+<span class="fc" id="L42">        (int)      : forInteger(80),</span>
+<span class="fc" id="L43">        (Integer)  : forInteger(80),</span>
+<span class="fc" id="L44">        (byte)     : forByte(),</span>
+<span class="fc" id="L45">        (Byte)     : forByte(),</span>
+<span class="fc" id="L46">        (short)    : forShort(),</span>
+<span class="fc" id="L47">        (Short)    : forShort(),</span>
+<span class="fc" id="L48">        (char)     : forChar(),</span>
+<span class="fc" id="L49">        (Character): forChar(),</span>
+<span class="fc" id="L50">        (long)     : forLong(),</span>
+<span class="fc" id="L51">        (Long)     : forLong(),</span>
+<span class="fc" id="L52">        (boolean)  : forBoolean(),</span>
+<span class="fc" id="L53">        (Boolean)  : forBoolean(),</span>
+<span class="fc" id="L54">        (float)    : forFloat(),</span>
+<span class="fc" id="L55">        (Float)    : forFloat(),</span>
+<span class="fc" id="L56">        (double)   : forDouble(),</span>
+<span class="fc" id="L57">        (Double)   : forDouble()</span>
     ]
 
     private final Map&lt;String, Object&gt; nameRandomizers = [:]
 
     private PropertyRandomizer(Class target) {
-<span class="fc" id="L46">        this.target = target</span>
+<span class="fc" id="L63">        this.target = target</span>
     }
 
     /**
@@ -55,15 +72,15 @@ class PropertyRandomizer {
      * @return the configured PropertyRandomizer for use or further configuration.
      */
     static PropertyRandomizer randomize(Class target, @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
-<span class="fc" id="L58">        def rando = new PropertyRandomizer(target)</span>
+<span class="fc" id="L75">        def rando = new PropertyRandomizer(target)</span>
 
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (closure) {</span>
-<span class="fc" id="L61">            closure.delegate = rando</span>
-<span class="fc" id="L62">            closure.resolveStrategy = DELEGATE_FIRST</span>
-<span class="fc" id="L63">            closure()</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (closure) {</span>
+<span class="fc" id="L78">            closure.delegate = rando</span>
+<span class="fc" id="L79">            closure.resolveStrategy = DELEGATE_FIRST</span>
+<span class="fc" id="L80">            closure()</span>
         }
 
-<span class="pc" id="L66">        rando</span>
+<span class="pc" id="L83">        rando</span>
     }
 
     /**
@@ -73,8 +90,8 @@ class PropertyRandomizer {
      * @return the PropertyRandomizer instance
      */
     PropertyRandomizer ignoringTypes(Class... types) {
-<span class="nc" id="L76">        ignoredTypes.addAll(types)</span>
-<span class="nc" id="L77">        this</span>
+<span class="nc" id="L93">        ignoredTypes.addAll(types)</span>
+<span class="nc" id="L94">        this</span>
     }
 
     /**
@@ -84,8 +101,8 @@ class PropertyRandomizer {
      * @return the PropertyRandomizer instance
      */
     PropertyRandomizer ignoringProperties(String... props) {
-<span class="fc" id="L87">        ignoredProperties.addAll(props)</span>
-<span class="pc" id="L88">        this</span>
+<span class="fc" id="L104">        ignoredProperties.addAll(props)</span>
+<span class="pc" id="L105">        this</span>
     }
 
     /**
@@ -102,14 +119,17 @@ class PropertyRandomizer {
      * @return the PropertyRandomizer instance
      */
     PropertyRandomizer typeRandomizers(Map&lt;Class, Object&gt; randomizers, boolean clean = false) {
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (clean) classRandomizers.clear()</span>
-<span class="fc" id="L106">        classRandomizers.putAll(randomizers)</span>
-<span class="pc" id="L107">        this</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (clean){</span>
+<span class="nc" id="L123">            classRandomizers.clear()</span>
+        }
+
+<span class="fc" id="L126">        classRandomizers.putAll(randomizers)</span>
+<span class="pc" id="L127">        this</span>
     }
 
     PropertyRandomizer typeRandomizer(Class type, Object randomizer) {
-<span class="fc" id="L111">        classRandomizers.put(type, randomizer)</span>
-<span class="pc" id="L112">        this</span>
+<span class="fc" id="L131">        classRandomizers.put(type, randomizer)</span>
+<span class="pc" id="L132">        this</span>
     }
 
     /**
@@ -123,13 +143,13 @@ class PropertyRandomizer {
      * @return the PropertyRandomizer instance
      */
     PropertyRandomizer propertyRandomizers(Map&lt;String, Object&gt; randomizers) {
-<span class="fc" id="L126">        nameRandomizers.putAll(randomizers)</span>
-<span class="pc" id="L127">        this</span>
+<span class="fc" id="L146">        nameRandomizers.putAll(randomizers)</span>
+<span class="pc" id="L147">        this</span>
     }
 
     PropertyRandomizer propertyRandomizer(String name, Object randomizer) {
-<span class="fc" id="L131">        nameRandomizers.put(name, randomizer)</span>
-<span class="pc" id="L132">        this</span>
+<span class="fc" id="L151">        nameRandomizers.put(name, randomizer)</span>
+<span class="pc" id="L152">        this</span>
     }
 
     /**
@@ -143,56 +163,58 @@ class PropertyRandomizer {
      * @return a single randomized instance of the target class
      */
     def one() {
-<span class="fc" id="L146">        def inst = target.newInstance()</span>
+<span class="fc" id="L166">        def inst = target.newInstance()</span>
 
-<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (classRandomizers.containsKey(target)) {</span>
-<span class="fc" id="L149">            inst = callRandomizer(inst, classRandomizers[target])</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        if (classRandomizers.containsKey(target)) {</span>
+<span class="fc" id="L169">            inst = callRandomizer(inst, classRandomizers[target])</span>
 
         } else {
-<span class="fc" id="L152">            def props = [:]</span>
+<span class="fc" id="L172">            def props = [:]</span>
 
-<span class="fc" id="L154">            target.metaClass.properties.each { p -&gt;</span>
-<span class="pc bpc" id="L155" title="19 of 34 branches missed.">                if (p.setter &amp;&amp; !(p.type in ignoredTypes) &amp;&amp; !(p.name in ignoredProperties)) {</span>
-<span class="pc bpc" id="L156" title="2 of 4 branches missed.">                    def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]</span>
+<span class="fc" id="L174">            target.metaClass.properties.each { p -&gt;</span>
+<span class="pc bpc" id="L175" title="19 of 34 branches missed.">                if (p.setter &amp;&amp; !(p.type in ignoredTypes) &amp;&amp; !(p.name in ignoredProperties)) {</span>
+<span class="pc bpc" id="L176" title="2 of 4 branches missed.">                    def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]</span>
 
-<span class="pc bpc" id="L158" title="6 of 8 branches missed.">                    if (!randomizer) throw new IllegalStateException(&quot;No randomizer configured for property (${p.type.simpleName} ${p.name}).&quot;)</span>
+<span class="pc bpc" id="L178" title="6 of 8 branches missed.">                    if (!randomizer){</span>
+<span class="nc" id="L179">                        throw new IllegalStateException(&quot;No randomizer configured for property (${p.type.simpleName} ${p.name}).&quot;)</span>
+                    }
 
-<span class="pc" id="L160">                    def value = callRandomizer(inst, randomizer)</span>
-<span class="pc" id="L161">                    inst[p.name] = value</span>
-<span class="pc" id="L162">                    props[p.name] = value</span>
+<span class="pc" id="L182">                    def value = callRandomizer(inst, randomizer)</span>
+<span class="pc" id="L183">                    inst[p.name] = value</span>
+<span class="pc" id="L184">                    props[p.name] = value</span>
                 }
             }
 
-<span class="fc" id="L166">            def originalAsType = target.metaClass.getMetaMethod('asType', [Class] as Class[])</span>
+<span class="fc" id="L188">            def originalAsType = target.metaClass.getMetaMethod('asType', [Class] as Class[])</span>
 
-<span class="fc" id="L168">            inst.metaClass.asType = { Class type -&gt;</span>
-<span class="pc bpc" id="L169" title="1 of 2 branches missed.">                if (type.isAssignableFrom(Map)) {</span>
-<span class="pc" id="L170">                    return props.asImmutable()</span>
+<span class="fc" id="L190">            inst.metaClass.asType = { Class type -&gt;</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">                if (type.isAssignableFrom(Map)) {</span>
+<span class="pc" id="L192">                    return props.asImmutable()</span>
                 } else {
-<span class="nc" id="L172">                    return originalAsType.invoke(delegate)</span>
+<span class="nc" id="L194">                    return originalAsType.invoke(delegate, [type] as Object[])</span>
                 }
             }
         }
 
-<span class="pc" id="L177">        inst</span>
+<span class="pc" id="L199">        inst</span>
     }
 
     private callRandomizer(instance, Object randomizer) {
-<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (randomizer instanceof PropertyRandomizer) {</span>
-<span class="pc" id="L182">            return randomizer.one()</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (randomizer instanceof PropertyRandomizer) {</span>
+<span class="pc" id="L204">            return randomizer.one()</span>
 
-<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        } else if (randomizer instanceof Closure) {</span>
-<span class="fc" id="L185">            switch (randomizer.maximumNumberOfParameters) {</span>
-<span class="pc bpc" id="L186" title="1 of 2 branches missed.">                case 2:</span>
-<span class="nc" id="L187">                    return randomizer.call(rng, instance)</span>
-<span class="pc bpc" id="L188" title="1 of 2 branches missed.">                case 1:</span>
-<span class="fc" id="L189">                    return randomizer.call(rng)</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        } else if (randomizer instanceof Closure) {</span>
+<span class="fc" id="L207">            switch (randomizer.maximumNumberOfParameters) {</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">                case 2:</span>
+<span class="nc" id="L209">                    return randomizer.call(rng, instance)</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">                case 1:</span>
+<span class="fc" id="L211">                    return randomizer.call(rng)</span>
                 default:
-<span class="nc" id="L191">                    return randomizer.call()</span>
+<span class="nc" id="L213">                    return randomizer.call()</span>
             }
 
         } else {
-<span class="nc" id="L195">            throw new IllegalArgumentException(&quot;Randomizers of type ${randomizer.class} are not supported.&quot;)</span>
+<span class="nc" id="L217">            throw new IllegalArgumentException(&quot;Randomizers of type ${randomizer.class} are not supported.&quot;)</span>
         }
     }
 
@@ -203,11 +225,11 @@ class PropertyRandomizer {
      * @return a List of randomized instances of the target class
      */
     List times(int x) {
-<span class="fc" id="L206">        def items = []</span>
-<span class="fc" id="L207">        x.times {</span>
-<span class="pc" id="L208">            items &lt;&lt; one()</span>
+<span class="fc" id="L228">        def items = []</span>
+<span class="fc" id="L229">        x.times {</span>
+<span class="pc" id="L230">            items &lt;&lt; one()</span>
         }
-<span class="pc" id="L210">        items</span>
+<span class="pc" id="L232">        items</span>
     }
 
     /**
@@ -217,7 +239,7 @@ class PropertyRandomizer {
      * @return a List of randomized instances of the target class
      */
     List multiply(int x) {
-<span class="pc bpc" id="L220" title="2 of 4 branches missed.">        times(x)</span>
+<span class="pc bpc" id="L242" title="2 of 4 branches missed.">        times(x)</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

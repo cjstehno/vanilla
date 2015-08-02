@@ -39,7 +39,7 @@ class DirectoryDifferenceCollector {
 <span class="fc" id="L39">        dir.eachFileRecurse(FILES) {</span>
 <span class="pc" id="L40">            files &lt;&lt; (it.toURI() as String) - (dir.toURI() as String)</span>
         }
-<span class="pc" id="L42">        return files</span>
+<span class="pc" id="L42">        files</span>
     }
 
     private boolean different(File dirA, File dirB, String path) {
