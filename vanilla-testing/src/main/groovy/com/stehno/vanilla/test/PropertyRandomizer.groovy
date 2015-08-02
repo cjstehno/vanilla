@@ -119,7 +119,10 @@ class PropertyRandomizer {
      * @return the PropertyRandomizer instance
      */
     PropertyRandomizer typeRandomizers(Map<Class, Object> randomizers, boolean clean = false) {
-        if (clean) classRandomizers.clear()
+        if (clean){
+            classRandomizers.clear()
+        }
+
         classRandomizers.putAll(randomizers)
         this
     }
@@ -172,7 +175,9 @@ class PropertyRandomizer {
                 if (p.setter && !(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
                     def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
 
-                    if (!randomizer) throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
+                    if (!randomizer){
+                        throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
+                    }
 
                     def value = callRandomizer(inst, randomizer)
                     inst[p.name] = value
