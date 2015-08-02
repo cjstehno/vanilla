@@ -36,7 +36,7 @@ import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 
 /**
- * FIXME: document me
+ * AST Transformation support for the `@LazyImmutable` annotation.
  */
 @GroovyASTTransformation(phase = CANONICALIZATION)
 class LazyImmutableTransform extends AbstractASTTransformation {

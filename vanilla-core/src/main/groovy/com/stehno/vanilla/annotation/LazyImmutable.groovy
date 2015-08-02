@@ -21,19 +21,47 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
 import java.lang.annotation.*
 
+// @formatter:off
 /**
- * FIXME: document me
+ * When this annotation is applied to a class, it will add a method `asImmutable()` which will generate an immutable instance of the object. The
+ * original instance will be unchanged. The generated immutable instance is annotated with the `@Immutable` annotation and the class annotated
+ * with `@LazyImmutable` should follow all of the rules described in the documentation of the `@Immutable` annotation (specifically the restriction
+ * to property values which are immutable or can be guaranteed immutable).
  *
- * - this annotation provides a simple means of converting to/from immutable/mutable object
- * - only immutable objects are allowed as fields, see rules for Immutable annotation.
+ * The immutable version of the object will have a method `asMutable()` added to it, which will provide a new instance of the original mutable version
+ * of the object (a new instance, not a reference).
+ *
+ * The primary purpose of this annotation is to allow for the creation of immutable objects in a lazy manner, by setting or updating properties on the
+ * object and then generating the immutable version by calling the `asImmutable()` method.
+ *
+ * The generated immutable object is an extension of the original object, so it may be used interchangeably.
+ *
+ * For example, you could use the `@Builder` annotation as follows:
+ *
+ * ```
+ * @Builder @LazyImmutable
+ * class Name {
+ *     String firstName
+ *     String middleName
+ *     String lastName
+ * }
+ *
+ * def name = Name.builder()
+ *     .firstName('John')
+ *     .middleName('Q')
+ *     .lastName('Public')
+ *     .build()
+ *     .asImmutable()
+ * ```
+ *
+ * The bottom line being that, unlike a standard immutable, the lazy immutable may be built up over the course of a method rather than all at once.
  */
+// @formatter:on
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 @Documented
 @GroovyASTTransformationClass(classes = [LazyImmutableTransform])
 @interface LazyImmutable {
-
-    // FIXME: let's rename this to LazyImmutable
 
     /**
      * Allows you to provide the generated Immutable class with a list of classes which are deemed immutable. By supplying a class in this list,

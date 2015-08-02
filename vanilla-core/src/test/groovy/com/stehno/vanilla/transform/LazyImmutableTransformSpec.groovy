@@ -22,10 +22,6 @@ import spock.lang.Specification
 
 class LazyImmutableTransformSpec extends Specification {
 
-    /*
-        FIXME: test equality - should immutable be = to mutable with same props?
-     */
-
     @Rule GroovyShellEnvironment shell
 
     def 'simple original object usage'() {
@@ -195,6 +191,29 @@ class LazyImmutableTransformSpec extends Specification {
         assertPerson moe, name: 'Bob', age: 42
         assertPerson immutable, name: 'Blaine', age: 23
         assertPerson mutable, name: 'Claire', age: 21
+    }
+
+    def 'equality'() {
+        when:
+        def (moe, immutable, mutable) = shell.evaluate('''
+            package testing
+            import groovy.transform.EqualsAndHashCode
+            import com.stehno.vanilla.annotation.LazyImmutable
+            @LazyImmutable @EqualsAndHashCode
+            class Person {
+                String name
+                int age
+            }
+
+            def moe = new Person(name:'Moe', age:65)
+            def immutable = moe.asImmutable()
+            [moe, immutable, immutable.asMutable()]
+        ''')
+
+        then:
+        moe == mutable
+        moe == immutable
+        immutable != mutable // TODO: should this be changed, or does it really matter?
     }
 
     private static boolean assertPerson(Map attrs, object) {
