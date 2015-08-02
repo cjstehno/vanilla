@@ -4,11 +4,12 @@
 
 ## Usage
 
-These libraries are still in early development; however, they are generally usable, especially the `vanilla-testing` library. They are available via
-the JCenter repository:
+These libraries are still in development; however, they are generally usable, especially the `vanilla-testing` library. 
 
-    compile 'com.stehno.vanilla:vanilla-core:0.0.6'
-    testCompile 'com.stehno.vanilla:vanilla-testing:0.0.6'
+They are available via the JCenter repository:
+
+    compile 'com.stehno.vanilla:vanilla-core:0.0.8'
+    testCompile 'com.stehno.vanilla:vanilla-testing:0.0.8'
 
 
 
