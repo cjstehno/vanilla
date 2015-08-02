@@ -150,7 +150,7 @@ ruleset {
     BracesForIfElse
     BracesForMethod
     BracesForTryCatchFinally
-    ClassJavadoc
+    // ClassJavadoc
     ClosureStatementOnOpeningLineOfMultipleLineClosure
     ConsecutiveBlankLines
     LineLength { length = 150 }
@@ -220,7 +220,6 @@ ruleset {
     DuplicateImport
     ImportFromSamePackage
     ImportFromSunPackages
-    MisorderedStaticImports
     UnnecessaryGroovyImport
     UnusedImport
 
@@ -271,7 +270,7 @@ ruleset {
     ClassName
     ClassNameSameAsFilename
     ConfusingMethodName
-    FactoryMethodName
+    // FactoryMethodName
     FieldName
     InterfaceName
     MethodName
@@ -339,10 +338,9 @@ ruleset {
     UnnecessaryNullCheckBeforeInstanceOf
     UnnecessaryObjectReferences
     UnnecessaryOverridingMethod
-    UnnecessaryPackageReference
+    // UnnecessaryPackageReference
     UnnecessaryParenthesesForMethodCallWithClosure
     UnnecessaryPublicModifier
-    UnnecessaryReturnKeyword
     UnnecessarySelfAssignment
     UnnecessarySemicolon
     UnnecessaryStringInstantiation
