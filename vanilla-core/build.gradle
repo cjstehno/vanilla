@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-
+    testCompile project(':vanilla-testing')
 }
 
 task sourcesJar(type: Jar) {
