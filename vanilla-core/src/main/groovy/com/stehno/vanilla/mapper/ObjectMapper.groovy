@@ -16,8 +16,49 @@
 
 package com.stehno.vanilla.mapper
 
-import groovy.transform.Canonical
 import groovy.transform.TypeChecked
+
+interface ObjectMapper {
+
+    /**
+     * Performs the mapping/copy operation from the source object to the destination object.
+     *
+     * @param src the source object instance
+     * @param dest the destination object instance
+     */
+    void copy(final Object src, final Object dest)
+}
+
+class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapper {
+
+    /**
+     * Creates an ObjectMapper configured by the given Closure.
+     *
+     * @param closure the configuration closure
+     * @return the configured ObjectMapper
+     */
+    static ObjectMapper mapper(@DelegatesTo(ObjectMapperConfig) final Closure closure) {
+        RuntimeObjectMapper mapper = new RuntimeObjectMapper()
+        closure.setDelegate(mapper)
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.call()
+        mapper
+    }
+
+    @Override
+    void copy(final Object src, final Object dest) {
+        mappings().each { PropertyMappingConfig pmc ->
+            if (pmc.nestedMapper) {
+                def instance = dest.metaClass.getMetaProperty(pmc.destinationName).type.newInstance()
+                pmc.nestedMapper.copy(src[pmc.sourceName], instance)
+                dest[pmc.destinationName] = instance
+
+            } else {
+                dest[pmc.destinationName] = pmc.converter ? pmc.converter.call(src[pmc.sourceName]) : src[pmc.sourceName]
+            }
+        }
+    }
+}
 
 /**
  * Provides a DSL for creating mappers to copy the contents of one object into another.
@@ -35,22 +76,12 @@ import groovy.transform.TypeChecked
  * </ul>
  */
 @TypeChecked
-class ObjectMapper {
+class ObjectMapperConfig {
 
-    private final List<PropertyMapping> mappings = []
+    private final List<PropertyMappingConfig> mappings = []
 
-    /**
-     * Creates an ObjectMapper configured by the given Closure.
-     *
-     * @param closure the configuration closure
-     * @return the configured ObjectMapper
-     */
-    static ObjectMapper mapper(@DelegatesTo(ObjectMapper) final Closure closure) {
-        ObjectMapper mapper = new ObjectMapper()
-        closure.setDelegate(mapper)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.call()
-        mapper
+    Collection<PropertyMappingConfig> mappings() {
+        mappings.asImmutable()
     }
 
     /**
@@ -59,36 +90,38 @@ class ObjectMapper {
      * @param propertyName the name of the source object property.
      * @return the PropertyMapping instance
      */
-    PropertyMapping map(final String propertyName) {
-        def propertyMapping = new PropertyMapping(propertyName)
+    PropertyMappingConfig map(final String propertyName) {
+        def propertyMapping = new PropertyMappingConfig(propertyName)
         mappings << propertyMapping
         propertyMapping
-    }
-
-    /**
-     * Performs the mapping/copy operation from the source object to the destination object.
-     *
-     * @param src the source object instance
-     * @param dest the destination object instance
-     */
-    void copy(final Object src, final Object dest) {
-        mappings*.copy(src, dest)
     }
 }
 
 /**
  * The DSL object representation of a property mapping.
  */
-@Canonical @TypeChecked
-class PropertyMapping {
+@TypeChecked
+class PropertyMappingConfig {
 
-    private String sourceName
+    final String sourceName
     private String destinationName
     private Closure converter
     private ObjectMapper nestedMapper
 
-    PropertyMapping(final String sourceName) {
+    PropertyMappingConfig(final String sourceName) {
         this.sourceName = sourceName
+    }
+
+    String getDestinationName() {
+        destinationName ?: sourceName
+    }
+
+    Closure getConverter() {
+        converter
+    }
+
+    ObjectMapper getNestedMapper() {
+        nestedMapper
     }
 
     /**
@@ -97,7 +130,7 @@ class PropertyMapping {
      * @param propertyName the destination property name
      * @return this PropertyMapping instance
      */
-    PropertyMapping into(final String propertyName) {
+    PropertyMappingConfig into(final String propertyName) {
         destinationName = propertyName
         this
     }
@@ -120,29 +153,5 @@ class PropertyMapping {
      */
     void using(final ObjectMapper mapper) {
         this.nestedMapper = mapper
-    }
-
-    /**
-     * Used to perform the copy operation for this property mapping.
-     *
-     * @param src the source object
-     * @param dest the destination object
-     */
-    void copy(final Object src, final Object dest) {
-        String destName = destinationName ?: sourceName
-
-        if (nestedMapper) {
-            def instance = dest.metaClass.getMetaProperty(destName).type.newInstance()
-
-            nestedMapper.copy(
-                src[sourceName],
-                instance
-            )
-
-            dest[destName] = instance
-
-        } else {
-            dest[destName] = converter ? converter.call(src[sourceName]) : src[sourceName]
-        }
     }
 }

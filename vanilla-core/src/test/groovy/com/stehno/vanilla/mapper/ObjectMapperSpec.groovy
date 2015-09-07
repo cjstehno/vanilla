@@ -21,7 +21,7 @@ import spock.lang.Specification
 
 import java.time.LocalDate
 
-import static com.stehno.vanilla.mapper.ObjectMapper.mapper
+import static com.stehno.vanilla.mapper.RuntimeObjectMapper.mapper
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 import static com.stehno.vanilla.test.Randomizers.forDate
 import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE
