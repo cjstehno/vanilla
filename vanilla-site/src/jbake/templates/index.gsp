@@ -22,8 +22,8 @@
 
 	<pre>
 // for Gradle builds
-compile 'com.stehno.vanilla:vanilla-core:0.0.8'
-testCompile 'com.stehno.vanilla:vanilla-testing:0.0.8'
+compile 'com.stehno.vanilla:vanilla-core:0.0.9'
+testCompile 'com.stehno.vanilla:vanilla-testing:0.0.9'
 	</pre>
 
 <%include "footer.gsp"%>
