@@ -16,6 +16,7 @@
 
 package com.stehno.vanilla.mapper
 
+import groovy.transform.ToString
 import groovy.transform.TypeChecked
 
 interface ObjectMapper {
@@ -48,13 +49,19 @@ class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapper {
     @Override
     void copy(final Object src, final Object dest) {
         mappings().each { PropertyMappingConfig pmc ->
-            if (pmc.nestedMapper) {
+            if( !pmc.converter ){
+                dest[pmc.destinationName] = src[pmc.sourceName]
+
+            } else if (pmc.converter instanceof ObjectMapper) {
                 def instance = dest.metaClass.getMetaProperty(pmc.destinationName).type.newInstance()
-                pmc.nestedMapper.copy(src[pmc.sourceName], instance)
+                (pmc.converter as ObjectMapper).copy(src[pmc.sourceName], instance)
                 dest[pmc.destinationName] = instance
 
+            } else if( pmc.converter instanceof Closure){
+                dest[pmc.destinationName] = (pmc.converter as Closure).call(src[pmc.sourceName])
+
             } else {
-                dest[pmc.destinationName] = pmc.converter ? pmc.converter.call(src[pmc.sourceName]) : src[pmc.sourceName]
+                throw new UnsupportedOperationException("Converter type (${pmc.converter.class}) is not supported.")
             }
         }
     }
@@ -100,13 +107,12 @@ class ObjectMapperConfig {
 /**
  * The DSL object representation of a property mapping.
  */
-@TypeChecked
+@TypeChecked @ToString(includeNames = true, includeFields = true)
 class PropertyMappingConfig {
 
     final String sourceName
     private String destinationName
-    private Closure converter
-    private ObjectMapper nestedMapper
+    private Object converter
 
     PropertyMappingConfig(final String sourceName) {
         this.sourceName = sourceName
@@ -116,12 +122,8 @@ class PropertyMappingConfig {
         destinationName ?: sourceName
     }
 
-    Closure getConverter() {
+    Object getConverter() {
         converter
-    }
-
-    ObjectMapper getNestedMapper() {
-        nestedMapper
     }
 
     /**
@@ -136,22 +138,11 @@ class PropertyMappingConfig {
     }
 
     /**
-     * Applies the provided closure when copying the source property to the destination property. The closure will have the source property
-     * value passed into it as an argument.
+     * Applies the provided converter when copying the source property to the destination property.
      *
-     * @param converter the conversion closure
+     * @param converter the converter
      */
-    void using(final Closure converter) {
+    void using(final Object converter) {
         this.converter = converter
-    }
-
-    /**
-     * Applies the provided ObjectMapper when copying the source property into the destination property. In order to use this method, the destination
-     * property must be of a type with a default empty constructor - an instance of the object will be created to be populated by the nested mapper.
-     *
-     * @param mapper the mapper to be used as a property converter
-     */
-    void using(final ObjectMapper mapper) {
-        this.nestedMapper = mapper
     }
 }

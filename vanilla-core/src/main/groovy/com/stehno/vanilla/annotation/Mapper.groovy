@@ -30,7 +30,7 @@ import java.lang.annotation.*
 @GroovyASTTransformationClass(classes = [MapperTransform])
 @interface Mapper {
 
-    String value()
+    Class value()
 
     String name() default ''
 }

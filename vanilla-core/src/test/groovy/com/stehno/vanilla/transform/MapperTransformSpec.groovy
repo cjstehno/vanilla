@@ -49,11 +49,12 @@ class MapperTransformSpec extends Specification {
             import com.stehno.vanilla.mapper.ObjectMapper
 
             class Foo {
-                @Mapper('''
+                @Mapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
-                ''')
+                    map 'birthDate' into 'birthday' using { d -> d.format(BASIC_ISO_DATE) }
+                })
                 static createMapper(){}
             }
 

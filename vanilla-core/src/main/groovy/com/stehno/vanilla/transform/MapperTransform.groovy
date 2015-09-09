@@ -17,8 +17,12 @@
 package com.stehno.vanilla.transform
 import com.stehno.vanilla.mapper.ObjectMapper
 import com.stehno.vanilla.mapper.ObjectMapperConfig
+import com.stehno.vanilla.mapper.PropertyMappingConfig
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.expr.*
+import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
@@ -49,6 +53,80 @@ class MapperTransform extends AbstractASTTransformation {
 
         if (targetNode instanceof FieldNode || targetNode instanceof PropertyNode || targetNode instanceof MethodNode) {
             try {
+                // FIXME: experimenting here with the code (rather than text) approach
+
+                ObjectMapperConfig mapperConfig = new ObjectMapperConfig() // TODO: probably dont need this construct (?)
+
+                ClosureExpression dslClosureX = annotationNode.getMember('value') as ClosureExpression
+                BlockStatement block = dslClosureX.code as BlockStatement
+                block.statements.each { st->
+                    Expression expression = (st as ExpressionStatement).expression
+                    println "${expression.text} --> $expression"
+
+                    if( expression instanceof  MethodCallExpression){
+                        MethodCallExpression mex = expression as MethodCallExpression
+                        if( mex.objectExpression instanceof VariableExpression ){
+                            // simple mapping
+                            ArgumentListExpression args = mex.arguments as ArgumentListExpression
+                            mapperConfig.map(args[0].text)
+
+                        } else if( mex.objectExpression instanceof MethodCallExpression ){
+                            // FIXME: has into or using
+
+                            // map
+                            ArgumentListExpression mapArgs = (mex.objectExpression as MethodCallExpression).arguments as ArgumentListExpression
+                            PropertyMappingConfig pmc = mapperConfig.map(mapArgs[0].text)
+
+                            if( mex.method.text == 'into'){
+                                println '---> into'
+                                ArgumentListExpression intoArgs = mex.arguments as ArgumentListExpression
+                                pmc.into(intoArgs[0].text)
+
+                            } else if( mex.method.text == 'using'){
+                                println '---> using'
+                                ArgumentListExpression usingArgs = mex.arguments as ArgumentListExpression
+                                pmc.using(usingArgs[0])
+
+                                if( mex.objectExpression instanceof MethodCallExpression){
+                                    MethodCallExpression mex2 = mex.objectExpression as MethodCallExpression
+                                    if( mex2.method.text == 'into'){
+                                        this is still a bit off but on the right track - diagram this out and come up with more elegant way to traverse
+                                        ArgumentListExpression intoArgs = (mex2.objectExpression as MethodCallExpression).arguments as ArgumentListExpression
+                                        pmc.into(intoArgs[0].text)
+                                    }
+                                }
+
+                                /*
+                                org.codehaus.groovy.ast.expr.MethodCallExpression@6fdbe764[
+                                    object: org.codehaus.groovy.ast.expr.MethodCallExpression@51c668e3[
+                                        object: org.codehaus.groovy.ast.expr.MethodCallExpression@2e6a8155[
+                                            object: org.codehaus.groovy.ast.expr.VariableExpression@b9b00e0[variable: this]
+                                            method: ConstantExpression[map]
+                                            arguments: org.codehaus.groovy.ast.expr.ArgumentListExpression@6221a451[ConstantExpression[birthDate]]
+                                        ]
+                                        method: ConstantExpression[into]
+                                        arguments: org.codehaus.groovy.ast.expr.ArgumentListExpression@52719fb6[ConstantExpression[birthday]]
+                                    ]
+                                    method: ConstantExpression[using]
+                                    arguments: org.codehaus.groovy.ast.expr.ArgumentListExpression@3012646b[org.codehaus.groovy.ast.expr.ClosureExpression@4a883b15[org.codehaus.groovy.ast.Parameter@25641d39[name:d type: java.lang.Object, hasDefaultValue: false]]{ org.codehaus.groovy.ast.stmt.BlockStatement@7b36aa0c[org.codehaus.groovy.ast.stmt.ExpressionStatement@5824a83d[expression:org.codehaus.groovy.ast.expr.MethodCallExpression@537f60bf[object: org.codehaus.groovy.ast.expr.VariableExpression@5677323c[variable: d] method: ConstantExpression[format] arguments: org.codehaus.groovy.ast.expr.ArgumentListExpression@18df8434[org.codehaus.groovy.ast.expr.VariableExpression@65c7a252[variable: BASIC_ISO_DATE]]]]] }]
+                                ]
+                                */
+                            }
+
+                        } else {
+                            // FIXME: error
+                        }
+                    }
+                }
+
+                mapperConfig.mappings().each { m->
+                    println m.dump()
+                }
+
+                return
+
+                ////////////////
+
                 String configDsl = annotationNode.getMember('value').text
                 String mapperName = annotationNode.getMember('name')?.text ?: ''
 
@@ -95,7 +173,6 @@ class MapperTransform extends AbstractASTTransformation {
 
             if (pm.converter) {
                 // FIXME: need to figure out how to handle conversion closure
-                clos
                 code.addStatement(
                     stmt(
                         callX(varX(DESTINATION), "set${pm.destinationName.capitalize()}", sourceGetter)
