@@ -47,13 +47,14 @@ class MapperTransformSpec extends Specification {
 
             import com.stehno.vanilla.annotation.Mapper
             import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
 
             class Foo {
                 @Mapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
-                    map 'birthDate' into 'birthday' using { d -> d.format(BASIC_ISO_DATE) }
+                    map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
                 })
                 static createMapper(){}
             }
