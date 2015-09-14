@@ -15,6 +15,7 @@
  */
 
 package com.stehno.vanilla.transform
+
 import com.stehno.vanilla.mapper.BarObject
 import com.stehno.vanilla.mapper.FooObject
 import com.stehno.vanilla.test.PropertyRandomizer
@@ -56,7 +57,7 @@ class MapperTransformSpec extends Specification {
                     map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
                     map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
                 })
-                static createMapper(){}
+                static ObjectMapper createMapper(){}
             }
 
             Foo.createMapper()
@@ -98,7 +99,7 @@ class MapperTransformSpec extends Specification {
                         map 'birthDate' into 'birthday' using { LocalDate d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
                     }
                 )
-                static childMapper(){}
+                static ObjectMapper childMapper(){}
 
                 @Mapper({
                     map 'child' into 'descendent' using { x->
@@ -107,7 +108,7 @@ class MapperTransformSpec extends Specification {
                         y
                     }
                 })
-                static createMapper(){}
+                static ObjectMapper createMapper(){}
             }
 
             Foo.createMapper()
@@ -125,5 +126,77 @@ class MapperTransformSpec extends Specification {
         bar.descendent.years == foo.child.age
         bar.descendent.startDate.format('MM/dd/yyyy') == foo.child.startDate
         bar.descendent.birthday == foo.child.birthDate.format(BASIC_ISO_DATE)
+    }
+
+    def 'simple usage as field'() {
+        setup:
+        FooObject foo = rando.one()
+
+        when:
+        def results = shell.evaluate("""
+            package testing
+
+            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
+
+            class Foo {
+                @Mapper({
+                    map 'name'
+                    map 'age' into 'years'
+                    map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
+                    map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
+                })
+                static final ObjectMapper barMapper
+            }
+
+            Foo.barMapper
+        """)
+
+        results.copy(foo, bar)
+
+        then:
+        println foo
+        println bar
+
+        bar.name == foo.name
+        bar.years == foo.age
+        bar.startDate.format('MM/dd/yyyy') == foo.startDate
+    }
+
+    def 'simple usage as property'() {
+        setup:
+        FooObject foo = rando.one()
+
+        when:
+        def results = shell.evaluate("""
+            package testing
+
+            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
+
+            class Foo {
+                @Mapper({
+                    map 'name'
+                    map 'age' into 'years'
+                    map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
+                    map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
+                })
+                final ObjectMapper barMapper
+            }
+
+            new Foo().barMapper
+        """)
+
+        results.copy(foo, bar)
+
+        then:
+        println foo
+        println bar
+
+        bar.name == foo.name
+        bar.years == foo.age
+        bar.startDate.format('MM/dd/yyyy') == foo.startDate
     }
 }

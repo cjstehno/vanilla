@@ -28,6 +28,8 @@ import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
+import java.lang.reflect.Modifier
+
 import static java.lang.reflect.Modifier.PUBLIC
 import static org.codehaus.groovy.ast.ClassHelper.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
@@ -40,9 +42,6 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
 class MapperTransform extends AbstractASTTransformation {
 
-    // FIXME: syntax error handling
-    // FIXME: documentation of DSL differences
-
     public static final String DESTINATION = 'destination'
     public static final String SOURCE = 'source'
 
@@ -54,7 +53,7 @@ class MapperTransform extends AbstractASTTransformation {
         if (targetNode instanceof FieldNode || targetNode instanceof PropertyNode || targetNode instanceof MethodNode) {
             try {
                 ClosureExpression dslClosureX = annotationNode.getMember('value') as ClosureExpression
-                String mapperName = annotationNode.getMember('name')?.text ?: ''
+                String mapperName = annotationNode.getMember('name')?.text?.capitalize() ?: ''
 
                 ObjectMapperConfig mapperConfig = extractMapperConfig(dslClosureX)
 
@@ -63,20 +62,16 @@ class MapperTransform extends AbstractASTTransformation {
                 source.AST.addClass(mapperClassNode)
 
                 if (targetNode instanceof MethodNode) {
-                    // TODO: make this a shared static instance (singleton)
-                    // TODO: ensure that the method is static
-                    // TODO: if its abstract, remove abstraction
-                    // TODO: make the method final
-                    (targetNode as MethodNode).code = returnS(ctorX(newClass(mapperClassNode)))
+                    transformMethodNode mapperName, targetNode, mapperClassNode
 
                 } else if (targetNode instanceof FieldNode) {
-                    // FIXME: support...
+                    transformFieldNode targetNode, mapperClassNode
 
-                } else if (targetNode instanceof PropertyNode){
-                    // FIXME: support...
+                } else if (targetNode instanceof PropertyNode) {
+                    transformPropertyNode targetNode, mapperClassNode
 
                 } else {
-                    // FIXME: error
+                    addError "Unsupported application of Mapper annotation for ${targetNode}", targetNode
                 }
 
             } catch (Exception ex) {
@@ -87,6 +82,38 @@ class MapperTransform extends AbstractASTTransformation {
         } else {
             addError "Invalid member type for object mapper (${targetNode}) - only Fields, Properties and Methods are supported.", targetNode
         }
+    }
+
+    private void transformMethodNode(String mapperName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        String fieldName = "_mapper${mapperName ? '_' + mapperName : ''}"
+
+        targetNode.declaringClass.addField(createFieldNode(fieldName, targetNode, mapperClassNode))
+
+        MethodNode methodNode = targetNode as MethodNode
+        methodNode.modifiers = Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL
+        methodNode.code = returnS(varX(fieldName))
+    }
+
+    private void transformFieldNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        FieldNode fieldNode = targetNode as FieldNode
+        fieldNode.modifiers = Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC
+        fieldNode.initialValueExpression = ctorX(newClass(mapperClassNode))
+        fieldNode.type = make(ObjectMapper)
+    }
+
+    private void transformPropertyNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        PropertyNode propertyNode = targetNode as PropertyNode
+        propertyNode.field = createFieldNode(propertyNode.name, targetNode, mapperClassNode)
+    }
+
+    private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        return new FieldNode(
+            fieldName,
+            Modifier.STATIC | Modifier.FINAL | Modifier.PRIVATE,
+            make(ObjectMapper),
+            targetNode.declaringClass,
+            ctorX(newClass(mapperClassNode))
+        )
     }
 
     private ObjectMapperConfig extractMapperConfig(final ClosureExpression dslClosureX) {
@@ -111,7 +138,7 @@ class MapperTransform extends AbstractASTTransformation {
                 }
 
                 if (!methodXs.containsKey('map')) {
-                    // FIXME: error
+                    throw new IllegalArgumentException('The static mapper DSL commands must at least contain \'map\' calls.')
                 }
 
                 PropertyMappingConfig propConfig = mapperConfig.map((methodXs.map as ConstantExpression).text)
@@ -123,7 +150,6 @@ class MapperTransform extends AbstractASTTransformation {
                 if (methodXs.containsKey('using')) {
                     propConfig.using(methodXs.using)
                 }
-
             }
         }
 
@@ -139,7 +165,7 @@ class MapperTransform extends AbstractASTTransformation {
             [] as ClassNode[],
             [] as MixinNode[]
         )
-        mapperClass.implementsInterface(make(ObjectMapper))
+        mapperClass.addInterface(make(ObjectMapper))
 
         def code = block()
 
@@ -153,7 +179,7 @@ class MapperTransform extends AbstractASTTransformation {
                     convertX = new MethodCallExpression(convertClosureX, 'call', args(sourceGetter))
 
                 } else {
-                    // FIXME: Error
+                    throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')
                 }
 
                 code.addStatement(
