@@ -15,6 +15,7 @@
  */
 
 package com.stehno.vanilla.transform
+
 import com.stehno.vanilla.mapper.ObjectMapper
 import com.stehno.vanilla.mapper.ObjectMapperConfig
 import com.stehno.vanilla.mapper.PropertyMappingConfig
@@ -32,6 +33,7 @@ import static org.codehaus.groovy.ast.ClassHelper.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
+
 /**
  * FIXME: document
  */
@@ -39,7 +41,6 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 class MapperTransform extends AbstractASTTransformation {
 
     // FIXME: syntax error handling
-
 
     public static final String DESTINATION = 'destination'
     public static final String SOURCE = 'source'
@@ -65,7 +66,7 @@ class MapperTransform extends AbstractASTTransformation {
                     (targetNode as MethodNode).code = returnS(ctorX(newClass(mapperClassNode)))
 
                 } else {
-                    // FIXME: others!
+                    // FIXME: others (field, property)
                 }
 
             } catch (Exception ex) {
@@ -103,6 +104,11 @@ class MapperTransform extends AbstractASTTransformation {
                     // FIXME: error
                 }
 
+                if( methodXs.using instanceof MethodCallExpression){
+                    ObjectMapperConfig nestedConfig = extractMapperConfig(((methodXs.using as MethodCallExpression).arguments as ArgumentListExpression)[0] as ClosureExpression)
+                    methodXs.using = nestedConfig
+                }
+
                 PropertyMappingConfig propConfig = mapperConfig.map((methodXs.map as ConstantExpression).text)
 
                 if (methodXs.containsKey('into')) {
@@ -135,17 +141,26 @@ class MapperTransform extends AbstractASTTransformation {
             def sourceGetter = callX(varX(SOURCE), "get${pm.sourceName.capitalize()}")
 
             if (pm.converter) {
-                // FIXME: add support for object mapper converter
+                Expression convertX
+                if( pm.converter instanceof  ClosureExpression ){
+                    ClosureExpression convertClosureX = pm.converter as ClosureExpression
+                    convertX = new MethodCallExpression(convertClosureX, 'call', args(sourceGetter))
 
-                ClosureExpression convertClosureX = pm.converter as ClosureExpression
+                } else if(pm.converter instanceof ObjectMapperConfig){
+                    // FIXME: pull this out - make a new class for this mapper and then instantiate+call it for the conversion
+                    // probably check for mapper converters before coming into this methdo and create the classes for each in turn
+                    // then call for the main mapper
 
-                MethodCallExpression convertCall = new MethodCallExpression(convertClosureX, 'call', args(sourceGetter))
+                } else {
+                    // FIXME: Error
+                }
 
                 code.addStatement(
                     stmt(
-                        callX(varX(DESTINATION), "set${pm.destinationName.capitalize()}", convertCall)
+                        callX(varX(DESTINATION), "set${pm.destinationName.capitalize()}", convertX)
                     )
                 )
+
             } else {
                 code.addStatement(
                     stmt(

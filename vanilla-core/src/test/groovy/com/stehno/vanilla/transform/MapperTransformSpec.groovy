@@ -15,7 +15,6 @@
  */
 
 package com.stehno.vanilla.transform
-
 import com.stehno.vanilla.mapper.BarObject
 import com.stehno.vanilla.mapper.FooObject
 import com.stehno.vanilla.test.PropertyRandomizer
@@ -25,6 +24,7 @@ import spock.lang.Specification
 import java.time.LocalDate
 
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
+import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE
 
 class MapperTransformSpec extends Specification {
 
@@ -71,5 +71,48 @@ class MapperTransformSpec extends Specification {
         bar.name == foo.name
         bar.years == foo.age
         bar.startDate.format('MM/dd/yyyy') == foo.startDate
+    }
+
+    def 'nested usage (as method)'() {
+        setup:
+        FooObject foo = rando.one()
+        foo.child = rando.one()
+
+        when:
+        def om = shell.evaluate("""
+            package testing
+
+            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
+            import java.time.*
+
+            class Foo {
+                @Mapper({
+                    map 'child' into 'descendent' using mapper {
+                        map 'name'
+                        map 'age' into 'years'
+                        map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
+                        map 'birthDate' into 'birthday' using { LocalDate d -> d.format(BASIC_ISO_DATE) }
+                    }
+                })
+                static createMapper(){}
+            }
+
+            Foo.createMapper()
+        """)
+
+        om.copy(foo, bar)
+
+        then:
+        !bar.name
+        !bar.years
+        !bar.startDate
+        !bar.birthday
+
+        bar.descendent.name == foo.child.name
+        bar.descendent.years == foo.child.age
+        bar.descendent.startDate.format('MM/dd/yyyy') == foo.child.startDate
+        bar.descendent.birthday == foo.child.birthDate.format(BASIC_ISO_DATE)
     }
 }
