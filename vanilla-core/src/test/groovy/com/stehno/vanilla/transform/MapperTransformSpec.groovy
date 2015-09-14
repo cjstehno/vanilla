@@ -84,16 +84,27 @@ class MapperTransformSpec extends Specification {
 
             import com.stehno.vanilla.annotation.Mapper
             import com.stehno.vanilla.mapper.ObjectMapper
+            import com.stehno.vanilla.mapper.BarObject
             import java.time.format.*
             import java.time.*
 
             class Foo {
-                @Mapper({
-                    map 'child' into 'descendent' using mapper {
+                @Mapper(
+                    name='FooChild',
+                    value={
                         map 'name'
                         map 'age' into 'years'
                         map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
-                        map 'birthDate' into 'birthday' using { LocalDate d -> d.format(BASIC_ISO_DATE) }
+                        map 'birthDate' into 'birthday' using { LocalDate d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
+                    }
+                )
+                static childMapper(){}
+
+                @Mapper({
+                    map 'child' into 'descendent' using { x->
+                        def y = new BarObject()
+                        Foo.childMapper().copy(x, y)
+                        y
                     }
                 })
                 static createMapper(){}

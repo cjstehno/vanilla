@@ -35,12 +35,13 @@ import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 
 /**
- * FIXME: document
+ * AST transformer used to process the Mapper annotated methods, properties and fields.
  */
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
 class MapperTransform extends AbstractASTTransformation {
 
     // FIXME: syntax error handling
+    // FIXME: documentation of DSL differences
 
     public static final String DESTINATION = 'destination'
     public static final String SOURCE = 'source'
@@ -62,11 +63,20 @@ class MapperTransform extends AbstractASTTransformation {
                 source.AST.addClass(mapperClassNode)
 
                 if (targetNode instanceof MethodNode) {
-                    // TODO: consider making this a shared static instance (singleton)
+                    // TODO: make this a shared static instance (singleton)
+                    // TODO: ensure that the method is static
+                    // TODO: if its abstract, remove abstraction
+                    // TODO: make the method final
                     (targetNode as MethodNode).code = returnS(ctorX(newClass(mapperClassNode)))
 
+                } else if (targetNode instanceof FieldNode) {
+                    // FIXME: support...
+
+                } else if (targetNode instanceof PropertyNode){
+                    // FIXME: support...
+
                 } else {
-                    // FIXME: others (field, property)
+                    // FIXME: error
                 }
 
             } catch (Exception ex) {
@@ -104,11 +114,6 @@ class MapperTransform extends AbstractASTTransformation {
                     // FIXME: error
                 }
 
-                if( methodXs.using instanceof MethodCallExpression){
-                    ObjectMapperConfig nestedConfig = extractMapperConfig(((methodXs.using as MethodCallExpression).arguments as ArgumentListExpression)[0] as ClosureExpression)
-                    methodXs.using = nestedConfig
-                }
-
                 PropertyMappingConfig propConfig = mapperConfig.map((methodXs.map as ConstantExpression).text)
 
                 if (methodXs.containsKey('into')) {
@@ -125,7 +130,8 @@ class MapperTransform extends AbstractASTTransformation {
         mapperConfig
     }
 
-    private static ClassNode createObjectMapperClass(final ClassNode classNode, final String mapperName, final ObjectMapperConfig config) {
+    private static ClassNode createObjectMapperClass(
+        final ClassNode classNode, final String mapperName, final ObjectMapperConfig config) {
         ClassNode mapperClass = new ClassNode(
             "${classNode.packageName}.${mapperName ?: classNode.nameWithoutPackage + 'Mapper'}",
             PUBLIC,
@@ -142,14 +148,9 @@ class MapperTransform extends AbstractASTTransformation {
 
             if (pm.converter) {
                 Expression convertX
-                if( pm.converter instanceof  ClosureExpression ){
+                if (pm.converter instanceof ClosureExpression) {
                     ClosureExpression convertClosureX = pm.converter as ClosureExpression
                     convertX = new MethodCallExpression(convertClosureX, 'call', args(sourceGetter))
-
-                } else if(pm.converter instanceof ObjectMapperConfig){
-                    // FIXME: pull this out - make a new class for this mapper and then instantiate+call it for the conversion
-                    // probably check for mapper converters before coming into this methdo and create the classes for each in turn
-                    // then call for the main mapper
 
                 } else {
                     // FIXME: Error
