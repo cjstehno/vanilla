@@ -15,6 +15,7 @@
  */
 
 package com.stehno.vanilla.mapper
+
 import com.stehno.vanilla.test.PropertyRandomizer
 import groovy.transform.ToString
 import spock.lang.Specification
@@ -40,7 +41,7 @@ class ObjectMapperSpec extends Specification {
         def om = mapper {
             map 'name'
             map 'age' into 'years'
-            map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
+            map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
             map 'birthDate' into 'birthday' using { LocalDate d -> d.format(BASIC_ISO_DATE) }
         }
 
@@ -54,6 +55,77 @@ class ObjectMapperSpec extends Specification {
         bar.years == foo.age
         bar.startDate.format('MM/dd/yyyy') == foo.startDate
         bar.birthday == foo.birthDate.format(BASIC_ISO_DATE)
+
+        foo.percentage
+        !bar.rate
+    }
+
+    def 'simple collector usage'() {
+        setup:
+        def om = mapper {
+            map 'name'
+            map 'age' into 'years'
+            map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
+            map 'birthDate' into 'birthday' using { LocalDate d -> d.format(BASIC_ISO_DATE) }
+        }
+
+        Collection<FooObject> foos = rando * 3
+
+        when:
+        Collection<BarObject> bars = foos.collect om.collector(BarObject)
+
+        then:
+        bars.size() == 3
+
+        bars.eachWithIndex{ bar, idx ->
+            assert bar.name == foos[idx].name
+            assert bar.years == foos[idx].age
+            assert bar.startDate.format('MM/dd/yyyy') == foos[idx].startDate
+            assert bar.birthday == foos[idx].birthDate.format(BASIC_ISO_DATE)
+        }
+    }
+
+    def 'simple usage (with nulls)'() {
+        setup:
+        def om = mapper {
+            map 'name'
+            map 'age' into 'years'
+            map 'startDate' using { String d -> d ? Date.parse('MM/dd/yyyy', d) : null }
+            map 'birthDate' into 'birthday' using { LocalDate d -> d?.format(BASIC_ISO_DATE) }
+        }
+
+        FooObject foo = new FooObject()
+
+        when:
+        om.copy(foo, bar)
+
+        then:
+        !bar.name
+        !bar.years
+        !bar.startDate
+        !bar.birthday
+        !bar.rate
+    }
+
+    def 'simple usage (closure args)'() {
+        setup:
+        def om = mapper {
+            map 'name'
+            map 'age' into 'years'
+            map 'startDate' using { Date.parse('MM/dd/yyyy', '12/21/2012') }
+            map 'birthDate' into 'birthday' using { d, src, dst -> dst.startDate.format('MM/dd/yyyy') }
+        }
+
+        FooObject foo = rando.one()
+
+        when:
+        om.copy(foo, bar)
+
+        then:
+        bar.name == foo.name
+        bar.years == foo.age
+        bar.startDate.format('MM/dd/yyyy') == '12/21/2012'
+        bar.birthday == '12/21/2012'
 
         foo.percentage
         !bar.rate
@@ -153,7 +225,7 @@ class ObjectMapperSpec extends Specification {
             map 'pct'
         }
 
-        BazObject src = randomize(BazObject){
+        BazObject src = randomize(BazObject) {
             propertyRandomizer 'startDate', forDate()
         }.one()
 

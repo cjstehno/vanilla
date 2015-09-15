@@ -19,6 +19,7 @@ package com.stehno.vanilla.transform
 import com.stehno.vanilla.mapper.ObjectMapper
 import com.stehno.vanilla.mapper.ObjectMapperConfig
 import com.stehno.vanilla.mapper.PropertyMappingConfig
+import com.stehno.vanilla.mapper.StaticObjectMapper
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -165,7 +166,7 @@ class MapperTransform extends AbstractASTTransformation {
             [] as ClassNode[],
             [] as MixinNode[]
         )
-        mapperClass.addInterface(make(ObjectMapper))
+        mapperClass.setSuperClass(make(StaticObjectMapper))
 
         def code = block()
 
@@ -176,7 +177,24 @@ class MapperTransform extends AbstractASTTransformation {
                 Expression convertX
                 if (pm.converter instanceof ClosureExpression) {
                     ClosureExpression convertClosureX = pm.converter as ClosureExpression
-                    convertX = new MethodCallExpression(convertClosureX, 'call', args(sourceGetter))
+
+                    def closureArgs = args()
+
+                    int paramCount = convertClosureX.parameters.size()
+
+                    if (paramCount >= 0) {
+                        closureArgs.addExpression(sourceGetter)
+                    }
+
+                    if (paramCount >= 2) {
+                        closureArgs.addExpression(varX(SOURCE))
+                    }
+
+                    if (paramCount >= 3) {
+                        closureArgs.addExpression(varX(DESTINATION))
+                    }
+
+                    convertX = new MethodCallExpression(convertClosureX, 'call', closureArgs)
 
                 } else {
                     throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')

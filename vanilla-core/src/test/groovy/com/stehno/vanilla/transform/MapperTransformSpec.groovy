@@ -54,8 +54,114 @@ class MapperTransformSpec extends Specification {
                 @Mapper({
                     map 'name'
                     map 'age' into 'years'
-                    map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
+                    map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
                     map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
+                })
+                static ObjectMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        """)
+
+        results.copy(foo, bar)
+
+        then:
+        bar.name == foo.name
+        bar.years == foo.age
+        bar.startDate.format('MM/dd/yyyy') == foo.startDate
+        bar.birthday
+    }
+
+    def 'simple collector usage as method'() {
+        setup:
+        Collection<FooObject> foos = rando * 3
+
+        when:
+        def results = shell.evaluate("""
+            package testing
+
+            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
+
+            class Foo {
+                @Mapper({
+                    map 'name'
+                    map 'age' into 'years'
+                    map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
+                    map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
+                })
+                static ObjectMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        """)
+
+        Collection<BarObject> bars = foos.collect results.collector(BarObject)
+
+        then:
+        bars.size() == 3
+
+        bars.eachWithIndex{ bar, idx ->
+            assert bar.name == foos[idx].name
+            assert bar.years == foos[idx].age
+            assert bar.startDate.format('MM/dd/yyyy') == foos[idx].startDate
+            assert bar.birthday == foos[idx].birthDate.format(BASIC_ISO_DATE)
+        }
+    }
+
+    def 'simple usage as method (with nulls)'() {
+        setup:
+        FooObject foo = new FooObject()
+
+        when:
+        def results = shell.evaluate("""
+            package testing
+
+            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
+
+            class Foo {
+                @Mapper({
+                    map 'name'
+                    map 'age' into 'years'
+                    map 'startDate' using { it ? Date.parse('MM/dd/yyyy', it) : null }
+                    map 'birthDate' into 'birthday' using { d -> d?.format(DateTimeFormatter.BASIC_ISO_DATE) }
+                })
+                static ObjectMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        """)
+
+        results.copy(foo, bar)
+
+        then:
+        !bar.name
+        !bar.years
+        !bar.startDate
+        !bar.birthday
+    }
+
+    def 'simple usage as method (closure args)'() {
+        setup:
+        FooObject foo = rando.one()
+
+        when:
+        def results = shell.evaluate("""
+            package testing
+
+            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
+
+            class Foo {
+                @Mapper({
+                    map 'name'
+                    map 'age' into 'years'
+                    map 'startDate' using { Date.parse('MM/dd/yyyy','12/21/2012') }
+                    map 'birthDate' into 'birthday' using { d, src, dst -> dst.startDate.format('MM/dd/yyyy') }
                 })
                 static ObjectMapper createMapper(){}
             }
@@ -71,7 +177,8 @@ class MapperTransformSpec extends Specification {
 
         bar.name == foo.name
         bar.years == foo.age
-        bar.startDate.format('MM/dd/yyyy') == foo.startDate
+        bar.startDate.format('MM/dd/yyyy') == '12/21/2012'
+        bar.birthday == '12/21/2012'
     }
 
     def 'nested usage (as method)'() {
