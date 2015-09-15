@@ -3,10 +3,11 @@ package com.stehno.vanilla.mapper
 import groovy.transform.TypeChecked
 
 /**
- * FIXME: document me
+ * ObjectMapper implementation used by the runtime ObjectMapper DSL to contain the configuration
+ * and execute the mappings.
  */
 @TypeChecked
-class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapper {
+class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapperSupport {
 
     /**
      * Creates an ObjectMapper configured by the given Closure.
@@ -39,20 +40,6 @@ class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapper {
             } else {
                 throw new UnsupportedOperationException("Converter type (${pmc.converter.class}) is not supported.")
             }
-        }
-    }
-
-    @Override
-    Object create(final Object src, final Class destClass) {
-        def dest = destClass.newInstance()
-        copy src, dest
-        dest
-    }
-
-    @Override
-    Closure collector(final Class destClass) {
-        return { o->
-            create o, destClass
         }
     }
 
