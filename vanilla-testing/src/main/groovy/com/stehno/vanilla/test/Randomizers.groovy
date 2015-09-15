@@ -1,7 +1,7 @@
 package com.stehno.vanilla.test
 
 /**
- * FIXME: document me
+ * A collection of useful randomizers for use with the PropertyRandomizer.
  */
 class Randomizers {
 

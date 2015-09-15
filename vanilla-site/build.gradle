@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'me.champeau.jbake'
 
-task publish(type: GradleBuild) {           
+task publish(type: GradleBuild) {
     buildFile = 'publish.gradle'
     tasks = ['publishGhPages']
 }
@@ -25,8 +25,6 @@ task wrapper(type: Wrapper) {
 task clean() << {
     ant.delete dir: 'build/jbake'
 }
-
-// TODO: this is pulled from Effigy - should be a plugin at some point
 
 task aggregate(group: 'Aggregate', description: 'Aggregates external content into the site.', dependsOn:'jbake'){
     logger.info 'Aggregating external content...'
@@ -40,7 +38,7 @@ task aggregate(group: 'Aggregate', description: 'Aggregates external content int
         fileset(dir: '../vanilla-core/build/docs', includes: '**/**')
         fileset(dir: '../vanilla-core/build/reports', includes: '**/**')
     }
-    
+
     ant.copy(todir: 'build/jbake/testing') {
         fileset(dir: '../vanilla-testing/build/docs', includes: '**/**')
         fileset(dir: '../vanilla-testing/build/reports', includes: '**/**')
