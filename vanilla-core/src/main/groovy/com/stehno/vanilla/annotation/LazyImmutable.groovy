@@ -21,24 +21,23 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
 import java.lang.annotation.*
 
-// @formatter:off
 /**
- * When this annotation is applied to a class, it will add a method `asImmutable()` which will generate an immutable instance of the object. The
- * original instance will be unchanged. The generated immutable instance is annotated with the `@Immutable` annotation and the class annotated
- * with `@LazyImmutable` should follow all of the rules described in the documentation of the `@Immutable` annotation (specifically the restriction
- * to property values which are immutable or can be guaranteed immutable).
+ * When this annotation is applied to a class, it will add a method <code>asImmutable()</code> which will generate an immutable instance of the object.
+ * The original instance will be unchanged. The generated immutable instance is annotated with the <code>@Immutable</code> annotation and the class
+ * annotated with <code>@LazyImmutable</code> should follow all of the rules described in the documentation of the <code>@Immutable</code> annotation
+ * (specifically the restriction to property values which are immutable or can be guaranteed immutable).
  *
- * The immutable version of the object will have a method `asMutable()` added to it, which will provide a new instance of the original mutable version
- * of the object (a new instance, not a reference).
+ * The immutable version of the object will have a method <code>asMutable()</code> added to it, which will provide a new instance of the original
+ * mutable version of the object (a new instance, not a reference).
  *
  * The primary purpose of this annotation is to allow for the creation of immutable objects in a lazy manner, by setting or updating properties on the
- * object and then generating the immutable version by calling the `asImmutable()` method.
+ * object and then generating the immutable version by calling the <code>asImmutable()</code> method.
  *
  * The generated immutable object is an extension of the original object, so it may be used interchangeably.
  *
- * For example, you could use the `@Builder` annotation as follows:
+ * For example, you could use the <code>@Builder</code> annotation as follows:
  *
- * ```
+ * <pre>
  * @Builder @LazyImmutable
  * class Name {
  *     String firstName
@@ -52,11 +51,10 @@ import java.lang.annotation.*
  *     .lastName('Public')
  *     .build()
  *     .asImmutable()
- * ```
+ * </pre>
  *
  * The bottom line being that, unlike a standard immutable, the lazy immutable may be built up over the course of a method rather than all at once.
  */
-// @formatter:on
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 @Documented
