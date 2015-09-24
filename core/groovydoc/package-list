@@ -1,5 +1,6 @@
 com.stehno.vanilla
 com.stehno.vanilla.annotation
 com.stehno.vanilla.io
+com.stehno.vanilla.mapper
 com.stehno.vanilla.overlap
 com.stehno.vanilla.transform
