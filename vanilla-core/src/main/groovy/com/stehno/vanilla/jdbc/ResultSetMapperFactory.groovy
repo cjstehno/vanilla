@@ -18,6 +18,9 @@ package com.stehno.vanilla.jdbc
 
 import java.sql.ResultSet
 
+import static com.stehno.vanilla.util.Strings.camelCaseToUnderscore
+import static groovy.lang.MetaProperty.getSetterName
+
 /**
  * Created by cjstehno on 10/1/15.
  */
@@ -53,19 +56,27 @@ class ResultSetMapper {
         this.config = config
     }
 
+    // FIXME: using should be for transforming or extracting
+    // FIXME: having from and using should be considered
+
     def call(ResultSet rs) {
         def instance = mappedType.newInstance()
 
         if (config.style == MappingStyle.IMPLICIT) {
-            // loop through properties of mapped object and map data
-            mappedType.metaClass.properties.each { MetaProperty mp ->
-                if (!config.isIgnored(mp.name)) {
-                    FieldMapping mapping = config.findMapping(mp.name)
-                    if( mapping){
-                        instance[mp.name] = mapping.extractor(rs)
-                    } else {
-                        throw new IllegalArgumentException("Missing ")
-                    }
+            def ignored = ['class'] + config.ignored()
+
+            MetaClass mappedMeta = mappedType.metaClass
+
+            mappedMeta.properties.findAll { MetaProperty mp ->
+                !(mp.name in ignored) && mappedMeta.getMetaMethod(getSetterName(mp.name), [mp.type] as Object[])
+            }.each { MetaProperty mp ->
+                println "mapping: ${mp.name}"
+
+                FieldMapping mapping = config.findMapping(mp.name)
+                if (mapping) {
+                    instance[mp.name] = mapping.extractor(rs)
+                } else {
+                    throw new IllegalArgumentException("Missing mapping for field (${mp.name}).")
                 }
             }
 
@@ -88,6 +99,10 @@ class JdbcMapperConfig {
 
     FieldMapping findMapping(String propertyName) {
         mappings[propertyName]
+    }
+
+    Collection<String> ignored() {
+        ignoredNames.asImmutable()
     }
 
     boolean isIgnored(String propertyName) {
@@ -124,15 +139,27 @@ class FieldMapping {
 
     FieldMapping(String propertyName) {
         this.propertyName = propertyName
+
+        from camelCaseToUnderscore(propertyName)
     }
 
     FieldMapping from(final String fieldName) {
-        extractor = { rs -> rs.getObject(fieldName) }
+        extractor = { ResultSet rs -> rs.getObject(fieldName) }
         this
     }
 
     FieldMapping from(final int fieldIndex) {
-        extractor = { rs -> rs.getObject(fieldIndex) }
+        extractor = { ResultSet rs -> rs.getObject(fieldIndex) }
+        this
+    }
+
+    FieldMapping fromDate(final String fieldName) {
+        extractor = { ResultSet rs -> rs.getDate(fieldName) }
+        this
+    }
+
+    FieldMapping fromString(final String fieldName) {
+        extractor = { ResultSet rs -> rs.getString(fieldName) }
         this
     }
 

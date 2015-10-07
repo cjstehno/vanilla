@@ -19,23 +19,37 @@ package com.stehno.vanilla.jdbc
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
+import java.sql.Date
 import java.sql.ResultSet
 
 class ResultSetMapperFactorySpec extends Specification {
 
-    def 'dsl'(){
+    def 'dsl'() {
         setup:
-        def rs = Mock(ResultSet)
+        def person = new Person(
+            name: 'Bob', age: 42, birthDate: new java.util.Date()
+        )
+
+        def rs = Mock(ResultSet) {
+            1 * getDate('birth_date') >> new Date(person.birthDate.time)
+            1 * getObject('age') >> person.age
+            1 * getString('name') >> person.name
+        }
 
         def mapper = ResultSetMapperFactory.dsl(Person) {
-            map 'bankPin' from 'bank_pin'
+            ignore 'bankPin'
+            ignore 'pet'
+            map 'birthDate' fromDate 'birth_date'
+            map 'age'
+            map 'name' fromString 'name'
+            ignore 'children'
         }
 
         when:
         def obj = mapper(rs)
 
         then:
-        obj
+        obj == person
     }
 }
 

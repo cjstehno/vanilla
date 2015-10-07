@@ -1,5 +1,6 @@
 package com.stehno.vanilla.test
 
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.junit.Test
 
@@ -153,7 +154,7 @@ class PropertyRandomizerTest {
     }
 }
 
-@ToString
+@ToString(includeNames = true) @EqualsAndHashCode
 class Person {
     String name
     int age
