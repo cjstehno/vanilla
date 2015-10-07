@@ -16,6 +16,7 @@
 
 package com.stehno.vanilla.test.jdbc
 
+import groovy.transform.Canonical
 import spock.lang.Specification
 
 import java.sql.ResultSet
@@ -24,13 +25,30 @@ import static com.stehno.vanilla.test.jdbc.ResultSetFactory.resultSet
 
 class ResultSetFactorySpec extends Specification {
 
-    def 'usage'(){
+    def 'usage'() {
         when:
         ResultSet rs = resultSet {
-
+            columns 'a', 'b', 'c'
+            row 10, 20, 30
+            map([a: 11, b: 21, c: 31])
+            object new Abc(a: 12, b: 22, c: 32)
         }
 
         then:
         rs
     }
 }
+
+@Canonical
+class Abc {
+
+    Object a
+    Object b
+    Object c
+}
+
+consider collapsing vanilla core and test into a single project
+review the DSLs to see if more commonaliy exists
+review package struccture
+update documentation
+prepare for 0.1.0 release
