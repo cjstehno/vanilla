@@ -2,10 +2,6 @@ plugins {
     id 'com.jfrog.bintray' version '1.2'
 }
 
-dependencies {
-    testCompile project(':vanilla-testing')
-}
-
 task sourcesJar(type: Jar) {
     description = 'Creates sources JAR.'
     classifier = 'sources'

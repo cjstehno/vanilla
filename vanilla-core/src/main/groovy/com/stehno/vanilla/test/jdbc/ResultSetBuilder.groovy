@@ -16,27 +16,28 @@
 
 package com.stehno.vanilla.test.jdbc
 
-import java.sql.*
+import java.sql.ResultSet
+
+import static com.stehno.vanilla.util.Strings.underscoreToCamelCase
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 /**
  * Created by cjstehno on 10/4/15.
  */
-class ResultSetFactory {
-
-    // FIXME: pull out DSL interface to hide other methods
+class ResultSetBuilder implements ResultSetDsl {
 
     private final List<String> columns = []
     private final List<Object[]> rows = []
 
-    static ResultSetFactory factory(@DelegatesTo(ResultSetFactory) Closure closure){
-        ResultSetFactory factory = new ResultSetFactory()
+    static ResultSetBuilder factory(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
+        ResultSetBuilder factory = new ResultSetBuilder()
         closure.delegate = factory
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.resolveStrategy = DELEGATE_FIRST
         closure.call()
         factory
     }
 
-    static ResultSet resultSet(@DelegatesTo(ResultSetFactory) Closure closure) {
+    static ResultSet resultSet(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
         factory(closure).build()
     }
 
@@ -50,23 +51,30 @@ class ResultSetFactory {
     }
 
     void object(Object colValueObject) {
-        def row = []
-        columns.each { col->
-            row << ( colValueObject[ col] )
+        def row = columns.collect { col ->
+            colValueObject[underscoreToCamelCase(col)]
         }
         rows << (row as Object[])
     }
 
     void map(Map<String, Object> colValueMap) {
-        def row = []
-        columns.each { col->
-            row << ( colValueMap[col] )
+        def row = columns.collect { col ->
+            row << (colValueMap[col])
         }
         rows << (row as Object[])
     }
 
-    ResultSet build(){
-
+    ResultSet build() {
+        new MockResultSet(columns, rows)
     }
 }
 
+interface ResultSetDsl {
+    void columns(String... colNames)
+
+    void row(Object... colValues)
+
+    void object(Object objValues)
+
+    void map(Map<String, Object> mapValues)
+}

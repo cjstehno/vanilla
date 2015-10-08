@@ -1,44 +1,71 @@
 package com.stehno.vanilla.test.jdbc
 
-import java.sql.Array
-import java.sql.Blob
-import java.sql.Clob
-import java.sql.Date
-import java.sql.NClob
-import java.sql.Ref
-import java.sql.ResultSet
-import java.sql.ResultSetMetaData
-import java.sql.RowId
-import java.sql.SQLException
-import java.sql.SQLWarning
-import java.sql.SQLXML
-import java.sql.Statement
-import java.sql.Time
-import java.sql.Timestamp
+import groovy.transform.TupleConstructor
+import groovy.transform.TypeChecked
+
+import java.sql.*
 
 /**
  * FIXME: document me
  */
+@TypeChecked @TupleConstructor
 class MockResultSet implements ResultSet {
 
-    private boolean closed
-    private final List<String> columnNames = []
-    private final List<Map<String, Object>> rows = [:]
+    final List<String> columnNames
+    final List<Object[]> rows
+
+    // TODO: fetch direction and size just store the values - what should they do?
+    int fetchDirection
+    int fetchSize
+    boolean closed
+    SQLWarning warnings
+
+    // FIXME: throw exception for accessingn a closed RS
+
     private int currentRow = -1
 
     private void assertNotClosed() {
         if (closed) throw new SQLException('ResultSet-Closed')
     }
 
-    private String columnName(int index) {
-        columnNames[index]
+    private Object data(int index) {
+        assertNotClosed()
+        assertRowBounds()
+        rows[currentRow][index]
+    }
+
+    private void assertRowBounds() {
+        if (currentRow < 0 || currentRow >= rows.size()) throw new SQLException("Current row out of bounds: ${currentRow}")
+    }
+
+    private Object data(String colName) {
+        assertNotClosed()
+        assertRowBounds()
+        rows[currentRow][columnNames.indexOf(colName)]
+    }
+
+    private void update(int index, Object value) {
+        assertNotClosed()
+        assertRowBounds()
+        rows[currentRow][index] = value
+    }
+
+    private void update(String colName, Object value) {
+        assertNotClosed()
+        assertRowBounds()
+        rows[currentRow][columnNames.indexOf(colName)] = value
     }
 
     @Override
     boolean next() throws SQLException {
         assertNotClosed()
-        // FIXME; more here
-        return false
+
+        if (currentRow + 1 < rows.size()) {
+            currentRow++
+            return true
+        } else {
+            return false
+        }
     }
 
     @Override
@@ -53,82 +80,82 @@ class MockResultSet implements ResultSet {
 
     @Override
     String getString(int columnIndex) throws SQLException {
-        return getString(columnName(columnIndex))
+        return data(columnIndex) as String
     }
 
     @Override
     boolean getBoolean(int columnIndex) throws SQLException {
-        return getBoolean(columnName(columnIndex))
+        return data(columnIndex) as boolean
     }
 
     @Override
     byte getByte(int columnIndex) throws SQLException {
-        return getByte(columnName(columnIndex))
+        return data(columnIndex) as byte
     }
 
     @Override
     short getShort(int columnIndex) throws SQLException {
-        return getShort(columnName(columnIndex))
+        return data(columnIndex) as short
     }
 
     @Override
     int getInt(int columnIndex) throws SQLException {
-        return getInt(columnName(columnIndex))
+        return data(columnIndex) as int
     }
 
     @Override
     long getLong(int columnIndex) throws SQLException {
-        return getLong(columnName(columnIndex))
+        return data(columnIndex) as long
     }
 
     @Override
     float getFloat(int columnIndex) throws SQLException {
-        return getFloat(columnName(columnIndex))
+        return data(columnIndex) as float
     }
 
     @Override
     double getDouble(int columnIndex) throws SQLException {
-        return getDouble(columnName(columnIndex))
+        return data(columnIndex) as double
     }
 
     @Override
     BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return getBigDecimal(columnName(columnIndex), scale)
+        return data(columnIndex) as BigDecimal
     }
 
     @Override
     byte[] getBytes(int columnIndex) throws SQLException {
-        return getBytes(columnName(columnIndex))
+        return data(columnIndex) as byte[]
     }
 
     @Override
     Date getDate(int columnIndex) throws SQLException {
-        return getDate(columnName(columnIndex))
+        return data(columnIndex) as Date
     }
 
     @Override
     Time getTime(int columnIndex) throws SQLException {
-        return getTime(columnName(columnIndex))
+        return data(columnIndex) as Time
     }
 
     @Override
     Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return getTimestamp(columnName(columnIndex))
+        return data(columnIndex) as Timestamp
     }
 
     @Override
     InputStream getAsciiStream(int columnIndex) throws SQLException {
-        return getAsciiStream(columnName(columnIndex))
+        return data(columnIndex) as InputStream
     }
 
     @Override
     InputStream getUnicodeStream(int columnIndex) throws SQLException {
-        return getUnicodeStream(columnName(columnIndex))
+        return data(columnIndex) as InputStream
     }
 
     @Override
     InputStream getBinaryStream(int columnIndex) throws SQLException {
-        return getBinaryStream(columnName(columnIndex))
+        return data(columnIndex) as InputStream
     }
 
     @Override
@@ -138,12 +165,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean getBoolean(String columnLabel) throws SQLException {
-        return data(columnLabel) as Boolean
-    }
-
-    private Object data(String col) {
-        assertNotClosed()
-        rows[currentRow][col]
+        return data(columnLabel) as boolean
     }
 
     @Override
@@ -216,8 +238,6 @@ class MockResultSet implements ResultSet {
         return data(columnLabel) as InputStream
     }
 
-    SQLWarning warnings
-
     @Override
     void clearWarnings() throws SQLException {
         warnings = null
@@ -225,11 +245,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     String getCursorName() throws SQLException {
-        unsupported()
-    }
-
-    private void unsupported() {
-        throw new UnsupportedOperationException('Not supported')
+        throw new UnsupportedOperationException('getCursorName() not supported')
     }
 
     @Override
@@ -239,7 +255,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Object getObject(int columnIndex) throws SQLException {
-        return getObject(columnName(columnIndex))
+        return data(columnIndex)
     }
 
     @Override
@@ -249,12 +265,12 @@ class MockResultSet implements ResultSet {
 
     @Override
     int findColumn(String columnLabel) throws SQLException {
-        return columnNames.findIndexOf { it == columnLabel }
+        return columnNames.indexOf(columnLabel)
     }
 
     @Override
     Reader getCharacterStream(int columnIndex) throws SQLException {
-        return getCharacterStream(columnName(columnIndex))
+        return data(columnIndex) as Reader
     }
 
     @Override
@@ -264,7 +280,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return getBigDecimal(columnName(columnIndex))
+        return data(columnIndex) as BigDecimal
     }
 
     @Override
@@ -274,22 +290,22 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean isBeforeFirst() throws SQLException {
-        return false
+        return currentRow < 0
     }
 
     @Override
     boolean isAfterLast() throws SQLException {
-        return false
+        return currentRow >= rows.size()
     }
 
     @Override
     boolean isFirst() throws SQLException {
-        return false
+        return currentRow == 0
     }
 
     @Override
     boolean isLast() throws SQLException {
-        return false
+        return currentRow == rows.size() - 1
     }
 
     @Override
@@ -309,7 +325,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean last() throws SQLException {
-        return currentRow == rows.size()-1
+        return currentRow == rows.size() - 1
     }
 
     @Override
@@ -329,27 +345,14 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean previous() throws SQLException {
-        return false
-    }
+        assertNotClosed()
 
-    @Override
-    void setFetchDirection(int direction) throws SQLException {
-
-    }
-
-    @Override
-    int getFetchDirection() throws SQLException {
-        return 0
-    }
-
-    @Override
-    void setFetchSize(int rows) throws SQLException {
-
-    }
-
-    @Override
-    int getFetchSize() throws SQLException {
-        return 0
+        if (currentRow - 1 >= 0) {
+            currentRow--
+            return true
+        } else {
+            return false
+        }
     }
 
     @Override
@@ -379,232 +382,232 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNull(int columnIndex) throws SQLException {
-
+        update(columnIndex, null)
     }
 
     @Override
     void updateBoolean(int columnIndex, boolean x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateByte(int columnIndex, byte x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateShort(int columnIndex, short x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateInt(int columnIndex, int x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateLong(int columnIndex, long x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateFloat(int columnIndex, float x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateDouble(int columnIndex, double x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateBigDecimal(int columnIndex, BigDecimal x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateString(int columnIndex, String x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateBytes(int columnIndex, byte[] x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateDate(int columnIndex, Date x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateTime(int columnIndex, Time x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateTimestamp(int columnIndex, Timestamp x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateObject(int columnIndex, Object x, int scaleOrLength) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateObject(int columnIndex, Object x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateNull(String columnLabel) throws SQLException {
-
+        update(columnLabel, null)
     }
 
     @Override
     void updateBoolean(String columnLabel, boolean x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateByte(String columnLabel, byte x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateShort(String columnLabel, short x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateInt(String columnLabel, int x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateLong(String columnLabel, long x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateFloat(String columnLabel, float x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateDouble(String columnLabel, double x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateBigDecimal(String columnLabel, BigDecimal x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateString(String columnLabel, String x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateBytes(String columnLabel, byte[] x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateDate(String columnLabel, Date x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateTime(String columnLabel, Time x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateTimestamp(String columnLabel, Timestamp x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x, int length) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x, int length) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader, int length) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateObject(String columnLabel, Object x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void insertRow() throws SQLException {
-
+        throw new UnsupportedOperationException('insertRow() not supported')
     }
 
     @Override
     void updateRow() throws SQLException {
-
+        throw new UnsupportedOperationException('updateRow() not supported')
     }
 
     @Override
     void deleteRow() throws SQLException {
-
+        throw new UnsupportedOperationException('deleteRow() not supported')
     }
 
     @Override
     void refreshRow() throws SQLException {
-
+        throw new UnsupportedOperationException('refreshRow() not supported')
     }
 
     @Override
     void cancelRowUpdates() throws SQLException {
-
+        // nothing
     }
 
     @Override
     void moveToInsertRow() throws SQLException {
-
+        // nothing
     }
 
     @Override
     void moveToCurrentRow() throws SQLException {
-
+        // nothing
     }
 
     @Override
     Statement getStatement() throws SQLException {
-        return null
+        throw new UnsupportedOperationException('getStatement() is not supported')
     }
 
     @Override
@@ -614,22 +617,22 @@ class MockResultSet implements ResultSet {
 
     @Override
     Ref getRef(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as Ref
     }
 
     @Override
     Blob getBlob(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as Blob
     }
 
     @Override
     Clob getClob(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as Clob
     }
 
     @Override
     Array getArray(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as Array
     }
 
     @Override
@@ -639,22 +642,22 @@ class MockResultSet implements ResultSet {
 
     @Override
     Ref getRef(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as Ref
     }
 
     @Override
     Blob getBlob(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as Blob
     }
 
     @Override
     Clob getClob(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as Clob
     }
 
     @Override
     Array getArray(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as Array
     }
 
     @Override
@@ -689,52 +692,52 @@ class MockResultSet implements ResultSet {
 
     @Override
     URL getURL(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as URL
     }
 
     @Override
     URL getURL(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as URL
     }
 
     @Override
     void updateRef(int columnIndex, Ref x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateRef(String columnLabel, Ref x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateBlob(int columnIndex, Blob x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateBlob(String columnLabel, Blob x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateClob(int columnIndex, Clob x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateClob(String columnLabel, Clob x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
     void updateArray(int columnIndex, Array x) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateArray(String columnLabel, Array x) throws SQLException {
-
+        update(columnLabel, x)
     }
 
     @Override
@@ -763,237 +766,232 @@ class MockResultSet implements ResultSet {
     }
 
     @Override
-    boolean isClosed() throws SQLException {
-        return false
-    }
-
-    @Override
     void updateNString(int columnIndex, String nString) throws SQLException {
-
+        update(columnIndex, nString)
     }
 
     @Override
     void updateNString(String columnLabel, String nString) throws SQLException {
-
+        update(columnLabel, nString)
     }
 
     @Override
     void updateNClob(int columnIndex, NClob nClob) throws SQLException {
-
+        update(columnIndex, nClob)
     }
 
     @Override
     void updateNClob(String columnLabel, NClob nClob) throws SQLException {
-
+        update(columnLabel, nClob)
     }
 
     @Override
     NClob getNClob(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as NClob
     }
 
     @Override
     NClob getNClob(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as NClob
     }
 
     @Override
     SQLXML getSQLXML(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as SQLXML
     }
 
     @Override
     SQLXML getSQLXML(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as SQLXML
     }
 
     @Override
     void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
-
+        update(columnIndex, xmlObject)
     }
 
     @Override
     void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
-
+        update(columnLabel, xmlObject)
     }
 
     @Override
     String getNString(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as String
     }
 
     @Override
     String getNString(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as String
     }
 
     @Override
     Reader getNCharacterStream(int columnIndex) throws SQLException {
-        return null
+        return data(columnIndex) as Reader
     }
 
     @Override
     Reader getNCharacterStream(String columnLabel) throws SQLException {
-        return null
+        return data(columnLabel) as Reader
     }
 
     @Override
     void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-
+        update(columnIndex, x)
     }
 
     @Override
     void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
-
+        update(columnLabel, reader)
     }
 
     @Override
     void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {
-        unsupported()
+        update(columnIndex, x)
     }
 
     @Override
     void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {
-        unsupported()
+        update(columnIndex, x)
     }
 
     @Override
     void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-        unsupported()
+        update(columnIndex, x)
     }
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException {
-        unsupported()
+        update(columnLabel, x)
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException {
-        unsupported()
+        update(columnLabel, x)
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateClob(int columnIndex, Reader reader, long length) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateClob(String columnLabel, Reader reader, long length) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateNClob(int columnIndex, Reader reader, long length) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateNClob(String columnLabel, Reader reader, long length) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateBinaryStream(int columnIndex, InputStream x) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateCharacterStream(int columnIndex, Reader x) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateBlob(int columnIndex, InputStream inputStream) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateBlob(String columnLabel, InputStream inputStream) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateClob(int columnIndex, Reader reader) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateClob(String columnLabel, Reader reader) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateNClob(int columnIndex, Reader reader) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     void updateNClob(String columnLabel, Reader reader) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     def <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     def <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     def <T> T unwrap(Class<T> iface) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 
     @Override
     boolean isWrapperFor(Class<?> iface) throws SQLException {
-        unsupported()
+        throw new UnsupportedOperationException('Not supported')
     }
 }

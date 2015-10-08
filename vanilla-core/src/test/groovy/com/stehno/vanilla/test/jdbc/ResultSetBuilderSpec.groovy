@@ -21,7 +21,7 @@ import spock.lang.Specification
 
 import java.sql.ResultSet
 
-import static com.stehno.vanilla.test.jdbc.ResultSetFactory.resultSet
+import static ResultSetBuilder.resultSet
 
 class ResultSetFactorySpec extends Specification {
 
@@ -46,9 +46,3 @@ class Abc {
     Object b
     Object c
 }
-
-consider collapsing vanilla core and test into a single project
-review the DSLs to see if more commonaliy exists
-review package struccture
-update documentation
-prepare for 0.1.0 release
