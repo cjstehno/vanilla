@@ -25,6 +25,8 @@ import static ResultSetBuilder.resultSet
 
 class ResultSetFactorySpec extends Specification {
 
+    // FIXME: this needs a lot more testing
+
     def 'usage'() {
         when:
         ResultSet rs = resultSet {
@@ -35,7 +37,22 @@ class ResultSetFactorySpec extends Specification {
         }
 
         then:
-        rs
+        rs.rows.size() == 3
+
+        rs.next()
+        rs.getInt(1) == 10
+        rs.getLong('b') == 20
+        rs.getString(3) == '30'
+
+        rs.next()
+        rs.getInt(1) == 11
+        rs.getLong('b') == 21
+        rs.getString(3) == '31'
+
+        rs.next()
+        rs.getShort(1) == 12 as short
+        rs.getLong('b') == 22
+        rs.getByte(3) == 32 as byte
     }
 }
 

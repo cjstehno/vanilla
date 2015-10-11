@@ -46,7 +46,7 @@ class ResultSetBuilder implements ResultSetDsl {
     }
 
     void row(Object... colValues) {
-        assert colValues.size() != columns.size(), 'The column counts do not match.'
+        assert colValues.size() == columns.size(), "The column counts do not match."
         rows << colValues
     }
 
@@ -58,9 +58,7 @@ class ResultSetBuilder implements ResultSetDsl {
     }
 
     void map(Map<String, Object> colValueMap) {
-        def row = columns.collect { col ->
-            row << (colValueMap[col])
-        }
+        def row = columns.collect { col -> colValueMap[col] }
         rows << (row as Object[])
     }
 
