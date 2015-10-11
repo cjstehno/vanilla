@@ -15,12 +15,10 @@
  */
 
 package com.stehno.vanilla.jdbc
-
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
-import java.sql.Date
-import java.sql.ResultSet
+import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
 
 class ResultSetMapperFactorySpec extends Specification {
 
@@ -30,10 +28,9 @@ class ResultSetMapperFactorySpec extends Specification {
             name: 'Bob', age: 42, birthDate: new java.util.Date()
         )
 
-        def rs = Mock(ResultSet) {
-            1 * getDate('birth_date') >> new Date(person.birthDate.time)
-            1 * getObject('age') >> person.age
-            1 * getString('name') >> person.name
+        def rs = resultSet {
+            columns 'name', 'age', 'birth_date', 'bank_pin'
+            object person
         }
 
         def mapper = ResultSetMapperFactory.dsl(Person) {
@@ -46,6 +43,7 @@ class ResultSetMapperFactorySpec extends Specification {
         }
 
         when:
+        rs.next()
         def obj = mapper(rs)
 
         then:
