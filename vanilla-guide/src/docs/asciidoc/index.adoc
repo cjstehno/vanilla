@@ -1,0 +1,13 @@
+= Vanilla Usage Guide
+Christopher J. Stehno <chris@stehno.com>
+v0.0.1, October 2015
+:toc: left
+
+== Introduction
+
+This is the introduction...
+
+== Key Components
+
+This is the useful stuff...
+

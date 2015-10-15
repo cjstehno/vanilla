@@ -1,5 +1,4 @@
 package com.stehno.vanilla.test
-
 /**
  * A collection of useful randomizers for use with the PropertyRandomizer.
  */
@@ -66,6 +65,14 @@ class Randomizers {
             byte[] bytes = new byte[1]
             rng.nextBytes(bytes)
             bytes[0]
+        }
+    }
+
+    static Closure<Byte[]> forByteArray(Integer size = null) {
+        return { Random rng ->
+            def bytes = new byte[size ?: rng.nextInt(25) + 1]
+            rng.nextBytes(bytes)
+            bytes
         }
     }
 

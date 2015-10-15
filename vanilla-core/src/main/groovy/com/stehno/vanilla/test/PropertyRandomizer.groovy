@@ -54,7 +54,8 @@ class PropertyRandomizer {
         (float)    : forFloat(),
         (Float)    : forFloat(),
         (double)   : forDouble(),
-        (Double)   : forDouble()
+        (Double)   : forDouble(),
+        (Date)     : forDate()
     ]
 
     private final Map<String, Object> nameRandomizers = [:]
@@ -71,7 +72,8 @@ class PropertyRandomizer {
      * @param closure the closure containing the DSL-style randomizer configuration
      * @return the configured PropertyRandomizer for use or further configuration.
      */
-    static PropertyRandomizer randomize(Class target, @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
+    static PropertyRandomizer randomize(Class target,
+                                        @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
         def rando = new PropertyRandomizer(target)
 
         if (closure) {
@@ -119,7 +121,7 @@ class PropertyRandomizer {
      * @return the PropertyRandomizer instance
      */
     PropertyRandomizer typeRandomizers(Map<Class, Object> randomizers, boolean clean = false) {
-        if (clean){
+        if (clean) {
             classRandomizers.clear()
         }
 
@@ -163,19 +165,21 @@ class PropertyRandomizer {
      * @return a single randomized instance of the target class
      */
     def one() {
-        def inst = target.newInstance()
+        def inst
 
         if (classRandomizers.containsKey(target)) {
-            inst = callRandomizer(inst, classRandomizers[target])
+            inst = callRandomizer(null, classRandomizers[target])
 
         } else {
+            inst = target.newInstance()
+
             def props = [:]
 
             target.metaClass.properties.each { p ->
                 if (p.setter && !(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
                     def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
 
-                    if (!randomizer){
+                    if (!randomizer) {
                         throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
                     }
 
@@ -206,7 +210,7 @@ class PropertyRandomizer {
         } else if (randomizer instanceof Closure) {
             switch (randomizer.maximumNumberOfParameters) {
                 case 2:
-                    return randomizer.call(rng, instance)
+                    return randomizer.call(rng, instance ?: target.newInstance())
                 case 1:
                     return randomizer.call(rng)
                 default:

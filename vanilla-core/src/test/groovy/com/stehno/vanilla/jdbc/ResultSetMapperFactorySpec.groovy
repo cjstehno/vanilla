@@ -18,11 +18,12 @@ package com.stehno.vanilla.jdbc
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
+import static ResultSetMapperBuilder.mapper
 import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
 
 class ResultSetMapperFactorySpec extends Specification {
 
-    def 'dsl'() {
+    def 'mapper: Implicit'() {
         setup:
         def person = new Person(
             name: 'Bob', age: 42, birthDate: new java.util.Date()
@@ -33,7 +34,7 @@ class ResultSetMapperFactorySpec extends Specification {
             object person
         }
 
-        def mapper = ResultSetMapperFactory.dsl(Person) {
+        def mapper = mapper(Person) {
             ignore 'bankPin'
             ignore 'pet'
             map 'birthDate' fromDate 'birth_date'

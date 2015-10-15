@@ -6,7 +6,11 @@ import groovy.transform.TypeChecked
 import java.sql.*
 
 /**
- * FIXME: document me
+ * Implementation of the java.sql.ResultSet interface useful for testing with something more concrete than mock data.
+ * Generally, instances of this class will be created using the ResultSetBuilder DSL; however, it may be used directly.
+ *
+ * Note: this is not intended to be a fully functioning ResultSet implementation - not all features are implemented and
+ * some that are implemented are simply intended to store values for later retrieval during testing.
  */
 @TypeChecked @TupleConstructor
 class MockResultSet implements ResultSet {
@@ -14,7 +18,6 @@ class MockResultSet implements ResultSet {
     final List<String> columnNames
     final List<Object[]> rows
 
-    // TODO: fetch direction and size just store the values - what should they do?
     int fetchDirection
     int fetchSize
     boolean closed
@@ -24,20 +27,14 @@ class MockResultSet implements ResultSet {
     SQLWarning warnings
     String cursorName
 
-    // FIXME: throw exception for accessingn a closed RS
+    // FIXME: needs a lot of type coersion and testing
 
     private int currentRow = -1
 
     private void update(int index, Object value) {
         assertNotClosed()
         assertRowBounds()
-        rows[currentRow][index] = value
-    }
-
-    private void update(String colName, Object value) {
-        assertNotClosed()
-        assertRowBounds()
-        rows[currentRow][columnNames.indexOf(colName)] = value
+        rows[currentRow][index-1] = value
     }
 
     @Override
@@ -55,6 +52,10 @@ class MockResultSet implements ResultSet {
     @Override
     void close() throws SQLException {
         closed = true
+    }
+
+    int size() {
+        rows.size()
     }
 
     @Override
@@ -114,7 +115,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Date getDate(int columnIndex) throws SQLException {
-        return getObject(columnIndex, Date)
+        getDate(columnIndex, Calendar.getInstance())
     }
 
     @Override
@@ -194,7 +195,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Date getDate(String columnLabel) throws SQLException {
-        return getObject(columnLabel, Date)
+        return getDate(columnIndex(columnLabel))
     }
 
     @Override
@@ -457,97 +458,97 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNull(String columnLabel) throws SQLException {
-        update(columnLabel, null)
+        update(columnIndex(columnLabel), null)
     }
 
     @Override
     void updateBoolean(String columnLabel, boolean x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateByte(String columnLabel, byte x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateShort(String columnLabel, short x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateInt(String columnLabel, int x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateLong(String columnLabel, long x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateFloat(String columnLabel, float x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateDouble(String columnLabel, double x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateBigDecimal(String columnLabel, BigDecimal x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateString(String columnLabel, String x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateBytes(String columnLabel, byte[] x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateDate(String columnLabel, Date x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateTime(String columnLabel, Time x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateTimestamp(String columnLabel, Timestamp x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x, int length) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x, int length) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader, int length) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
     void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateObject(String columnLabel, Object x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
@@ -642,12 +643,33 @@ class MockResultSet implements ResultSet {
 
     @Override
     Date getDate(int columnIndex, Calendar cal) throws SQLException {
-        return getObject(columnIndex, Date)
+        assertions columnIndex
+
+        Object item = data(columnIndex)
+
+        long millis
+
+        if (item instanceof Date) {
+            millis = (item as Date).time
+
+        } else if (item instanceof java.util.Date) {
+            millis = (item as java.util.Date).time
+
+        } else if (item instanceof Number) {
+            millis = item as long
+
+        } else {
+            throw new IllegalArgumentException('Unsupported type conversion.')
+        }
+
+        cal.timeInMillis = millis
+
+        return new Date(cal.timeInMillis)
     }
 
     @Override
     Date getDate(String columnLabel, Calendar cal) throws SQLException {
-        return getObject(columnLabel, Date)
+        return getDate(columnIndex(columnLabel), cal)
     }
 
     @Override
@@ -687,7 +709,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateRef(String columnLabel, Ref x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
@@ -697,7 +719,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateBlob(String columnLabel, Blob x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
@@ -707,7 +729,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateClob(String columnLabel, Clob x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
@@ -717,7 +739,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateArray(String columnLabel, Array x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
@@ -737,7 +759,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateRowId(String columnLabel, RowId x) throws SQLException {
-        update columnLabel, x
+        update columnIndex(columnLabel), x
     }
 
     @Override
@@ -747,7 +769,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNString(String columnLabel, String nString) throws SQLException {
-        update(columnLabel, nString)
+        update(columnIndex(columnLabel), nString)
     }
 
     @Override
@@ -757,7 +779,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNClob(String columnLabel, NClob nClob) throws SQLException {
-        update(columnLabel, nClob)
+        update(columnIndex(columnLabel), nClob)
     }
 
     @Override
@@ -787,7 +809,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
-        update(columnLabel, xmlObject)
+        update(columnIndex(columnLabel), xmlObject)
     }
 
     @Override
@@ -817,7 +839,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
@@ -837,17 +859,17 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
@@ -857,7 +879,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException {
-        update(columnLabel, inputStream)
+        update(columnIndex(columnLabel), inputStream)
     }
 
     @Override
@@ -867,7 +889,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateClob(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
@@ -877,7 +899,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNClob(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
@@ -887,7 +909,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
@@ -907,17 +929,17 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x) throws SQLException {
-        update(columnLabel, x)
+        update(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
@@ -927,7 +949,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateBlob(String columnLabel, InputStream inputStream) throws SQLException {
-        update(columnLabel, inputStream)
+        update(columnIndex(columnLabel), inputStream)
     }
 
     @Override
@@ -937,7 +959,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateClob(String columnLabel, Reader reader) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
@@ -947,20 +969,26 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNClob(String columnLabel, Reader reader) throws SQLException {
-        update(columnLabel, reader)
+        update(columnIndex(columnLabel), reader)
     }
 
     @Override
     def <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        assertNotClosed()
-        assertRowBounds()
-        assertValidIndex(columnIndex)
-        rows[currentRow][columnIndex - 1]?.asType(type) ?: null
+        assertions columnIndex
+        data(columnIndex)?.asType(type) ?: null
+    }
+
+    private Object data(int columnIndex) {
+        rows[currentRow][columnIndex - 1]
     }
 
     @Override
     def <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        getObject(columnNames.indexOf(columnLabel) + 1, type)
+        getObject(columnIndex(columnLabel), type)
+    }
+
+    private int columnIndex(final String columnLabel) {
+        columnNames.indexOf(columnLabel) + 1
     }
 
     @Override
@@ -971,6 +999,12 @@ class MockResultSet implements ResultSet {
     @Override
     boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new UnsupportedOperationException('isWrapperFor(Class) is not supported')
+    }
+
+    private void assertions(int colIndex) {
+        assertNotClosed()
+        assertRowBounds()
+        assertValidIndex(colIndex)
     }
 
     private void assertValidIndex(int index) {

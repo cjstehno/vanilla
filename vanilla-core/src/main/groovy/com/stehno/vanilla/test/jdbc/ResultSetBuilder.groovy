@@ -29,7 +29,7 @@ class ResultSetBuilder implements ResultSetDsl {
     private final List<String> columns = []
     private final List<Object[]> rows = []
 
-    static ResultSetBuilder factory(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
+    static ResultSetBuilder builder(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
         ResultSetBuilder factory = new ResultSetBuilder()
         closure.delegate = factory
         closure.resolveStrategy = DELEGATE_FIRST
@@ -38,14 +38,14 @@ class ResultSetBuilder implements ResultSetDsl {
     }
 
     static ResultSet resultSet(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
-        factory(closure).build()
+        builder(closure).build()
     }
 
     void columns(String... colNames) {
         columns.addAll(colNames.collect())
     }
 
-    void row(Object... colValues) {
+    void data(Object... colValues) {
         assert colValues.size() == columns.size(), "The column counts do not match."
         rows << colValues
     }
@@ -67,12 +67,3 @@ class ResultSetBuilder implements ResultSetDsl {
     }
 }
 
-interface ResultSetDsl {
-    void columns(String... colNames)
-
-    void row(Object... colValues)
-
-    void object(Object objValues)
-
-    void map(Map<String, Object> mapValues)
-}
