@@ -48,6 +48,12 @@ class Randomizers {
         }
     }
 
+    static Closure<BigDecimal> forBigDecimal(Integer scale=null){
+        return { Random rng ->
+            scale ? new BigDecimal(rng.nextLong(), scale) : new BigDecimal(rng.nextLong())
+        }
+    }
+
     static Closure<Long> forLong() {
         return { Random rng ->
             rng.nextLong()

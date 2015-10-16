@@ -27,31 +27,15 @@ import static com.stehno.vanilla.test.Randomizers.forByteArray
 
 class ResultSetBuilderSpec extends Specification {
 
-    def 'getString'() {
-        setup:
-        def strings = randomize(String) * 12
+    // FIXME: most of this is testing MockResultSet - move it there and test the builder here
 
-        when:
-        def rs = buildFourColumn(strings)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow strings, rs.getString(1), rs.getString('b'), rs.getString(3), rs.getString('d')
-        }
-
-        !rs.next()
-    }
-
-    def 'updateString'(){
+    def 'updateString'() {
         setup:
         def strings = randomize(String) * 2
 
         when:
         def rs = resultSet {
-            columns 'a','b'
+            columns 'a', 'b'
             data strings[0], strings[1]
         }
 
@@ -65,29 +49,11 @@ class ResultSetBuilderSpec extends Specification {
         rs.getString(2) == 'bravo'
     }
 
-    def 'getBoolean'() {
-        setup:
-        def items = randomize(Boolean) * 6
-
-        when:
-        def rs = buildTwoColumn(items)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getBoolean(1), rs.getBoolean('b')
-        }
-
-        !rs.next()
-    }
-
-    def 'updateBoolean'(){
+    def 'updateBoolean'() {
         setup:
         when:
         def rs = resultSet {
-            columns 'a','b'
+            columns 'a', 'b'
             data true, false
         }
 
@@ -101,143 +67,53 @@ class ResultSetBuilderSpec extends Specification {
         rs.getBoolean(2)
     }
 
-    def 'getByte'() {
+    def 'updateFloat'() {
         setup:
-        def items = randomize(Byte) * 6
+        def items = randomize(Float) * 4
 
         when:
-        def rs = buildTwoColumn(items)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getByte(1), rs.getByte('b')
+        def rs = resultSet {
+            columns 'a', 'b'
+            data items[0], items[1]
         }
 
-        !rs.next()
+        rs.next()
+
+        rs.updateFloat(1, items[2])
+        rs.updateFloat('b', items[3])
+
+        then:
+        rs.getFloat('a') == items[2]
+        rs.getFloat(2) == items[3]
     }
 
-    def 'getBytes'() {
+    def 'updateDouble'() {
         setup:
-        Class c = ([] as byte[]).class
-
-        def items = randomize(c) {
-            typeRandomizer c, forByteArray()
-        } * 6
+        def items = randomize(Double) * 4
 
         when:
-        def rs = buildTwoColumn(items)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getBytes(1), rs.getBytes('b')
+        def rs = resultSet {
+            columns 'a', 'b'
+            data items[0], items[1]
         }
 
-        !rs.next()
-    }
+        rs.next()
 
-    def 'getShort'() {
-        setup:
-        def items = randomize(Short) * 6
-
-        when:
-        def rs = buildTwoColumn(items)
+        rs.updateDouble(1, items[2])
+        rs.updateDouble('b', items[3])
 
         then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getShort(1), rs.getShort('b')
-        }
-
-        !rs.next()
+        rs.getDouble('a') == items[2]
+        rs.getDouble(2) == items[3]
     }
 
-    def 'getLong'() {
-        setup:
-        def items = randomize(Long) * 6
-
-        when:
-        def rs = buildTwoColumn(items)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getLong(1), rs.getLong('b')
-        }
-
-        !rs.next()
-    }
-
-    def 'getFloat'() {
-        setup:
-        def items = randomize(Float) * 6
-
-        when:
-        def rs = buildTwoColumn(items)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getFloat(1), rs.getFloat('b')
-        }
-
-        !rs.next()
-    }
-
-    def 'getDouble'() {
-        setup:
-        def items = randomize(Double) * 6
-
-        when:
-        def rs = buildTwoColumn(items)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getDouble(1), rs.getDouble('b')
-        }
-
-        !rs.next()
-    }
-
-    def 'getInt'() {
-        setup:
-        def items = randomize(Integer) * 6
-
-        when:
-        def rs = buildTwoColumn(items)
-
-        then:
-        rs.size() == 3
-
-        rs.size().times {
-            assert rs.next()
-            assertRow items, rs.getInt(1), rs.getInt('b')
-        }
-
-        !rs.next()
-    }
-
-    def 'updateInt'(){
+    def 'updateInt'() {
         setup:
         def items = randomize(Integer) * 4
 
         when:
         def rs = resultSet {
-            columns 'a','b'
+            columns 'a', 'b'
             data items[0], items[1]
         }
 

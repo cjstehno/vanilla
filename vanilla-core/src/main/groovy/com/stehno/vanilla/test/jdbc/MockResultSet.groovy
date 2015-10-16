@@ -5,6 +5,8 @@ import groovy.transform.TypeChecked
 
 import java.sql.*
 
+import static groovy.transform.TypeCheckingMode.SKIP
+
 /**
  * Implementation of the java.sql.ResultSet interface useful for testing with something more concrete than mock data.
  * Generally, instances of this class will be created using the ResultSetBuilder DSL; however, it may be used directly.
@@ -34,7 +36,7 @@ class MockResultSet implements ResultSet {
     private void update(int index, Object value) {
         assertNotClosed()
         assertRowBounds()
-        rows[currentRow][index-1] = value
+        rows[currentRow][index - 1] = value
     }
 
     @Override
@@ -75,37 +77,39 @@ class MockResultSet implements ResultSet {
 
     @Override
     byte getByte(int columnIndex) throws SQLException {
-        return getObject(columnIndex, byte)
+        return getObject(columnIndex, byte) ?: 0
     }
 
     @Override
     short getShort(int columnIndex) throws SQLException {
-        return getObject(columnIndex, short)
+        return getObject(columnIndex, short) ?: 0
     }
 
     @Override
     int getInt(int columnIndex) throws SQLException {
-        return getObject(columnIndex, int)
+        return getObject(columnIndex, int) ?: 0
     }
 
     @Override
     long getLong(int columnIndex) throws SQLException {
-        return getObject(columnIndex, long)
+        return getObject(columnIndex, long) ?: 0
     }
 
     @Override
     float getFloat(int columnIndex) throws SQLException {
-        return getObject(columnIndex, float)
+        return getObject(columnIndex, float) ?: 0f
     }
 
     @Override
     double getDouble(int columnIndex) throws SQLException {
-        return getObject(columnIndex, double)
+        return getObject(columnIndex, double) ?: 0d
     }
 
     @Override
     BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return getObject(columnIndex, BigDecimal)
+        BigDecimal value = getObject(columnIndex, BigDecimal)
+        value.scale = scale
+        return value
     }
 
     @Override
@@ -120,12 +124,12 @@ class MockResultSet implements ResultSet {
 
     @Override
     Time getTime(int columnIndex) throws SQLException {
-        return getObject(columnIndex, Time)
+        return getTime(columnIndex, Calendar.getInstance())
     }
 
     @Override
     Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return getObject(columnIndex, Timestamp)
+        return getTimestamp(columnIndex, Calendar.getInstance())
     }
 
     @Override
@@ -155,37 +159,37 @@ class MockResultSet implements ResultSet {
 
     @Override
     byte getByte(String columnLabel) throws SQLException {
-        return getObject(columnLabel, byte)
+        return getObject(columnLabel, byte) ?: 0
     }
 
     @Override
     short getShort(String columnLabel) throws SQLException {
-        return getObject(columnLabel, short)
+        return getObject(columnLabel, short) ?: 0
     }
 
     @Override
     int getInt(String columnLabel) throws SQLException {
-        return getObject(columnLabel, int)
+        return getObject(columnLabel, int) ?: 0
     }
 
     @Override
     long getLong(String columnLabel) throws SQLException {
-        return getObject(columnLabel, long)
+        return getObject(columnLabel, long) ?: 0
     }
 
     @Override
     float getFloat(String columnLabel) throws SQLException {
-        return getObject(columnLabel, float)
+        return getObject(columnLabel, float) ?: 0f
     }
 
     @Override
     double getDouble(String columnLabel) throws SQLException {
-        return getObject(columnLabel, double)
+        return getObject(columnLabel, double) ?: 0d
     }
 
     @Override
     BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        return getObject(columnLabel, BigDecimal)
+        return getBigDecimal(columnIndex(columnLabel), scale)
     }
 
     @Override
@@ -200,12 +204,12 @@ class MockResultSet implements ResultSet {
 
     @Override
     Time getTime(String columnLabel) throws SQLException {
-        return getObject(columnLabel, Time)
+        return getTime(columnIndex(columnLabel))
     }
 
     @Override
     Timestamp getTimestamp(String columnLabel) throws SQLException {
-        return getObject(columnLabel, Timestamp)
+        return getTimestamp(columnIndex(columnLabel))
     }
 
     @Override
@@ -643,28 +647,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Date getDate(int columnIndex, Calendar cal) throws SQLException {
-        assertions columnIndex
-
-        Object item = data(columnIndex)
-
-        long millis
-
-        if (item instanceof Date) {
-            millis = (item as Date).time
-
-        } else if (item instanceof java.util.Date) {
-            millis = (item as java.util.Date).time
-
-        } else if (item instanceof Number) {
-            millis = item as long
-
-        } else {
-            throw new IllegalArgumentException('Unsupported type conversion.')
-        }
-
-        cal.timeInMillis = millis
-
-        return new Date(cal.timeInMillis)
+        return getChrono(columnIndex, cal, Date)
     }
 
     @Override
@@ -674,22 +657,22 @@ class MockResultSet implements ResultSet {
 
     @Override
     Time getTime(int columnIndex, Calendar cal) throws SQLException {
-        return getObject(columnIndex, Time)
+        return getChrono(columnIndex, cal, Time)
     }
 
     @Override
     Time getTime(String columnLabel, Calendar cal) throws SQLException {
-        return getObject(columnLabel, Time)
+        return getTime(columnIndex(columnLabel), Calendar.getInstance())
     }
 
     @Override
     Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-        return getObject(columnIndex, Timestamp)
+        return getChrono(columnIndex, cal, Timestamp)
     }
 
     @Override
     Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
-        return getObject(columnLabel, Timestamp)
+        return getTimestamp(columnIndex(columnLabel), cal)
     }
 
     @Override
@@ -999,6 +982,32 @@ class MockResultSet implements ResultSet {
     @Override
     boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new UnsupportedOperationException('isWrapperFor(Class) is not supported')
+    }
+
+    @TypeChecked(SKIP)
+    private <C> C getChrono(int columnIndex, Calendar cal, Class<C> type) {
+        assertions columnIndex
+
+        Object item = data(columnIndex)
+
+        long millis
+
+        if (type.isAssignableFrom(item.class)) {
+            millis = (item.asType(type)).time
+
+        } else if (item instanceof java.util.Date) {
+            millis = (item as java.util.Date).time
+
+        } else if (item instanceof Number) {
+            millis = item as long
+
+        } else {
+            throw new IllegalArgumentException('Unsupported type conversion.')
+        }
+
+        cal.timeInMillis = millis
+
+        return type.newInstance(cal.timeInMillis)
     }
 
     private void assertions(int colIndex) {
