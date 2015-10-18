@@ -249,7 +249,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     int findColumn(String columnLabel) throws SQLException {
-        return columnNames.indexOf(columnLabel)
+        return columnIndex(columnLabel)
     }
 
     @Override
@@ -304,12 +304,14 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean first() throws SQLException {
-        return currentRow == 0
+        currentRow = 0
+        return !rows.isEmpty()
     }
 
     @Override
     boolean last() throws SQLException {
-        return currentRow == rows.size() - 1
+        currentRow = rows.size() - 1
+        return currentRow > -1
     }
 
     @Override
@@ -321,48 +323,66 @@ class MockResultSet implements ResultSet {
     @Override
     boolean absolute(int row) throws SQLException {
         assertNotClosed()
-        assertRowBounds()
 
-        currentRow = row
+        if (row <= 0) {
+            currentRow = -1
+            return false
 
-        return currentRow > 0 && currentRow < rows.size()
+        } else if (row > rows.size()) {
+            currentRow = rows.size()
+            return false
+
+        } else {
+            currentRow = row - 1
+            return true
+        }
     }
 
     @Override
     boolean relative(int count) throws SQLException {
         assertNotClosed()
-        assertRowBounds()
 
         currentRow = currentRow + count
 
-        return currentRow >= 0 && currentRow < rows.size()
+        if (currentRow < 0) {
+            currentRow = -1
+            return false
+
+        } else if (currentRow > rows.size()) {
+            currentRow = rows.size()
+            return false
+
+        } else {
+            return true
+        }
     }
 
     @Override
     boolean previous() throws SQLException {
         assertNotClosed()
 
-        if (currentRow - 1 >= 0) {
-            currentRow--
-            return true
-        } else {
-            return false
+        currentRow--
+
+        if (currentRow < -1) {
+            currentRow = -1
         }
+
+        return currentRow > -1 && currentRow < rows.size()
     }
 
     @Override
     boolean rowUpdated() throws SQLException {
-        return false // TOOD: this should probably be tied to update calls
+        throw new UnsupportedOperationException('rowUpdated() is not supported')
     }
 
     @Override
     boolean rowInserted() throws SQLException {
-        return false
+        throw new UnsupportedOperationException('rowInserted() is not supported')
     }
 
     @Override
     boolean rowDeleted() throws SQLException {
-        return false
+        throw new UnsupportedOperationException('rowDeleted() is not supported')
     }
 
     @Override
@@ -422,17 +442,17 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateDate(int columnIndex, Date x) throws SQLException {
-        update(columnIndex, x)
+        updateChrono(columnIndex, x)
     }
 
     @Override
     void updateTime(int columnIndex, Time x) throws SQLException {
-        update(columnIndex, x)
+        updateChrono(columnIndex, x)
     }
 
     @Override
     void updateTimestamp(int columnIndex, Timestamp x) throws SQLException {
-        update(columnIndex, x)
+        updateChrono(columnIndex, x)
     }
 
     @Override
@@ -517,17 +537,17 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateDate(String columnLabel, Date x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        updateDate(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateTime(String columnLabel, Time x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        updateTime(columnIndex(columnLabel), x)
     }
 
     @Override
     void updateTimestamp(String columnLabel, Timestamp x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        updateTimestamp(columnIndex(columnLabel), x)
     }
 
     @Override
@@ -958,7 +978,9 @@ class MockResultSet implements ResultSet {
     @Override
     def <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
         assertions columnIndex
-        data(columnIndex)?.asType(type) ?: null
+
+        def data = data(columnIndex)
+        return data != null ? data.asType(type) : null
     }
 
     private Object data(int columnIndex) {
@@ -1008,6 +1030,14 @@ class MockResultSet implements ResultSet {
         cal.timeInMillis = millis
 
         return type.newInstance(cal.timeInMillis)
+    }
+
+    @TypeChecked(SKIP)
+    private void updateChrono(int columnIndex, value) {
+        assertNotClosed()
+        assertRowBounds()
+
+        rows[currentRow][columnIndex - 1] = value.time
     }
 
     private void assertions(int colIndex) {
