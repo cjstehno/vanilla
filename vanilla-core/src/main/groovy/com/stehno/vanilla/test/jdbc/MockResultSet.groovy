@@ -1,5 +1,6 @@
 package com.stehno.vanilla.test.jdbc
 
+import groovy.transform.Canonical
 import groovy.transform.TupleConstructor
 import groovy.transform.TypeChecked
 
@@ -62,7 +63,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean wasNull() throws SQLException {
-        return false
+        throw new UnsupportedOperationException('wasNull() is not supported.')
     }
 
     @Override
@@ -457,22 +458,22 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {
-        update(columnIndex, x)
+        throw new UnsupportedOperationException('updateAsciiStream(int, InputStream, int) is not supported')
     }
 
     @Override
     void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {
-        update(columnIndex, x)
+        throw new UnsupportedOperationException('updateBinaryStream(int, InputStream, int) is not supported')
     }
 
     @Override
     void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {
-        update(columnIndex, x)
+        throw new UnsupportedOperationException('updateCharacterStream(int, InputStream, int) is not supported')
     }
 
     @Override
     void updateObject(int columnIndex, Object x, int scaleOrLength) throws SQLException {
-        update(columnIndex, x)
+        throw new UnsupportedOperationException('updateObject(int, Object, int) is not supported')
     }
 
     @Override
@@ -552,22 +553,22 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x, int length) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        throw new UnsupportedOperationException('updateAsciiStream(String, InputStream, int) is not supported')
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x, int length) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        throw new UnsupportedOperationException('updateBinaryStream(String, InputStream, int) is not supported')
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader, int length) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        throw new UnsupportedOperationException('updateCharacterStream(String, Reader, int) is not supported')
     }
 
     @Override
     void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        throw new UnsupportedOperationException('updateObject(String, Object, int) is not supported')
     }
 
     @Override
@@ -592,22 +593,22 @@ class MockResultSet implements ResultSet {
 
     @Override
     void refreshRow() throws SQLException {
-        // nothing
+        throw new UnsupportedOperationException('refreshRow() not supported')
     }
 
     @Override
     void cancelRowUpdates() throws SQLException {
-        // nothing
+        throw new UnsupportedOperationException('cancelRowUpdates() not supported')
     }
 
     @Override
     void moveToInsertRow() throws SQLException {
-        // nothing
+        throw new UnsupportedOperationException('moveToInsertRow() not supported')
     }
 
     @Override
     void moveToCurrentRow() throws SQLException {
-        // nothing
+        throw new UnsupportedOperationException('moveToCurrentRow() not supported')
     }
 
     @Override
@@ -617,7 +618,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        throw new SQLFeatureNotSupportedException('getObject(int, Map) is not supported.')
+        throw new UnsupportedOperationException('getObject(int, Map) is not supported.')
     }
 
     @Override
@@ -642,7 +643,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
-        throw new SQLFeatureNotSupportedException('getObject(String, Map) is not supported.')
+        throw new UnsupportedOperationException('getObject(String, Map) is not supported.')
     }
 
     @Override
@@ -1058,3 +1059,4 @@ class MockResultSet implements ResultSet {
         if (currentRow < 0 || currentRow >= rows.size()) throw new SQLException("Current row out of bounds: ${currentRow}")
     }
 }
+

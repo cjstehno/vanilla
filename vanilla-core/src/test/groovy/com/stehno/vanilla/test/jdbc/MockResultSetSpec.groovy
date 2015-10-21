@@ -1,10 +1,16 @@
 package com.stehno.vanilla.test.jdbc
 
+import com.stehno.vanilla.test.Randomizers
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.sql.Blob
+import java.sql.Clob
 import java.sql.Date
+import java.sql.Ref
 import java.sql.ResultSet
+import java.sql.SQLException
+import java.sql.SQLWarning
 import java.sql.Time
 import java.sql.Timestamp
 
@@ -224,6 +230,42 @@ class MockResultSetSpec extends Specification {
     }
 
     @Unroll
+    def 'extract: #method (with calendar)'() {
+        setup:
+        def items = randomize(type) * 6
+        def rs = twoColumns(items)
+        def cal = Calendar.getInstance()
+
+        when:
+        def rows = extractRows(rs, (rs.&"$method").rcurry(cal))
+
+        then:
+        assertRows rows, items
+
+        where:
+        method         | type
+        'getDate'      | java.util.Date
+        'getTime'      | java.util.Date
+        'getTimestamp' | java.util.Date
+    }
+
+    def 'extract: getURL'() {
+        setup:
+        def items = randomize(URL){
+            typeRandomizer URL, { rng->
+                "http://${forString(6..25).call(rng)}.com".toURL()
+            }
+        } * 6
+        def rs = twoColumns(items)
+
+        when:
+        def rows = extractRows(rs, rs.&getURL)
+
+        then:
+        assertRows rows, items
+    }
+
+    @Unroll
     def 'update: #method'() {
         setup:
         def rando = randomize(type)
@@ -298,7 +340,8 @@ class MockResultSetSpec extends Specification {
 
         where:
         method << [
-            'rowUpdated', 'rowInserted', 'rowDeleted', 'getMetaData'
+            'rowUpdated', 'rowInserted', 'rowDeleted', 'getMetaData', 'wasNull', 'updateRow', 'deleteRow', 'insertRow',
+            'refreshRow', 'cancelRowUpdates', 'moveToInsertRow', 'moveToCurrentRow', 'getStatement'
         ]
     }
 
@@ -322,6 +365,18 @@ class MockResultSetSpec extends Specification {
 
         then:
         thrown(UnsupportedOperationException)
+    }
+
+    def 'warnings'(){
+        setup:
+        def rs = twoColumns(randomize(String) * 6)
+        rs.warnings = new SQLWarning('test warning')
+
+        when:
+        rs.clearWarnings()
+
+        then:
+        !rs.warnings
     }
 
     private static void updateRows(ResultSet rs, String method, List updates) {
@@ -414,6 +469,20 @@ class MockResultSetSpec extends Specification {
         assertUpdates rs, updates
     }
 
+    def 'updateBytes'() {
+        setup:
+        Class c = ([] as byte[]).class
+        def rando = randomize(c) { typeRandomizer c, forByteArray() }
+        def rs = twoColumns(rando * 6)
+        def updates = rando * 2
+
+        when:
+        updateRows rs, 'updateBytes', updates
+
+        then:
+        assertUpdates rs, updates
+    }
+
     def 'extract: getBytes'() {
         setup:
         Class type = ([] as byte[]).class
@@ -451,6 +520,50 @@ class MockResultSetSpec extends Specification {
         method << ['getAsciiStream', 'getUnicodeStream', 'getBinaryStream']
     }
 
+    def 'update (InputStream): #method'(){
+        setup:
+        def rando = randomize(InputStream) {
+            typeRandomizer InputStream, { rng ->
+                new ByteArrayInputStream(forByteArray(3).call(rng) as byte[])
+            }
+        }
+        def items = rando * 6
+        def updates = rando * 2
+
+        def rs = twoColumns(items)
+
+        when:
+        updateRows rs, method, updates
+
+        then:
+        assertUpdates rs, updates
+
+        where:
+        method << ['updateAsciiStream', 'updateBinaryStream']
+    }
+
+    def 'update (Reader): #method'(){
+        setup:
+        def rando = randomize(Reader) {
+            typeRandomizer Reader, { Random rng ->
+                new CharArrayReader(forString(3..6).call(rng) as char[])
+            }
+        }
+        def items = rando * 6
+        def updates = rando * 2
+
+        def rs = twoColumns(items)
+
+        when:
+        updateRows rs, method, updates
+
+        then:
+        assertUpdates rs, updates
+
+        where:
+        method << ['updateCharacterStream', 'updateNCharacterStream']
+    }
+
     @Unroll
     def 'extract (Reader): #method'() {
         setup:
@@ -470,6 +583,22 @@ class MockResultSetSpec extends Specification {
 
         where:
         method << ['getCharacterStream', 'getNCharacterStream']
+    }
+
+    def 'extract: getClob'() {
+        setup:
+        def items = randomize(Clob){
+            typeRandomizer Clob, { rng->
+                "http://${forString(6..25).call(rng)}.com".toURL()
+            }
+        } * 6
+        def rs = twoColumns(items)
+
+        when:
+        def rows = extractRows(rs, rs.&getURL)
+
+        then:
+        assertRows rows, items
     }
 
     private static boolean assertRows(final List<Map<Object, Object>> rows, final List items) {
