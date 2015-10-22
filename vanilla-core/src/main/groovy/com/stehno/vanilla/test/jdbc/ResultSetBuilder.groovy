@@ -18,6 +18,7 @@ package com.stehno.vanilla.test.jdbc
 
 import java.sql.ResultSet
 
+import static com.stehno.vanilla.Affirmations.affirm
 import static com.stehno.vanilla.util.Strings.underscoreToCamelCase
 import static groovy.lang.Closure.DELEGATE_FIRST
 
@@ -41,12 +42,21 @@ class ResultSetBuilder implements ResultSetDsl {
         builder(closure).build()
     }
 
+    void columns(List<String> colNames) {
+        columns.addAll(colNames)
+    }
+
     void columns(String... colNames) {
         columns.addAll(colNames.collect())
     }
 
+    void data(List<Object> colValues) {
+        checkColumnSizes colValues.size()
+        rows << colValues.toArray()
+    }
+
     void data(Object... colValues) {
-        assert colValues.size() == columns.size(), "The column counts do not match."
+        checkColumnSizes colValues.size()
         rows << colValues
     }
 
@@ -64,6 +74,10 @@ class ResultSetBuilder implements ResultSetDsl {
 
     ResultSet build() {
         new MockResultSet(columns, rows)
+    }
+
+    private void checkColumnSizes(int argCount) {
+        affirm argCount == columns.size(), "The column counts do not match: found ${argCount}, expected ${columns.size()}."
     }
 }
 

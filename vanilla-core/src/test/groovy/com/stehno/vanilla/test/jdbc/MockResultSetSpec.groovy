@@ -1,24 +1,16 @@
 package com.stehno.vanilla.test.jdbc
 
-import com.stehno.vanilla.test.Randomizers
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.sql.Blob
-import java.sql.Clob
-import java.sql.Date
-import java.sql.Ref
-import java.sql.ResultSet
-import java.sql.SQLException
-import java.sql.SQLWarning
-import java.sql.Time
-import java.sql.Timestamp
+import java.sql.*
 
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 import static com.stehno.vanilla.test.Randomizers.*
 
 class MockResultSetSpec extends Specification {
 
+    private static InputStream inputStream() { new ByteArrayInputStream([] as byte[]) }
     private static final List COL_IDS = [1, 'b'].asImmutable()
     private static final int ROW_COUNT = 3
 
@@ -251,8 +243,8 @@ class MockResultSetSpec extends Specification {
 
     def 'extract: getURL'() {
         setup:
-        def items = randomize(URL){
-            typeRandomizer URL, { rng->
+        def items = randomize(URL) {
+            typeRandomizer URL, { rng ->
                 "http://${forString(6..25).call(rng)}.com".toURL()
             }
         } * 6
@@ -345,6 +337,29 @@ class MockResultSetSpec extends Specification {
         ]
     }
 
+    @Unroll
+    def 'unsupported(3-arg): #method'() {
+        setup:
+        def rs = twoColumns(randomize(String) * 6)
+
+        when:
+        rs."$method"(ident, input, 10)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        where:
+        method                  | ident | input
+        'updateAsciiStream'     | 42    | inputStream()
+        'updateBinaryStream'    | 42    | inputStream()
+        'updateCharacterStream' | 42    | new InputStreamReader(inputStream())
+        'updateObject'          | 42    | new Object()
+        'updateAsciiStream'     | 'foo' | inputStream()
+        'updateBinaryStream'    | 'foo' | inputStream()
+        'updateCharacterStream' | 'foo' | new InputStreamReader(inputStream())
+        'updateObject'          | 'foo' | new Object()
+    }
+
     def 'unsupported: unwrap'() {
         setup:
         def rs = twoColumns(randomize(String) * 6)
@@ -367,7 +382,7 @@ class MockResultSetSpec extends Specification {
         thrown(UnsupportedOperationException)
     }
 
-    def 'warnings'(){
+    def 'warnings'() {
         setup:
         def rs = twoColumns(randomize(String) * 6)
         rs.warnings = new SQLWarning('test warning')
@@ -520,7 +535,7 @@ class MockResultSetSpec extends Specification {
         method << ['getAsciiStream', 'getUnicodeStream', 'getBinaryStream']
     }
 
-    def 'update (InputStream): #method'(){
+    def 'update (InputStream): #method'() {
         setup:
         def rando = randomize(InputStream) {
             typeRandomizer InputStream, { rng ->
@@ -542,7 +557,7 @@ class MockResultSetSpec extends Specification {
         method << ['updateAsciiStream', 'updateBinaryStream']
     }
 
-    def 'update (Reader): #method'(){
+    def 'update (Reader): #method'() {
         setup:
         def rando = randomize(Reader) {
             typeRandomizer Reader, { Random rng ->
@@ -587,18 +602,38 @@ class MockResultSetSpec extends Specification {
 
     def 'extract: getClob'() {
         setup:
-        def items = randomize(Clob){
-            typeRandomizer Clob, { rng->
-                "http://${forString(6..25).call(rng)}.com".toURL()
+        def items = randomize(Clob) {
+            typeRandomizer Clob, { rng ->
+                new MockClob(forString().call(rng))
             }
         } * 6
         def rs = twoColumns(items)
 
         when:
-        def rows = extractRows(rs, rs.&getURL)
+        def rows = extractRows(rs, rs.&getClob)
 
         then:
         assertRows rows, items
+    }
+
+    def 'updateClob'(){
+        setup:
+        def rando = randomize(Clob) {
+            typeRandomizer Clob, { rng ->
+                new MockClob(forString().call(rng))
+            }
+        }
+        def items = rando * 6
+        def updates = rando * 2
+
+        def rs = twoColumns(items)
+
+        when:
+        updateRows rs, 'updateClob', updates
+
+        then:
+        assertUpdates rs, updates
+
     }
 
     private static boolean assertRows(final List<Map<Object, Object>> rows, final List items) {

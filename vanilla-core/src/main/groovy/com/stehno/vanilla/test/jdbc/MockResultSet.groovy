@@ -1,6 +1,5 @@
 package com.stehno.vanilla.test.jdbc
 
-import groovy.transform.Canonical
 import groovy.transform.TupleConstructor
 import groovy.transform.TypeChecked
 
