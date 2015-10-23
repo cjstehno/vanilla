@@ -7,4 +7,5 @@
 /target
 /build
 /.gradle
-/vanilla-core/build
+*/build/
+*/.gradle/
