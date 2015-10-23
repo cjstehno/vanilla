@@ -7,10 +7,10 @@ import java.sql.*
 
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 import static com.stehno.vanilla.test.Randomizers.*
+import static java.lang.System.currentTimeMillis
 
 class MockResultSetSpec extends Specification {
 
-    private static InputStream inputStream() { new ByteArrayInputStream([] as byte[]) }
     private static final List COL_IDS = [1, 'b'].asImmutable()
     private static final int ROW_COUNT = 3
 
@@ -258,68 +258,6 @@ class MockResultSetSpec extends Specification {
     }
 
     @Unroll
-    def 'update: #method'() {
-        setup:
-        def rando = randomize(type)
-        def rs = twoColumns(rando * 6)
-        def updates = rando * 2
-
-        when:
-        updateRows rs, method, updates
-
-        then:
-        assertUpdates rs, updates
-
-        where:
-        method          | type
-        'updateString'  | String
-        'updateNString' | String
-        'updateBoolean' | Boolean
-        'updateFloat'   | Float
-        'updateInt'     | Integer
-        'updateDouble'  | Double
-        'updateShort'   | Short
-        'updateByte'    | Byte
-        'updateLong'    | Long
-        'updateObject'  | String
-    }
-
-    @Unroll
-    def 'update (dates): #method'() {
-        setup:
-        def rando = randomize(Long)
-        def rs = twoColumns(rando * 6)
-        def updates = (rando * 2).collect { u -> type.newInstance(u) }
-
-        when:
-        updateRows rs, method, updates
-
-        then:
-        assertUpdates rs, updates*.time
-
-        where:
-        method            | type
-        'updateDate'      | Date
-        'updateTime'      | Time
-        'updateTimestamp' | Timestamp
-    }
-
-    def 'updateNull'() {
-        setup:
-        def rando = randomize(String)
-        def rs = twoColumns(rando * 6)
-
-        when:
-        rs.next()
-        rs.updateNull(1)
-        rs.updateNull('b')
-
-        then:
-        !rs.getObject(1)
-        !rs.getObject('b')
-    }
-
-    @Unroll
     def 'unsupported: #method'() {
         setup:
         def rs = twoColumns(randomize(String) * 6)
@@ -338,26 +276,129 @@ class MockResultSetSpec extends Specification {
     }
 
     @Unroll
-    def 'unsupported(3-arg): #method'() {
+    def 'unsupported(1-arg): #method'() {
         setup:
         def rs = twoColumns(randomize(String) * 6)
 
         when:
-        rs."$method"(ident, input, 10)
+        rs."$method"(arg)
 
         then:
         thrown(UnsupportedOperationException)
 
         where:
-        method                  | ident | input
-        'updateAsciiStream'     | 42    | inputStream()
-        'updateBinaryStream'    | 42    | inputStream()
-        'updateCharacterStream' | 42    | new InputStreamReader(inputStream())
-        'updateObject'          | 42    | new Object()
-        'updateAsciiStream'     | 'foo' | inputStream()
-        'updateBinaryStream'    | 'foo' | inputStream()
-        'updateCharacterStream' | 'foo' | new InputStreamReader(inputStream())
-        'updateObject'          | 'foo' | new Object()
+        method       | arg
+        'updateNull' | 42
+
+        'updateNull' | 'foo'
+    }
+
+    @Unroll
+    def 'unsupported(2-arg): #method'() {
+        setup:
+        def rs = twoColumns(randomize(String) * 6)
+
+        when:
+        rs."$method"(arg1, arg2)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        where:
+        method                   | arg1  | arg2
+        'updateBoolean'          | 42    | true
+        'updateByte'             | 42    | 33 as byte
+        'updateShort'            | 42    | 44 as short
+        'updateInt'              | 42    | 66
+        'updateLong'             | 42    | 99 as long
+        'updateFloat'            | 42    | 88f
+        'updateDouble'           | 42    | 3.14d
+        'updateBigDecimal'       | 42    | new BigDecimal('234234.2345')
+        'updateString'           | 42    | 'asdfasdf'
+        'updateNString'          | 42    | 'asdfasdf'
+        'updateBytes'            | 42    | 'asdfasdf'.bytes
+        'updateDate'             | 42    | new Date(currentTimeMillis())
+        'updateTime'             | 42    | new Time(currentTimeMillis())
+        'updateTimestamp'        | 42    | new Timestamp(currentTimeMillis())
+        'updateObject'           | 42    | new Object()
+        'getObject'              | 42    | [:]
+        'updateRef'              | 42    | {} as Ref
+        'updateBlob'             | 42    | {} as Blob
+        'updateClob'             | 42    | {} as Clob
+        'updateNClob'            | 42    | {} as NClob
+        'updateArray'            | 42    | {} as Array
+        'updateRowId'            | 42    | {} as RowId
+        'updateSQLXML'           | 42    | {} as SQLXML
+        'updateCharacterStream'  | 42    | {} as Reader
+        'updateNCharacterStream' | 42    | {} as Reader
+        'updateAsciiStream'      | 42    | {} as InputStream
+        'updateBinaryStream'     | 42    | {} as InputStream
+        'updateBlob'             | 42    | {} as InputStream
+        'updateClob'             | 42    | {} as Reader
+        'updateNClob'            | 42    | {} as Reader
+
+        'updateBoolean'          | 'foo' | true
+        'updateByte'             | 'foo' | 33 as byte
+        'updateShort'            | 'foo' | 44 as short
+        'updateInt'              | 'foo' | 66
+        'updateLong'             | 'foo' | 99 as long
+        'updateFloat'            | 'foo' | 88f
+        'updateDouble'           | 'foo' | 3.14d
+        'updateBigDecimal'       | 'foo' | new BigDecimal('234234.2345')
+        'updateString'           | 'foo' | 'asdfasdf'
+        'updateNString'          | 'foo' | 'asdfasdf'
+        'updateBytes'            | 'foo' | 'asdfasdf'.bytes
+        'updateDate'             | 'foo' | new Date(currentTimeMillis())
+        'updateTime'             | 'foo' | new Time(currentTimeMillis())
+        'updateTimestamp'        | 'foo' | new Timestamp(currentTimeMillis())
+        'updateObject'           | 'foo' | new Object()
+        'getObject'              | 'foo' | [:]
+        'updateRef'              | 'foo' | {} as Ref
+        'updateBlob'             | 'foo' | {} as Blob
+        'updateClob'             | 'foo' | {} as Clob
+        'updateNClob'            | 'foo' | {} as NClob
+        'updateArray'            | 'foo' | {} as Array
+        'updateRowId'            | 'foo' | {} as RowId
+        'updateSQLXML'           | 'foo' | {} as SQLXML
+        'updateCharacterStream'  | 'foo' | {} as Reader
+        'updateNCharacterStream' | 'foo' | {} as Reader
+        'updateAsciiStream'      | 'foo' | {} as InputStream
+        'updateBinaryStream'     | 'foo' | {} as InputStream
+        'updateBlob'             | 'foo' | {} as InputStream
+        'updateClob'             | 'foo' | {} as Reader
+        'updateNClob'            | 'foo' | {} as Reader
+    }
+
+    @Unroll
+    def 'unsupported(3-arg): #method'() {
+        setup:
+        def rs = twoColumns(randomize(String) * 6)
+
+        when:
+        rs."$method"(arg1, arg2, arg3)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        where:
+        method                   | arg1  | arg2              | arg3
+        'updateAsciiStream'      | 42    | {} as InputStream | 10L
+        'updateBinaryStream'     | 42    | {} as InputStream | 10L
+        'updateCharacterStream'  | 42    | {} as Reader      | 10L
+        'updateNCharacterStream' | 42    | {} as Reader      | 10L
+        'updateObject'           | 42    | new Object()      | 10
+        'updateBlob'             | 42    | {} as InputStream | 10L
+        'updateClob'             | 42    | {} as Reader      | 10L
+        'updateNClob'            | 42    | {} as Reader      | 10L
+
+        'updateAsciiStream'      | 'foo' | {} as InputStream | 10L
+        'updateBinaryStream'     | 'foo' | {} as InputStream | 10L
+        'updateCharacterStream'  | 'foo' | {} as Reader      | 10L
+        'updateNCharacterStream' | 'foo' | {} as Reader      | 10L
+        'updateObject'           | 'foo' | new Object()      | 10
+        'updateBlob'             | 'foo' | {} as InputStream | 10L
+        'updateClob'             | 'foo' | {} as Reader      | 10L
+        'updateNClob'            | 'foo' | {} as Reader      | 10L
     }
 
     def 'unsupported: unwrap'() {
@@ -471,33 +512,6 @@ class MockResultSetSpec extends Specification {
         assertRows rows, items
     }
 
-    def 'updateBigDecimal'() {
-        setup:
-        def rando = randomize(BigDecimal) { typeRandomizer BigDecimal, forBigDecimal() }
-        def rs = twoColumns(rando * 6)
-        def updates = rando * 2
-
-        when:
-        updateRows rs, 'updateBigDecimal', updates
-
-        then:
-        assertUpdates rs, updates
-    }
-
-    def 'updateBytes'() {
-        setup:
-        Class c = ([] as byte[]).class
-        def rando = randomize(c) { typeRandomizer c, forByteArray() }
-        def rs = twoColumns(rando * 6)
-        def updates = rando * 2
-
-        when:
-        updateRows rs, 'updateBytes', updates
-
-        then:
-        assertUpdates rs, updates
-    }
-
     def 'extract: getBytes'() {
         setup:
         Class type = ([] as byte[]).class
@@ -533,50 +547,6 @@ class MockResultSetSpec extends Specification {
 
         where:
         method << ['getAsciiStream', 'getUnicodeStream', 'getBinaryStream']
-    }
-
-    def 'update (InputStream): #method'() {
-        setup:
-        def rando = randomize(InputStream) {
-            typeRandomizer InputStream, { rng ->
-                new ByteArrayInputStream(forByteArray(3).call(rng) as byte[])
-            }
-        }
-        def items = rando * 6
-        def updates = rando * 2
-
-        def rs = twoColumns(items)
-
-        when:
-        updateRows rs, method, updates
-
-        then:
-        assertUpdates rs, updates
-
-        where:
-        method << ['updateAsciiStream', 'updateBinaryStream']
-    }
-
-    def 'update (Reader): #method'() {
-        setup:
-        def rando = randomize(Reader) {
-            typeRandomizer Reader, { Random rng ->
-                new CharArrayReader(forString(3..6).call(rng) as char[])
-            }
-        }
-        def items = rando * 6
-        def updates = rando * 2
-
-        def rs = twoColumns(items)
-
-        when:
-        updateRows rs, method, updates
-
-        then:
-        assertUpdates rs, updates
-
-        where:
-        method << ['updateCharacterStream', 'updateNCharacterStream']
     }
 
     @Unroll
@@ -616,24 +586,20 @@ class MockResultSetSpec extends Specification {
         assertRows rows, items
     }
 
-    def 'updateClob'(){
+    def 'extract: getBlob'() {
         setup:
-        def rando = randomize(Clob) {
-            typeRandomizer Clob, { rng ->
-                new MockClob(forString().call(rng))
+        def items = randomize(Blob) {
+            typeRandomizer Blob, { rng ->
+                new MockBlob(forByteArray(10).call(rng))
             }
-        }
-        def items = rando * 6
-        def updates = rando * 2
-
+        } * 6
         def rs = twoColumns(items)
 
         when:
-        updateRows rs, 'updateClob', updates
+        def rows = extractRows(rs, rs.&getBlob)
 
         then:
-        assertUpdates rs, updates
-
+        assertRows rows, items
     }
 
     private static boolean assertRows(final List<Map<Object, Object>> rows, final List items) {

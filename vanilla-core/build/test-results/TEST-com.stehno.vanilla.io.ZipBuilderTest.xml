@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.io.ZipBuilderTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:53" hostname="RSNPLALT285" time="0.136">
+  <properties/>
+  <testcase name="addEntry: Name Comment Bytes" classname="com.stehno.vanilla.io.ZipBuilderTest" time="0.053"/>
+  <testcase name="addEntry: Name Comment Input" classname="com.stehno.vanilla.io.ZipBuilderTest" time="0.015"/>
+  <testcase name="addEntry: NameBytes" classname="com.stehno.vanilla.io.ZipBuilderTest" time="0.011"/>
+  <testcase name="addEntry: EntryAndBytes" classname="com.stehno.vanilla.io.ZipBuilderTest" time="0.028"/>
+  <testcase name="addEntry_EntryAndInputstream" classname="com.stehno.vanilla.io.ZipBuilderTest" time="0.019"/>
+  <testcase name="addEntry: Name Stream" classname="com.stehno.vanilla.io.ZipBuilderTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

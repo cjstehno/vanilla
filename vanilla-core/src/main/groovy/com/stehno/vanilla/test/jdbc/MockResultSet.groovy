@@ -33,12 +33,6 @@ class MockResultSet implements ResultSet {
 
     private int currentRow = -1
 
-    private void update(int index, Object value) {
-        assertNotClosed()
-        assertRowBounds()
-        rows[currentRow][index - 1] = value
-    }
-
     @Override
     boolean next() throws SQLException {
         assertNotClosed()
@@ -62,7 +56,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean wasNull() throws SQLException {
-        throw new UnsupportedOperationException('wasNull() is not supported.')
+        unsupported 'wasNull'
     }
 
     @Override
@@ -234,7 +228,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     ResultSetMetaData getMetaData() throws SQLException {
-        throw new UnsupportedOperationException('getMetaData() is not supported.')
+        unsupported 'getMetaData()'
     }
 
     @Override
@@ -372,167 +366,167 @@ class MockResultSet implements ResultSet {
 
     @Override
     boolean rowUpdated() throws SQLException {
-        throw new UnsupportedOperationException('rowUpdated() is not supported')
+        unsupported 'rowUpdated()'
     }
 
     @Override
     boolean rowInserted() throws SQLException {
-        throw new UnsupportedOperationException('rowInserted() is not supported')
+        unsupported 'rowInserted()'
     }
 
     @Override
     boolean rowDeleted() throws SQLException {
-        throw new UnsupportedOperationException('rowDeleted() is not supported')
+        unsupported 'rowDeleted()'
     }
 
     @Override
     void updateNull(int columnIndex) throws SQLException {
-        update(columnIndex, null)
+        unsupported 'updateNull(int)'
     }
 
     @Override
     void updateBoolean(int columnIndex, boolean x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateBoolean(int, boolean)'
     }
 
     @Override
     void updateByte(int columnIndex, byte x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateByte(int, byte)'
     }
 
     @Override
     void updateShort(int columnIndex, short x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateShort(int, short)'
     }
 
     @Override
     void updateInt(int columnIndex, int x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateInt(int, int)'
     }
 
     @Override
     void updateLong(int columnIndex, long x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateLong(int, long)'
     }
 
     @Override
     void updateFloat(int columnIndex, float x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateFload(int, float)'
     }
 
     @Override
     void updateDouble(int columnIndex, double x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateDouble(int, double)'
     }
 
     @Override
     void updateBigDecimal(int columnIndex, BigDecimal x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateBigDecimal(int, BigDecimal)'
     }
 
     @Override
     void updateString(int columnIndex, String x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateString(int, String)'
     }
 
     @Override
     void updateBytes(int columnIndex, byte[] x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateBytes(int, byte[])'
     }
 
     @Override
     void updateDate(int columnIndex, Date x) throws SQLException {
-        updateChrono(columnIndex, x)
+        unsupported 'updateDate(int, Date)'
     }
 
     @Override
     void updateTime(int columnIndex, Time x) throws SQLException {
-        updateChrono(columnIndex, x)
+        unsupported 'updateDate(int, Time)'
     }
 
     @Override
     void updateTimestamp(int columnIndex, Timestamp x) throws SQLException {
-        updateChrono(columnIndex, x)
+        unsupported 'updateDate(int, Timestamp)'
     }
 
     @Override
     void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {
-        throw new UnsupportedOperationException('updateAsciiStream(int, InputStream, int) is not supported')
+        unsupported 'updateAsciiStream(int, InputStream, int)'
     }
 
     @Override
     void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {
-        throw new UnsupportedOperationException('updateBinaryStream(int, InputStream, int) is not supported')
+        unsupported 'updateBinaryStream(int, InputStream, int)'
     }
 
     @Override
     void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {
-        throw new UnsupportedOperationException('updateCharacterStream(int, InputStream, int) is not supported')
+        unsupported 'updateCharacterStream(int, Reader, int)'
     }
 
     @Override
     void updateObject(int columnIndex, Object x, int scaleOrLength) throws SQLException {
-        throw new UnsupportedOperationException('updateObject(int, Object, int) is not supported')
+        unsupported 'updateObject(int, Object, int)'
     }
 
     @Override
     void updateObject(int columnIndex, Object x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateObject(int, Object)'
     }
 
     @Override
     void updateNull(String columnLabel) throws SQLException {
-        update(columnIndex(columnLabel), null)
+        unsupported 'updateNull(String)'
     }
 
     @Override
     void updateBoolean(String columnLabel, boolean x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateBoolean(String, boolean)'
     }
 
     @Override
     void updateByte(String columnLabel, byte x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateByte(String, byte)'
     }
 
     @Override
     void updateShort(String columnLabel, short x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateShort(String, short)'
     }
 
     @Override
     void updateInt(String columnLabel, int x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateInt(String, int)'
     }
 
     @Override
     void updateLong(String columnLabel, long x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateLong(String, long)'
     }
 
     @Override
     void updateFloat(String columnLabel, float x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateFloat(String, float)'
     }
 
     @Override
     void updateDouble(String columnLabel, double x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateDouble(String, double)'
     }
 
     @Override
     void updateBigDecimal(String columnLabel, BigDecimal x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateBigDecimal(String, BigDecimal)'
     }
 
     @Override
     void updateString(String columnLabel, String x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateString(String, String)'
     }
 
     @Override
     void updateBytes(String columnLabel, byte[] x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateBytes(String, byte[])'
     }
 
     @Override
@@ -552,72 +546,72 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x, int length) throws SQLException {
-        throw new UnsupportedOperationException('updateAsciiStream(String, InputStream, int) is not supported')
+        unsupported 'updateAsciiStream(String, InputStreeam, int)'
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x, int length) throws SQLException {
-        throw new UnsupportedOperationException('updateBinaryStream(String, InputStream, int) is not supported')
+        unsupported 'updateBinaryStream(String, InputStream, int)'
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader, int length) throws SQLException {
-        throw new UnsupportedOperationException('updateCharacterStream(String, Reader, int) is not supported')
+        unsupported 'updateCharacterStream(String, Reader, int)'
     }
 
     @Override
     void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {
-        throw new UnsupportedOperationException('updateObject(String, Object, int) is not supported')
+        unsupported 'updateObject(String, Object, int)'
     }
 
     @Override
     void updateObject(String columnLabel, Object x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateObject(String, Object)'
     }
 
     @Override
     void insertRow() throws SQLException {
-        throw new UnsupportedOperationException('insertRow() not supported')
+        unsupported 'insertRow()'
     }
 
     @Override
     void updateRow() throws SQLException {
-        throw new UnsupportedOperationException('updateRow() not supported')
+        unsupported 'updateRow()'
     }
 
     @Override
     void deleteRow() throws SQLException {
-        throw new UnsupportedOperationException('deleteRow() not supported')
+        unsupported 'deleteRow()'
     }
 
     @Override
     void refreshRow() throws SQLException {
-        throw new UnsupportedOperationException('refreshRow() not supported')
+        unsupported 'refreshRow()'
     }
 
     @Override
     void cancelRowUpdates() throws SQLException {
-        throw new UnsupportedOperationException('cancelRowUpdates() not supported')
+        unsupported 'cancelRowUpdates()'
     }
 
     @Override
     void moveToInsertRow() throws SQLException {
-        throw new UnsupportedOperationException('moveToInsertRow() not supported')
+        unsupported 'moveToInsertRow()'
     }
 
     @Override
     void moveToCurrentRow() throws SQLException {
-        throw new UnsupportedOperationException('moveToCurrentRow() not supported')
+        unsupported 'moveToCurrentRow()'
     }
 
     @Override
     Statement getStatement() throws SQLException {
-        throw new UnsupportedOperationException('getStatement() is not supported')
+        unsupported 'getStatement()'
     }
 
     @Override
     Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        throw new UnsupportedOperationException('getObject(int, Map) is not supported.')
+        unsupported('getObject(int, Map)')
     }
 
     @Override
@@ -642,7 +636,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
-        throw new UnsupportedOperationException('getObject(String, Map) is not supported.')
+        unsupported 'getObject(String, Map)'
     }
 
     @Override
@@ -707,42 +701,42 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateRef(int columnIndex, Ref x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateRef(int, Ref)'
     }
 
     @Override
     void updateRef(String columnLabel, Ref x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateRef(String, Ref)'
     }
 
     @Override
     void updateBlob(int columnIndex, Blob x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateBlob(int, Blob)'
     }
 
     @Override
     void updateBlob(String columnLabel, Blob x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateBlob(String, Blob)'
     }
 
     @Override
     void updateClob(int columnIndex, Clob x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateClob(int, Clob)'
     }
 
     @Override
     void updateClob(String columnLabel, Clob x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateClob(String, Clob)'
     }
 
     @Override
     void updateArray(int columnIndex, Array x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateArray(int, Array)'
     }
 
     @Override
     void updateArray(String columnLabel, Array x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateArray(String, Array)'
     }
 
     @Override
@@ -757,32 +751,32 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateRowId(int columnIndex, RowId x) throws SQLException {
-        update columnIndex, x
+        unsupported 'updateRowId(int, RowId)'
     }
 
     @Override
     void updateRowId(String columnLabel, RowId x) throws SQLException {
-        update columnIndex(columnLabel), x
+        unsupported 'updateRowInd(String, RowId)'
     }
 
     @Override
     void updateNString(int columnIndex, String nString) throws SQLException {
-        update(columnIndex, nString)
+        unsupported 'updateNString(int, String)'
     }
 
     @Override
     void updateNString(String columnLabel, String nString) throws SQLException {
-        update(columnIndex(columnLabel), nString)
+        unsupported 'updateNString(String, String)'
     }
 
     @Override
     void updateNClob(int columnIndex, NClob nClob) throws SQLException {
-        update(columnIndex, nClob)
+        unsupported 'updateNClob(int, NClob)'
     }
 
     @Override
     void updateNClob(String columnLabel, NClob nClob) throws SQLException {
-        update(columnIndex(columnLabel), nClob)
+        unsupported 'updateNClob(String, NClob)'
     }
 
     @Override
@@ -807,12 +801,12 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
-        update(columnIndex, xmlObject)
+        unsupported 'updateSQLXML(int, SQLXML)'
     }
 
     @Override
     void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
-        update(columnIndex(columnLabel), xmlObject)
+        unsupported 'updateSQLXML(String, SQLXML)'
     }
 
     @Override
@@ -837,142 +831,142 @@ class MockResultSet implements ResultSet {
 
     @Override
     void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateNCharacterStream(int, Reader, long)'
     }
 
     @Override
     void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateNCharacterStream(String, Reader, long)'
     }
 
     @Override
     void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateAsciiStream(int, InputStream, long)'
     }
 
     @Override
     void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateBinaryStream(int, InputStream, long)'
     }
 
     @Override
     void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateCharacterStream(int, Reader, long)'
     }
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateAsciiStream(String, InputStream, long)'
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateBinaryStream(String, InputStream, long)'
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateCharacterStream(String, Reader, long)'
     }
 
     @Override
     void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException {
-        update(columnIndex, inputStream)
+        unsupported 'updateBlob(int, InputStream, long)'
     }
 
     @Override
     void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException {
-        update(columnIndex(columnLabel), inputStream)
+        unsupported 'updateBlob(String, InputStream, long)'
     }
 
     @Override
     void updateClob(int columnIndex, Reader reader, long length) throws SQLException {
-        update(columnIndex, reader)
+        unsupported 'updateClob(int, Reader, long)'
     }
 
     @Override
     void updateClob(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateClob(String, Reader, long)'
     }
 
     @Override
     void updateNClob(int columnIndex, Reader reader, long length) throws SQLException {
-        update(columnIndex, reader)
+        unsupported 'updateNClob(int, Reader, long)'
     }
 
     @Override
     void updateNClob(String columnLabel, Reader reader, long length) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateNClob(String, Reader, long)'
     }
 
     @Override
     void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateNCharacterStream(int, Reader)'
     }
 
     @Override
     void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateNCharacterStream(String, Reader)'
     }
 
     @Override
     void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateAsciiStream(int, InputStream)'
     }
 
     @Override
     void updateBinaryStream(int columnIndex, InputStream x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateBinaryStream(int, InputStream)'
     }
 
     @Override
     void updateCharacterStream(int columnIndex, Reader x) throws SQLException {
-        update(columnIndex, x)
+        unsupported 'updateCharacterStream(int, Reader)'
     }
 
     @Override
     void updateAsciiStream(String columnLabel, InputStream x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateAsciiStream(String, InputStream)'
     }
 
     @Override
     void updateBinaryStream(String columnLabel, InputStream x) throws SQLException {
-        update(columnIndex(columnLabel), x)
+        unsupported 'updateBinaryStream(String, InputStream'
     }
 
     @Override
     void updateCharacterStream(String columnLabel, Reader reader) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateCharacterStream(String, Reader)'
     }
 
     @Override
     void updateBlob(int columnIndex, InputStream inputStream) throws SQLException {
-        update(columnIndex, inputStream)
+        unsupported 'updateBlob(int, InputStream)'
     }
 
     @Override
     void updateBlob(String columnLabel, InputStream inputStream) throws SQLException {
-        update(columnIndex(columnLabel), inputStream)
+        unsupported 'updateBlob(String, InputStream)'
     }
 
     @Override
     void updateClob(int columnIndex, Reader reader) throws SQLException {
-        update(columnIndex, reader)
+        unsupported 'updateClob(int, Reader)'
     }
 
     @Override
     void updateClob(String columnLabel, Reader reader) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateClob(String, Reader)'
     }
 
     @Override
     void updateNClob(int columnIndex, Reader reader) throws SQLException {
-        update(columnIndex, reader)
+        unsupported 'updateNClob(int, Reader)'
     }
 
     @Override
     void updateNClob(String columnLabel, Reader reader) throws SQLException {
-        update(columnIndex(columnLabel), reader)
+        unsupported 'updateNClob(String, Reader)'
     }
 
     @Override
@@ -998,12 +992,12 @@ class MockResultSet implements ResultSet {
 
     @Override
     def <T> T unwrap(Class<T> iface) throws SQLException {
-        throw new UnsupportedOperationException('unwrap(Class) is not supported')
+        unsupported 'unwrap(Class)'
     }
 
     @Override
     boolean isWrapperFor(Class<?> iface) throws SQLException {
-        throw new UnsupportedOperationException('isWrapperFor(Class) is not supported')
+        unsupported 'isWrapperFor(Class)'
     }
 
     @TypeChecked(SKIP)
@@ -1056,6 +1050,10 @@ class MockResultSet implements ResultSet {
 
     private void assertRowBounds() {
         if (currentRow < 0 || currentRow >= rows.size()) throw new SQLException("Current row out of bounds: ${currentRow}")
+    }
+
+    private static void unsupported(String name) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("$name is not supported.")
     }
 }
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.overlap.OverlapBuilderSpec" tests="9" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:53" hostname="RSNPLALT285" time="0.258">
+  <properties/>
+  <testcase name="overlap without lobes" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.16"/>
+  <testcase name="overlap with nulls" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.001"/>
+  <testcase name="overlap: appendComparable[0]" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.001"/>
+  <testcase name="overlap: appendComparable[1]" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.001"/>
+  <testcase name="overlap: appendComparable[2]" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.005"/>
+  <testcase name="overlap: appendLobe[0]" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.001"/>
+  <testcase name="overlap: appendLobe[1]" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.001"/>
+  <testcase name="overlap: appendLobe[2]" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.0"/>
+  <testcase name="overlap: multiple lobes" classname="com.stehno.vanilla.overlap.OverlapBuilderSpec" time="0.084"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

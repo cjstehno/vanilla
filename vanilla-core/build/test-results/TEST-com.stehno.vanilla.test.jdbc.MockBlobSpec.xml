@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.test.jdbc.MockBlobSpec" tests="9" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:54" hostname="RSNPLALT285" time="0.043">
+  <properties/>
+  <testcase name="length &amp; truncate" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.018"/>
+  <testcase name="getBytes" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.005"/>
+  <testcase name="getBinaryStream" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.002"/>
+  <testcase name="getBinaryStream(long, long)" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.0"/>
+  <testcase name="position: bytes" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.001"/>
+  <testcase name="position: Blob" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.002"/>
+  <testcase name="setBytes(long, byte[], int, int)" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.005"/>
+  <testcase name="setBytes(long, byte[])" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.002"/>
+  <testcase name="setBinaryStream" classname="com.stehno.vanilla.test.jdbc.MockBlobSpec" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.AffirmationsSpec" tests="16" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:51" hostname="RSNPLALT285" time="0.863">
+  <properties/>
+  <testcase name="affirm(negative): one-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.751"/>
+  <testcase name="affirm(negative): two-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.082"/>
+  <testcase name="affirm(negative): two-arg (no message)" classname="com.stehno.vanilla.AffirmationsSpec" time="0.009"/>
+  <testcase name="affirm(negative): three-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.001"/>
+  <testcase name="affirm(positive): one-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.002"/>
+  <testcase name="affirm(positive): two-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.001"/>
+  <testcase name="affirm(positive): two-arg (no message)" classname="com.stehno.vanilla.AffirmationsSpec" time="0.0"/>
+  <testcase name="affirm(positive): three-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.001"/>
+  <testcase name="affirmNot(negative): one-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.002"/>
+  <testcase name="affirmNot(negative): two-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.003"/>
+  <testcase name="affirmNot(negative): two-arg (no message)" classname="com.stehno.vanilla.AffirmationsSpec" time="0.002"/>
+  <testcase name="affirmNot(negative): three-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.003"/>
+  <testcase name="affirmNot(positive): one-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.0"/>
+  <testcase name="affirmNot(positive): two-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.001"/>
+  <testcase name="affirmNot(positive): two-arg (no message)" classname="com.stehno.vanilla.AffirmationsSpec" time="0.001"/>
+  <testcase name="affirmNot(positive): three-arg" classname="com.stehno.vanilla.AffirmationsSpec" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

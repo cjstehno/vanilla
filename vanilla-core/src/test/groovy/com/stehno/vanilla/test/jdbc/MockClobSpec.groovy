@@ -42,11 +42,15 @@ class MockClobSpec extends Specification {
     }
 
     def 'position: String'() {
-        when:
-        long pos = clob.position('test', 2)
+        expect:
+        clob.position('test', start) == pos
 
-        then:
-        pos == 11
+        where:
+        start           || pos
+        1               || 11
+        2               || 11
+        4               || 11
+        STRING.length() || -1
     }
 
     def 'position: Clob'() {

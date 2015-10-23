@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.test.jdbc.MockResultSetSpec" tests="138" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:54" hostname="RSNPLALT285" time="0.506">
+  <properties/>
+  <testcase name="positions:beforeFirst" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.011"/>
+  <testcase name="positions:first" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="positions:last" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="positions:afterLast" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="positions:absolute(-3)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="positions:absolute(0)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="positions:absolute(1)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="positions:absolute(2)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="positions:absolute(3)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="positions:absolute(4)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="positions:relative" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.004"/>
+  <testcase name="previous" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.003"/>
+  <testcase name="findColumn" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="size" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.004"/>
+  <testcase name="extract: getString" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.021"/>
+  <testcase name="extract: getNString" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.003"/>
+  <testcase name="extract: getBoolean" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="extract: getInt" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="extract: getFloat" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="extract: getDouble" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.006"/>
+  <testcase name="extract: getShort" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.006"/>
+  <testcase name="extract: getByte" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="extract: getLong" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="extract: getDate" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="extract: getTime" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="extract: getTimestamp" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.008"/>
+  <testcase name="extract: getObject" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="extract: getDate (with calendar)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.01"/>
+  <testcase name="extract: getTime (with calendar)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="extract: getTimestamp (with calendar)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.003"/>
+  <testcase name="extract: getURL" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.016"/>
+  <testcase name="unsupported: rowUpdated" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.004"/>
+  <testcase name="unsupported: rowInserted" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: rowDeleted" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: getMetaData" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: wasNull" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: updateRow" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: deleteRow" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported: insertRow" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: refreshRow" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: cancelRowUpdates" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: moveToInsertRow" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: moveToCurrentRow" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported: getStatement" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(1-arg): updateNull" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(1-arg): updateNull" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateBoolean" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateByte" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateShort" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateInt" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateLong" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateFloat" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateDouble" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBigDecimal" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateString" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateNString" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBytes" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateDate" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateTime" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateTimestamp" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateObject" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): getObject" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateRef" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBlob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateNClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateArray" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateRowId" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateSQLXML" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateNCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateAsciiStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBinaryStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBlob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateNClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBoolean" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateByte" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateShort" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateInt" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateLong" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateFloat" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateDouble" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBigDecimal" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateString" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateNString" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBytes" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateDate" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.003"/>
+  <testcase name="unsupported(2-arg): updateTime" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateTimestamp" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateObject" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): getObject" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateRef" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBlob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateNClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateArray" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateRowId" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateSQLXML" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateNCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="unsupported(2-arg): updateAsciiStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBinaryStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateBlob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(2-arg): updateClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.0"/>
+  <testcase name="unsupported(2-arg): updateNClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateAsciiStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateBinaryStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateNCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateObject" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.0"/>
+  <testcase name="unsupported(3-arg): updateBlob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateNClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateAsciiStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateBinaryStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateNCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateObject" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateBlob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported(3-arg): updateNClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.001"/>
+  <testcase name="unsupported: unwrap" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.003"/>
+  <testcase name="unsupported: isWrapperFor" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="warnings" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.006"/>
+  <testcase name="extract: getDate (as long)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="extract: getTime (as long)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="extract: getTimestamp (as long)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.005"/>
+  <testcase name="extract: getBigDecimal" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.008"/>
+  <testcase name="extract: getBigDecimal (with scale)" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.006"/>
+  <testcase name="extract: getBytes" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.007"/>
+  <testcase name="extract (InputStream): getAsciiStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.007"/>
+  <testcase name="extract (InputStream): getUnicodeStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.003"/>
+  <testcase name="extract (InputStream): getBinaryStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="extract (Reader): getCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.009"/>
+  <testcase name="extract (Reader): getNCharacterStream" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.002"/>
+  <testcase name="extract: getClob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.006"/>
+  <testcase name="extract: getBlob" classname="com.stehno.vanilla.test.jdbc.MockResultSetSpec" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

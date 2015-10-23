@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/com.stehno.vanilla.test.jdbc.html">com.stehno.vanilla.test.jdbc</a> &gt; ResultSetBuilderSpec</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">6</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">5</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.071s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox failures" id="successRate">
+<div class="percent">16%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Failed tests</a>
+</li>
+<li>
+<a href="#tab1">Tests</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Failed tests</h2>
+<div class="test">
+<a name="updateBoolean"></a>
+<h3 class="failures">updateBoolean</h3>
+<span class="code">
+<pre>java.lang.UnsupportedOperationException: updateBoolean(int, boolean) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateBoolean(MockResultSet.groovy:389)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateBoolean(ResultSetBuilderSpec.groovy:62)
+</pre>
+</span>
+</div>
+<div class="test">
+<a name="updateDouble"></a>
+<h3 class="failures">updateDouble</h3>
+<span class="code">
+<pre>java.lang.UnsupportedOperationException: updateDouble(int, double) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateDouble(MockResultSet.groovy:419)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateDouble(ResultSetBuilderSpec.groovy:102)
+</pre>
+</span>
+</div>
+<div class="test">
+<a name="updateFloat"></a>
+<h3 class="failures">updateFloat</h3>
+<span class="code">
+<pre>java.lang.UnsupportedOperationException: updateFload(int, float) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateFloat(MockResultSet.groovy:414)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateFloat(ResultSetBuilderSpec.groovy:82)
+</pre>
+</span>
+</div>
+<div class="test">
+<a name="updateInt"></a>
+<h3 class="failures">updateInt</h3>
+<span class="code">
+<pre>java.lang.UnsupportedOperationException: updateInt(int, int) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateInt(MockResultSet.groovy:404)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateInt(ResultSetBuilderSpec.groovy:122)
+</pre>
+</span>
+</div>
+<div class="test">
+<a name="updateString"></a>
+<h3 class="failures">updateString</h3>
+<span class="code">
+<pre>java.lang.UnsupportedOperationException: updateString(int, String) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateString(MockResultSet.groovy:429)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateString(ResultSetBuilderSpec.groovy:44)
+</pre>
+</span>
+</div>
+</div>
+<div id="tab1" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">getDate</td>
+<td>0.027s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="failures">updateBoolean</td>
+<td>0.004s</td>
+<td class="failures">failed</td>
+</tr>
+<tr>
+<td class="failures">updateDouble</td>
+<td>0.004s</td>
+<td class="failures">failed</td>
+</tr>
+<tr>
+<td class="failures">updateFloat</td>
+<td>0.005s</td>
+<td class="failures">failed</td>
+</tr>
+<tr>
+<td class="failures">updateInt</td>
+<td>0.014s</td>
+<td class="failures">failed</td>
+</tr>
+<tr>
+<td class="failures">updateString</td>
+<td>0.017s</td>
+<td class="failures">failed</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 2.7</a> at Oct 23, 2015 12:24:57 PM</p>
+</div>
+</div>
+</body>
+</html>

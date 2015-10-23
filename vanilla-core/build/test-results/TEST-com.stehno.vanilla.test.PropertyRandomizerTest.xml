@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.test.PropertyRandomizerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:54" hostname="RSNPLALT285" time="0.227">
+  <properties/>
+  <testcase name="conversion to Map" classname="com.stehno.vanilla.test.PropertyRandomizerTest" time="0.025"/>
+  <testcase name="randomizer: using PropertyRandomizer as typeRandomizer" classname="com.stehno.vanilla.test.PropertyRandomizerTest" time="0.06"/>
+  <testcase name="randomize: simple" classname="com.stehno.vanilla.test.PropertyRandomizerTest" time="0.036"/>
+  <testcase name="randomize: complex" classname="com.stehno.vanilla.test.PropertyRandomizerTest" time="0.06"/>
+  <testcase name="randomize: complex (DSL)" classname="com.stehno.vanilla.test.PropertyRandomizerTest" time="0.044"/>
+  <testcase name="randomize: simple type" classname="com.stehno.vanilla.test.PropertyRandomizerTest" time="0.001"/>
+  <system-out><![CDATA[com.stehno.vanilla.test.Pet(vm4ulunskwn53j, 23)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

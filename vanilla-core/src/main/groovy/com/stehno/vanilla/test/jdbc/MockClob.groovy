@@ -63,7 +63,7 @@ class MockClob implements Clob {
     long position(final String str, final long start) throws SQLException {
         checkFree()
 
-        int index = toString().indexOf(str, (start - 1) as int)
+        int index = toString().indexOf(str, positionIndex(start))
         return index != -1 ? index + 1 : -1
     }
 

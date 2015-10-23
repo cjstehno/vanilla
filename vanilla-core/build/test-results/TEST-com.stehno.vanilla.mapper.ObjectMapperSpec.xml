@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.mapper.ObjectMapperSpec" tests="9" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:53" hostname="RSNPLALT285" time="0.381">
+  <properties/>
+  <testcase name="simple usage" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.214"/>
+  <testcase name="simple collector usage" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.043"/>
+  <testcase name="simple usage (with nulls)" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.008"/>
+  <testcase name="simple usage (closure args)" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.015"/>
+  <testcase name="nested usage" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.02"/>
+  <testcase name="mapped source property does not exist" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.024"/>
+  <testcase name="mapped destination property does not exist" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.008"/>
+  <testcase name="simple usage (POGO to POJO)" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.022"/>
+  <testcase name="simple usage (POJO to POJO)" classname="com.stehno.vanilla.mapper.ObjectMapperSpec" time="0.025"/>
+  <system-out><![CDATA[BazObject{label='k976ni5mdcf9poat5q47', age=55, startDate=Wed Jan 11 02:02:48 CST 36991051, birthday='joe7y3zgje0doci3', pct=0.0068560243}
+BazObject{label='k976ni5mdcf9poat5q47', age=55, startDate=Wed Jan 11 02:02:48 CST 36991051, birthday='joe7y3zgje0doci3', pct=0.0068560243}
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

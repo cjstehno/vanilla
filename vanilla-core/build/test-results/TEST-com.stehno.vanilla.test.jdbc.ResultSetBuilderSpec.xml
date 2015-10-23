@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec" tests="6" skipped="0" failures="5" errors="0" timestamp="2015-10-23T17:24:55" hostname="RSNPLALT285" time="0.071">
+  <properties/>
+  <testcase name="updateString" classname="com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec" time="0.017">
+    <failure message="java.lang.UnsupportedOperationException: updateString(int, String) is not supported." type="java.lang.UnsupportedOperationException">java.lang.UnsupportedOperationException: updateString(int, String) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateString(MockResultSet.groovy:429)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateString(ResultSetBuilderSpec.groovy:44)
+</failure>
+  </testcase>
+  <testcase name="updateBoolean" classname="com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec" time="0.004">
+    <failure message="java.lang.UnsupportedOperationException: updateBoolean(int, boolean) is not supported." type="java.lang.UnsupportedOperationException">java.lang.UnsupportedOperationException: updateBoolean(int, boolean) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateBoolean(MockResultSet.groovy:389)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateBoolean(ResultSetBuilderSpec.groovy:62)
+</failure>
+  </testcase>
+  <testcase name="updateFloat" classname="com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec" time="0.005">
+    <failure message="java.lang.UnsupportedOperationException: updateFload(int, float) is not supported." type="java.lang.UnsupportedOperationException">java.lang.UnsupportedOperationException: updateFload(int, float) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateFloat(MockResultSet.groovy:414)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateFloat(ResultSetBuilderSpec.groovy:82)
+</failure>
+  </testcase>
+  <testcase name="updateDouble" classname="com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec" time="0.004">
+    <failure message="java.lang.UnsupportedOperationException: updateDouble(int, double) is not supported." type="java.lang.UnsupportedOperationException">java.lang.UnsupportedOperationException: updateDouble(int, double) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateDouble(MockResultSet.groovy:419)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateDouble(ResultSetBuilderSpec.groovy:102)
+</failure>
+  </testcase>
+  <testcase name="updateInt" classname="com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec" time="0.014">
+    <failure message="java.lang.UnsupportedOperationException: updateInt(int, int) is not supported." type="java.lang.UnsupportedOperationException">java.lang.UnsupportedOperationException: updateInt(int, int) is not supported.
+	at com.stehno.vanilla.test.jdbc.MockResultSet.unsupported(MockResultSet.groovy:1056)
+	at com.stehno.vanilla.test.jdbc.MockResultSet.updateInt(MockResultSet.groovy:404)
+	at com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec.updateInt(ResultSetBuilderSpec.groovy:122)
+</failure>
+  </testcase>
+  <testcase name="getDate" classname="com.stehno.vanilla.test.jdbc.ResultSetBuilderSpec" time="0.027"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
