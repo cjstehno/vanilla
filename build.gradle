@@ -20,10 +20,12 @@ buildscript {
     }
     dependencies {
         classpath 'org.kordamp.gradle:stats-gradle-plugin:0.1.5'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
     }
 }
     
 subprojects {
+    version = '0.0.10'
     group = 'com.stehno.vanilla'
 
     apply plugin: 'groovy'
@@ -31,10 +33,10 @@ subprojects {
     apply plugin: 'codenarc'
     apply plugin: 'jacoco'
     apply plugin: 'org.kordamp.gradle.stats'
-    
+    apply plugin: 'com.github.ben-manes.versions'
 
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
+    sourceCompatibility = 8
+    targetCompatibility = 8
 
     repositories {
         jcenter()
@@ -45,13 +47,13 @@ subprojects {
     }
 
     dependencies {
-        compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+        compile "org.codehaus.groovy:groovy-all:2.4.5"
 
         testCompile 'junit:junit:4.12'
         testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
 
-        groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
-        groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
+        groovyDoc "org.codehaus.groovy:groovy-groovydoc:2.4.5"
+        groovyDoc "org.codehaus.groovy:groovy-ant:2.4.5"
     }
 
     test {
@@ -86,5 +88,5 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.7'
+    gradleVersion = '2.8'
 }

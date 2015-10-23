@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.stehno.vanilla.util.ArraysSpec" tests="1" skipped="0" failures="0" errors="0" timestamp="2015-10-23T17:24:57" hostname="RSNPLALT285" time="0.006">
-  <properties/>
-  <testcase name="insert" classname="com.stehno.vanilla.util.ArraysSpec" time="0.006"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
