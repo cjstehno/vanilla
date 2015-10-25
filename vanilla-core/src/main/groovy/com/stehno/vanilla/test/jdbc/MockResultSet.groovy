@@ -15,6 +15,7 @@
  */
 package com.stehno.vanilla.test.jdbc
 
+import groovy.transform.Canonical
 import groovy.transform.TupleConstructor
 import groovy.transform.TypeChecked
 
@@ -1041,14 +1042,6 @@ class MockResultSet implements ResultSet {
         return type.newInstance(cal.timeInMillis)
     }
 
-    @TypeChecked(SKIP)
-    private void updateChrono(int columnIndex, value) {
-        assertNotClosed()
-        assertRowBounds()
-
-        rows[currentRow][columnIndex - 1] = value.time
-    }
-
     private void assertions(int colIndex) {
         assertNotClosed()
         assertRowBounds()
@@ -1072,3 +1065,68 @@ class MockResultSet implements ResultSet {
     }
 }
 
+@Canonical
+class MockRef implements Ref {
+
+    String baseTypeName
+    Object object
+
+    @Override
+    Object getObject(Map<String, Class<?>> map) throws SQLException {
+        object
+    }
+}
+
+@Canonical
+class MockRowId implements RowId {
+
+    byte[] bytes
+}
+
+@Canonical
+class MockArray implements Array {
+
+    String baseTypeName
+    int baseType
+    Object array
+
+    @Override
+    Object getArray(Map<String, Class<?>> map) throws SQLException {
+        return null
+    }
+
+    @Override
+    Object getArray(long index, int count) throws SQLException {
+        return null
+    }
+
+    @Override
+    Object getArray(long index, int count, Map<String, Class<?>> map) throws SQLException {
+        return null
+    }
+
+    @Override
+    ResultSet getResultSet() throws SQLException {
+        return null
+    }
+
+    @Override
+    ResultSet getResultSet(Map<String, Class<?>> map) throws SQLException {
+        return null
+    }
+
+    @Override
+    ResultSet getResultSet(long index, int count) throws SQLException {
+        return null
+    }
+
+    @Override
+    ResultSet getResultSet(long index, int count, Map<String, Class<?>> map) throws SQLException {
+        return null
+    }
+
+    @Override
+    void free() throws SQLException {
+
+    }
+}

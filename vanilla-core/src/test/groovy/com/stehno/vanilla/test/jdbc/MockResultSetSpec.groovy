@@ -397,8 +397,11 @@ class MockResultSetSpec extends Specification {
 
         where:
         method                   | arg1  | arg2              | arg3
+        'updateAsciiStream'      | 42    | {} as InputStream | 10
         'updateAsciiStream'      | 42    | {} as InputStream | 10L
+        'updateBinaryStream'     | 42    | {} as InputStream | 10
         'updateBinaryStream'     | 42    | {} as InputStream | 10L
+        'updateCharacterStream'  | 42    | {} as Reader      | 10
         'updateCharacterStream'  | 42    | {} as Reader      | 10L
         'updateNCharacterStream' | 42    | {} as Reader      | 10L
         'updateObject'           | 42    | new Object()      | 10
@@ -406,8 +409,11 @@ class MockResultSetSpec extends Specification {
         'updateClob'             | 42    | {} as Reader      | 10L
         'updateNClob'            | 42    | {} as Reader      | 10L
 
+        'updateAsciiStream'      | 'foo' | {} as InputStream | 10
         'updateAsciiStream'      | 'foo' | {} as InputStream | 10L
+        'updateBinaryStream'     | 'foo' | {} as InputStream | 10
         'updateBinaryStream'     | 'foo' | {} as InputStream | 10L
+        'updateCharacterStream'  | 'foo' | {} as Reader      | 10
         'updateCharacterStream'  | 'foo' | {} as Reader      | 10L
         'updateNCharacterStream' | 'foo' | {} as Reader      | 10L
         'updateObject'           | 'foo' | new Object()      | 10
@@ -596,6 +602,41 @@ class MockResultSetSpec extends Specification {
 
         when:
         def rows = extractRows(rs, rs.&getClob)
+
+        then:
+        assertRows rows, items
+    }
+
+    def 'extract: getRef'() {
+        setup:
+        def items = randomize(Ref) {
+            typeRandomizer Ref, { rng ->
+                new MockRef(
+                    forString().call(rng),
+                    forString().call(rng)
+                )
+            }
+        } * 6
+        def rs = twoColumns(items)
+
+        when:
+        def rows = extractRows(rs, rs.&getRef)
+
+        then:
+        assertRows rows, items
+    }
+
+    def 'extract: getRowId'() {
+        setup:
+        def items = randomize(RowId) {
+            typeRandomizer RowId, { rng ->
+                new MockRowId(forByteArray(10).call(rng))
+            }
+        } * 6
+        def rs = twoColumns(items)
+
+        when:
+        def rows = extractRows(rs, rs.&getRowId)
 
         then:
         assertRows rows, items
