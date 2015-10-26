@@ -38,7 +38,7 @@ class ResultSetMapper {
     }
 
     // FIXME: document and test this "as RowMapper" - similar for ResultSetExtractor?
-    def mapRow(ResultSet rs, int rownum){
+    def mapRow(ResultSet rs, int rownum) {
         call rs
     }
 
@@ -54,7 +54,18 @@ class ResultSetMapper {
             }.each { MetaProperty mp ->
                 FieldMapping mapping = builder.findMapping(mp.name)
                 if (mapping) {
-                    instanceProps[mp.name] = mapping.extractor.call(rs)
+                    def mappedValue = mapping.extractor.call(rs)
+                    if (mapping.converter) {
+                        int argCount = mapping.converter.maximumNumberOfParameters
+                        if (argCount > 0) {
+                            mappedValue = mapping.converter.call(mappedValue)
+                        } else {
+                            mappedValue = mapping.converter.call()
+                        }
+                    }
+
+                    instanceProps[mp.name] = mappedValue
+
                 } else {
                     throw new IllegalArgumentException("Missing mapping for field (${mp.name}).")
                 }

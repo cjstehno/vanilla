@@ -21,14 +21,25 @@ import java.sql.ResultSet
 
 /**
  * FIXME: document me
+ *
+ * from methods map to the get methods of ResultSet
+ * from, fromObject --> getObject
+ * fromString --> getString
+ * fromDate --> getDate
+ * etc (field name or position is valid)
  */
 class FieldMapping {
 
     final String propertyName
     private Closure extractor
+    private Closure converter
 
     Closure getExtractor() {
         extractor
+    }
+
+    Closure getConverter(){
+        converter
     }
 
     FieldMapping(String propertyName) {
@@ -37,50 +48,26 @@ class FieldMapping {
         from Strings.camelCaseToUnderscore(propertyName)
     }
 
-    FieldMapping from(final String fieldName) {
-        extractor = { ResultSet rs -> rs.getObject(fieldName) }
-        this
-    }
+    FieldMapping methodMissing(String name, args) {
+        // FIXME: validate against approved list?
 
-    FieldMapping from(final int fieldIndex) {
-        extractor = { ResultSet rs -> rs.getObject(fieldIndex) }
-        this
-    }
+        MetaMethod method = ResultSet.metaClass.getMetaMethod(
+            name == 'from' ? 'getObject' : "get${name - 'from'}",
+            args[0]
+        )
 
-    FieldMapping fromDate(final String fieldName) {
-        extractor = { ResultSet rs -> rs.getDate(fieldName) }
-        this
-    }
+        if (method) {
+            extractor = { ResultSet rs ->
+                method.invoke(rs, args[0])
+            }
+            this
 
-    FieldMapping fromString(final String fieldName) {
-        extractor = { ResultSet rs -> rs.getString(fieldName) }
-        this
+        } else {
+            throw new NoSuchMethodException("No type conversion method ($name) exists.")
+        }
     }
-
-    /* TODO: support most if not all of these
-    BigDecimal
-    BinaryStream
-    AsciiStream
-    Array
-    blob
-    boolean
-    byte
-    bytes
-    characterstream
-    clob
-    date
-    double
-    float
-    int
-    long
-    short
-    string
-    time
-    timestamp
-    url
-     */
 
     void using(Closure closure) {
-
+        converter = closure
     }
 }

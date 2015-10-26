@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 package com.stehno.vanilla.jdbc
+
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
 import static ResultSetMapperBuilder.mapper
 import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
 
-class ResultSetMapperFactorySpec extends Specification {
+class ResultSetMapperBuilderSpec extends Specification {
 
     def 'mapper: Implicit'() {
         setup:
@@ -37,7 +38,7 @@ class ResultSetMapperFactorySpec extends Specification {
             ignore 'bankPin'
             ignore 'pet'
             map 'birthDate' fromDate 'birth_date'
-            map 'age'
+            map 'age' from 2 using { a-> a - 5 }
             map 'name' fromString 'name'
             ignore 'children'
         }
@@ -47,7 +48,9 @@ class ResultSetMapperFactorySpec extends Specification {
         def obj = mapper(rs)
 
         then:
-        obj == person
+        obj == new Person(
+            name: 'Bob', age: 37, birthDate: person.birthDate
+        )
     }
 }
 
