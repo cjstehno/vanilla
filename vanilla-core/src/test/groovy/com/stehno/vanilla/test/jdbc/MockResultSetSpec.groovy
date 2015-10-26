@@ -29,6 +29,24 @@ class MockResultSetSpec extends Specification {
     private static final List COL_IDS = [1, 'b'].asImmutable()
     private static final int ROW_COUNT = 3
 
+    def 'closed'(){
+        setup:
+        def rs = twoColumns(randomize(String) * 6)
+
+        when:
+        rs.close()
+
+        then:
+        rs.closed
+
+        when:
+        rs.next()
+
+        then:
+        def ex = thrown(SQLException)
+        ex.message == 'ResultSet-Closed'
+    }
+
     def 'positions:beforeFirst'() {
         setup:
         def rs = twoColumns(randomize(String) * 6)
@@ -304,8 +322,10 @@ class MockResultSetSpec extends Specification {
         where:
         method       | arg
         'updateNull' | 42
+        'getSQLXML' | 42
 
         'updateNull' | 'foo'
+        'getSQLXML' | 'foo'
     }
 
     @Unroll
@@ -653,6 +673,36 @@ class MockResultSetSpec extends Specification {
 
         when:
         def rows = extractRows(rs, rs.&getBlob)
+
+        then:
+        assertRows rows, items
+    }
+
+    def 'extract: getNClob'() {
+        setup:
+        def items = randomize(NClob) {
+            typeRandomizer NClob, { rng ->
+                new MockClob(forString().call(rng)) as NClob
+            }
+        } * 6
+        def rs = twoColumns(items)
+
+        when:
+        def rows = extractRows(rs, rs.&getNClob)
+
+        then:
+        assertRows rows, items
+    }
+
+    def 'extract: getArray'() {
+        setup:
+        def items = randomize(MockArray) {
+            propertyRandomizer 'array', forLongArray(6)
+        } * 6
+        def rs = twoColumns(items)
+
+        when:
+        def rows = extractRows(rs, rs.&getArray)
 
         then:
         assertRows rows, items

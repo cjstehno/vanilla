@@ -22,7 +22,8 @@ import static com.stehno.vanilla.util.Strings.underscoreToCamelCase
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 /**
- * Created by cjstehno on 10/4/15.
+ * Builder used to simplify the creation of MockResultSet objects using the builder pattern or the provided ResultSet
+ * DSL.
  */
 class ResultSetBuilder implements ResultSetDsl {
 
@@ -71,12 +72,20 @@ class ResultSetBuilder implements ResultSetDsl {
         rows << (row as Object[])
     }
 
+    /**
+     * Builds a MockResultSet based on the provided data.
+     *
+     * @return a configured MockResultSet
+     */
     ResultSet build() {
         new MockResultSet(columns, rows)
     }
 
     private void checkColumnSizes(int argCount) {
-        affirm argCount == columns.size(), "The column counts do not match: found ${argCount}, expected ${columns.size()}."
+        affirm(
+            argCount == columns.size(),
+            "The column counts do not match: found ${argCount}, expected ${columns.size()} - did you specify the columns?"
+        )
     }
 }
 

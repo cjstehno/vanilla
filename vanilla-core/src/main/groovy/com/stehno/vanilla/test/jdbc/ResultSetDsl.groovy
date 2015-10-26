@@ -20,15 +20,47 @@ package com.stehno.vanilla.test.jdbc
  */
 interface ResultSetDsl {
 
+    /**
+     * Provides the column names used in the ResultSet. This must be called before any rows are added to the result set.
+     *
+     * @param colNames the column names
+     */
     void columns(String... colNames)
 
+    /**
+     * Provides the column names used in the ResultSet. This must be called before any rows are added to the result set.
+     *
+     * @param colNames the column names
+     */
     void columns(List<String> colNames)
 
+    /**
+     * Provides a row of data to the result set, specified by the given objects in the same order as the column definition.
+     *
+     * @param colValues the column values
+     */
     void data(Object... colValues)
 
+    /**
+     * Provides a row of data to the result set, specified by the given objects in the same order as the column definition.
+     *
+     * @param colValues the column values
+     */
     void data(List<Object> colValues)
 
+    /**
+     * Provides a row of data to the result set by extracting the properties whose names match the column names (converted
+     * from underscore-style to camel-case.
+     *
+     * @param objValues the object containing the row values
+     */
     void object(Object objValues)
 
+    /**
+     * Provides a row of data to the result set by extracting the map values whose names match the column names (converted
+     * from underscore-style to camel-case.
+     *
+     * @param mapValues the map containing the row values
+     */
     void map(Map<String, Object> mapValues)
 }

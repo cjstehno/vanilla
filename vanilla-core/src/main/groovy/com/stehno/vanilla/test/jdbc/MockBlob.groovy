@@ -22,7 +22,6 @@ import groovy.transform.TypeChecked
 import java.sql.Blob
 import java.sql.SQLException
 
-import static com.stehno.vanilla.Affirmations.affirm
 import static java.lang.System.arraycopy
 import static java.util.Arrays.copyOf
 
@@ -31,10 +30,9 @@ import static java.util.Arrays.copyOf
  * the MockResultSet; however, there is no restriction as such.
  */
 @EqualsAndHashCode @TypeChecked
-class MockBlob implements Blob {
+class MockBlob implements Blob, DataObject {
 
     private byte[] bytes
-    private boolean freed
 
     MockBlob(byte[] bytes) {
         this.bytes = bytes
@@ -123,24 +121,6 @@ class MockBlob implements Blob {
         checkFree()
 
         this.bytes = copyOf(bytes, len as int)
-    }
-
-    @Override
-    void free() throws SQLException {
-        freed = true
-    }
-
-    // FIXME: make these shared methods a trait or something
-
-    private void checkFree() throws SQLException {
-        affirm !freed, 'The blob has been freed and is no longer valid.', SQLException
-    }
-
-    private int positionIndex(long pos) throws SQLException {
-        affirm pos > 0, "The position must be greater than zero ($pos).", SQLException
-        affirm pos <= bytes.length, "The position must be within the length of the buffer ($pos > ${bytes.length}).", SQLException
-
-        pos - 1
     }
 }
 

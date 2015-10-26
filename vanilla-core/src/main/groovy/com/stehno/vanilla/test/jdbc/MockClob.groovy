@@ -33,10 +33,9 @@ import static java.util.Arrays.copyOf
  * the MockResultSet; however, there is no restriction as such.
  */
 @EqualsAndHashCode @TypeChecked
-class MockClob implements Clob {
+class MockClob implements Clob, DataObject {
 
     private char[] characters
-    private boolean freed
 
     MockClob(char[] chars) {
         this.characters = chars
@@ -124,26 +123,10 @@ class MockClob implements Clob {
     }
 
     @Override
-    void free() throws SQLException {
-        freed = true
-    }
-
-    @Override
     Reader getCharacterStream(long pos, long length) throws SQLException {
         checkFree()
 
         new StringReader(getSubString(pos, length as int))
-    }
-
-    private void checkFree() throws SQLException {
-        affirm !freed, 'The clob has been freed and is no longer valid.', SQLException
-    }
-
-    private int positionIndex(long pos) throws SQLException {
-        affirm pos > 0, "The position must be greater than zero ($pos).", SQLException
-        affirm pos <= characters.length, "The position must be within the length of the buffer ($pos > ${characters.length}).", SQLException
-
-        pos - 1
     }
 
     @Override
@@ -196,3 +179,4 @@ class ClobOutputStream extends OutputStream {
         }
     }
 }
+

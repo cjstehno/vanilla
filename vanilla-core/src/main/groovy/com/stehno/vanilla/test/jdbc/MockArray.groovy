@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.test.jdbc
 
 import groovy.transform.Canonical
@@ -26,54 +25,59 @@ import java.sql.SQLException
  * FIXME: document me
  */
 @Canonical
-class MockArray implements Array {
+class MockArray implements Array, DataObject {
 
     String baseTypeName
     int baseType
     Object array
 
     @Override
-    Object getArray(Map<String, Class<?>> map) throws SQLException {
-        return null
+    long length() {
+        array.size()
     }
 
     @Override
-    Object getArray(long index, int count) throws SQLException {
-        return null
+    Object getArray(Map<String, Class<?>> map) throws SQLException {
+        checkFree()
+        array
+    }
+
+    @Override
+    Object getArray(long pos, int count) throws SQLException {
+        checkFree()
+
+        int index = positionIndex(pos)
+
+        array[index..(index + count - 1)]
     }
 
     @Override
     Object getArray(long index, int count, Map<String, Class<?>> map) throws SQLException {
-        return null
+        getArray(index, count)
     }
 
     @Override
     ResultSet getResultSet() throws SQLException {
-        int len  = java.lang.reflect.Array.getLength(array)
-
-        new MockResultSet(
-            ,
-            []
-        )
+        new MockResultSet(numberedCols(length()), [array])
     }
 
     @Override
     ResultSet getResultSet(Map<String, Class<?>> map) throws SQLException {
-        return null
+        resultSet
     }
 
     @Override
-    ResultSet getResultSet(long index, int count) throws SQLException {
-        return null
+    ResultSet getResultSet(long pos, int count) throws SQLException {
+        int index = positionIndex(pos)
+        new MockResultSet(numberedCols(count), [array[index..(index + count - 1)]])
     }
 
     @Override
     ResultSet getResultSet(long index, int count, Map<String, Class<?>> map) throws SQLException {
-        return null
+        getResultSet(index, count)
     }
 
-    @Override
-    void free() throws SQLException {
-
+    private static List<String> numberedCols(count) {
+        return (1..count).collect { c -> c as String }
     }
 }

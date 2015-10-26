@@ -15,7 +15,7 @@
  */
 package com.stehno.vanilla.test.jdbc
 
-import groovy.transform.Canonical
+import groovy.transform.ToString
 import groovy.transform.TupleConstructor
 import groovy.transform.TypeChecked
 
@@ -30,7 +30,7 @@ import static groovy.transform.TypeCheckingMode.SKIP
  * Note: this is not intended to be a fully functioning ResultSet implementation - not all features are implemented and
  * some that are implemented are simply intended to store values for later retrieval during testing.
  */
-@TypeChecked @TupleConstructor
+@TypeChecked @TupleConstructor @ToString(includeNames = true)
 class MockResultSet implements ResultSet {
 
     final List<String> columnNames
@@ -807,12 +807,12 @@ class MockResultSet implements ResultSet {
 
     @Override
     SQLXML getSQLXML(int columnIndex) throws SQLException {
-        return getObject(columnIndex, SQLXML)
+        unsupported 'getSQLXML(int)'
     }
 
     @Override
     SQLXML getSQLXML(String columnLabel) throws SQLException {
-        return getObject(columnLabel, SQLXML)
+        unsupported 'getSQLXML(String)'
     }
 
     @Override
@@ -1065,21 +1065,5 @@ class MockResultSet implements ResultSet {
     }
 }
 
-@Canonical
-class MockRef implements Ref {
 
-    String baseTypeName
-    Object object
-
-    @Override
-    Object getObject(Map<String, Class<?>> map) throws SQLException {
-        object
-    }
-}
-
-@Canonical
-class MockRowId implements RowId {
-
-    byte[] bytes
-}
 
