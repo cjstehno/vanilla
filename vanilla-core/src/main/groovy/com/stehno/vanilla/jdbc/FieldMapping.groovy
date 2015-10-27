@@ -19,6 +19,8 @@ import com.stehno.vanilla.util.Strings
 
 import java.sql.ResultSet
 
+import static com.stehno.vanilla.Affirmations.affirm
+
 /**
  * FIXME: document me
  *
@@ -38,7 +40,7 @@ class FieldMapping {
         extractor
     }
 
-    Closure getConverter(){
+    Closure getConverter() {
         converter
     }
 
@@ -48,23 +50,106 @@ class FieldMapping {
         from Strings.camelCaseToUnderscore(propertyName)
     }
 
-    FieldMapping methodMissing(String name, args) {
-        // FIXME: validate against approved list?
+    FieldMapping from(nameOrPosition) {
+        fromObject nameOrPosition
+    }
 
-        MetaMethod method = ResultSet.metaClass.getMetaMethod(
-            name == 'from' ? 'getObject' : "get${name - 'from'}",
-            args[0]
-        )
+    FieldMapping fromObject(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getObject(nameOrPosition) }
+    }
 
-        if (method) {
-            extractor = { ResultSet rs ->
-                method.invoke(rs, args[0])
-            }
-            this
+    private FieldMapping extract(nameOrPosition, Closure closure) {
+        affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
+        extractor = closure
+        this
+    }
 
-        } else {
-            throw new NoSuchMethodException("No type conversion method ($name) exists.")
-        }
+    FieldMapping fromString(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getString(nameOrPosition) }
+    }
+
+    FieldMapping fromBoolean(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getBoolean(nameOrPosition) }
+    }
+
+    FieldMapping fromByte(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getByte(nameOrPosition) }
+    }
+
+    FieldMapping fromShort(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getShort(nameOrPosition) }
+    }
+
+    FieldMapping fromInt(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getInt(nameOrPosition) }
+    }
+
+    FieldMapping fromLong(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getLong(nameOrPosition) }
+    }
+
+    FieldMapping fromFloat(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getFloat(nameOrPosition) }
+    }
+
+    FieldMapping fromDouble(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getDouble(nameOrPosition) }
+    }
+
+    FieldMapping fromBytes(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getBytes(nameOrPosition) }
+    }
+
+    FieldMapping fromDate(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getDate(nameOrPosition) }
+    }
+
+    FieldMapping fromTime(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getTime(nameOrPosition) }
+    }
+
+    FieldMapping fromTimestamp(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getTimestamp(nameOrPosition) }
+    }
+
+    FieldMapping fromAsciiStream(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getAsciiStream(nameOrPosition) }
+    }
+
+    FieldMapping fromUnicodeStream(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getUnicodeStream(nameOrPosition) }
+    }
+
+    FieldMapping fromBinaryStream(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getBinaryStream(nameOrPosition) }
+    }
+
+    FieldMapping fromCharacterStream(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getCharacterStream(nameOrPosition) }
+    }
+
+    FieldMapping fromBigDecimal(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getBigDecimal(nameOrPosition) }
+    }
+
+    FieldMapping fromRef(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getRef(nameOrPosition) }
+    }
+
+    FieldMapping fromBlob(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getBlob(nameOrPosition) }
+    }
+
+    FieldMapping fromClob(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getClob(nameOrPosition) }
+    }
+
+    FieldMapping fromArray(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getArray(nameOrPosition) }
+    }
+
+    FieldMapping fromURL(nameOrPosition) {
+        extract(nameOrPosition) { ResultSet rs -> rs.getURL(nameOrPosition) }
     }
 
     void using(Closure closure) {

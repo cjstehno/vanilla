@@ -19,6 +19,7 @@ import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
 import static ResultSetMapperBuilder.mapper
+import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
 import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
 
 class ResultSetMapperBuilderSpec extends Specification {
@@ -38,8 +39,8 @@ class ResultSetMapperBuilderSpec extends Specification {
             ignore 'bankPin'
             ignore 'pet'
             map 'birthDate' fromDate 'birth_date'
-            map 'age' from 2 using { a-> a - 5 }
-            map 'name' fromString 'name'
+            map 'age' from 2 using { a -> a - 5 }
+            map 'name' from 'name'
             ignore 'children'
         }
 
@@ -50,6 +51,34 @@ class ResultSetMapperBuilderSpec extends Specification {
         then:
         obj == new Person(
             name: 'Bob', age: 37, birthDate: person.birthDate
+        )
+    }
+
+    def 'mapper: Explicit'() {
+        setup:
+        def person = new Person(
+            name: 'Bob', age: 42, birthDate: new java.util.Date()
+        )
+
+        def rs = resultSet {
+            columns 'name', 'age', 'birth_date', 'bank_pin'
+            object person
+        }
+
+        def mapper = mapper(Person, EXPLICIT) {
+            map 'birthDate' fromDate 'birth_date'
+            map 'age' from 2 using { a -> a - 5 }
+            map 'name' using { n-> "Name: $n"}
+            ignore 'children'
+        }
+
+        when:
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == new Person(
+            name: 'Name: Bob', age: 37, birthDate: person.birthDate
         )
     }
 }

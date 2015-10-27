@@ -25,10 +25,7 @@ import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
  * FIXME: document me
  */
 @TypeChecked
-class ResultSetMapper {
-
-    // FIXME: using should be for transforming or extracting
-    // FIXME: having from and using should be considered
+class ResultSetMapper { // FIXME: should probably be an interface
 
     private static final Collection<String> DEFAULT_IGNORED = ['class'].asImmutable()
     private final ResultSetMapperBuilder builder
@@ -74,7 +71,17 @@ class ResultSetMapper {
         } else {
             // loop through mappings and map data
             builder.mappings().each { FieldMapping mapping ->
-                instanceProps[mapping.propertyName] = mapping.extractor.call(rs)
+                def value = mapping.extractor.call(rs)
+                if (mapping.converter) {
+                    int argCount = mapping.converter.maximumNumberOfParameters
+                    if (argCount > 0) {
+                        value = mapping.converter.call(value)
+                    } else {
+                        value = mapping.converter.call()
+                    }
+                }
+
+                instanceProps[mapping.propertyName] = value
             }
         }
 

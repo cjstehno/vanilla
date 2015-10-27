@@ -20,7 +20,7 @@ import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
 /**
  * FIXME: document me
  */
-class ResultSetMapperBuilder implements ResultSetMapperBuilderDsl {
+class ResultSetMapperBuilder implements ResultSetMapperDsl {
 
     final Class mappedType
     final MappingStyle style
@@ -32,7 +32,7 @@ class ResultSetMapperBuilder implements ResultSetMapperBuilderDsl {
         this.style = style
     }
 
-    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperBuilderDsl) Closure closure) {
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure) {
         ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)
 
         closure.delegate = builder

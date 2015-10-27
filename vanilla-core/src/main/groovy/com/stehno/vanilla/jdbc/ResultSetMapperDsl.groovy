@@ -18,7 +18,7 @@ package com.stehno.vanilla.jdbc
 /**
  * FIXME: document me
  */
-interface ResultSetMapperBuilderDsl {
+interface ResultSetMapperDsl {
 
     FieldMapping map(String propertyName)
 
