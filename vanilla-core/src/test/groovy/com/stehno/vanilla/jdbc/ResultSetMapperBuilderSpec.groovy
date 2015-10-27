@@ -69,7 +69,6 @@ class ResultSetMapperBuilderSpec extends Specification {
             map 'birthDate' fromDate 'birth_date'
             map 'age' from 2 using { a -> a - 5 }
             map 'name' using { n-> "Name: $n"}
-            ignore 'children'
         }
 
         when:
