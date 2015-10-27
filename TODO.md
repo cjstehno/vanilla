@@ -12,5 +12,7 @@ TODO: review the DSL and builder interactions to clean them up
 TODO: add in useful stub/dummy objects for tests
 TODO: add explicit/implicit behavior to the ObjectMapper
 
+TODO: any common DSL tools extractable?
+
 TODO: create vanilla-spring with the view resolver code
 
