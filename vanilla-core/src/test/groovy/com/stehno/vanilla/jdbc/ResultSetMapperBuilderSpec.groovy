@@ -27,7 +27,7 @@ class ResultSetMapperBuilderSpec extends Specification {
     def 'mapper: Implicit'() {
         setup:
         def person = new Person(
-            name: 'Bob', age: 42, birthDate: new java.util.Date()
+            name: 'Bob', age: 42, birthDate: new Date()
         )
 
         def rs = resultSet {
@@ -57,7 +57,7 @@ class ResultSetMapperBuilderSpec extends Specification {
     def 'mapper: Explicit'() {
         setup:
         def person = new Person(
-            name: 'Bob', age: 42, birthDate: new java.util.Date()
+            name: 'Bob', age: 42, birthDate: new Date()
         )
 
         def rs = resultSet {

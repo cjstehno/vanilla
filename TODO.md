@@ -14,5 +14,7 @@ TODO: add explicit/implicit behavior to the ObjectMapper
 
 TODO: any common DSL tools extractable?
 
-TODO: create vanilla-spring with the view resolver code
+TODO: create simple reusable test example objects (like Person)
 
+TODO: create vanilla-spring with the view resolver code
+TODO: TextTable code

@@ -25,7 +25,7 @@ buildscript {
 }
     
 subprojects {
-    version = '0.0.10'
+    version = '0.1.0'
     group = 'com.stehno.vanilla'
 
     apply plugin: 'groovy'
@@ -88,5 +88,5 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
+    gradleVersion = '2.9'
 }
