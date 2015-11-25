@@ -26,6 +26,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 
 import java.sql.ResultSet
 
+import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
 import static com.stehno.vanilla.jdbc.MappingStyle.valueOf
 import static groovy.transform.TypeCheckingMode.SKIP
 import static java.lang.reflect.Modifier.*
@@ -59,11 +60,13 @@ class JdbcMapperTransform extends AbstractASTTransformation {
                 PropertyExpression mappingStyle = annotationNode.getMember('style') as PropertyExpression
                 ConstantExpression nameX = annotationNode.getMember('name') as ConstantExpression
 
-                CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(
-                    mappedType.type,
-                    dslClosureX,
-                    mappingStyle ? valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT
-                )
+                MappingStyle styleEnum = mappingStyle ? valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT
+
+                if (!dslClosureX && styleEnum == EXPLICIT) {
+                    throw new IllegalArgumentException('A configuration closure must be provided for EXPLICIT mappers.')
+                }
+
+                CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(mappedType.type, dslClosureX, styleEnum)
 
                 ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig)
                 source.AST.addClass(mapperClassNode)
@@ -98,41 +101,52 @@ class JdbcMapperTransform extends AbstractASTTransformation {
     private CompiledResultSetMapperBuilder extractMapperConfig(ClassNode mappedType, ClosureExpression dslClosureX, MappingStyle mappingStyle) {
         CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType, mappingStyle)
 
-        BlockStatement block = dslClosureX.code as BlockStatement
-        block.statements.findAll { st -> st instanceof ExpressionStatement }.each { es ->
-            Expression expression = (es as ExpressionStatement).expression
+        BlockStatement block = dslClosureX?.code as BlockStatement
 
-            if (expression instanceof MethodCallExpression) {
-                def methodXs = [:]
-                def node = expression
+        if (block) {
+            block.statements.findAll { st -> st instanceof ExpressionStatement }.each { es ->
+                Expression expression = (es as ExpressionStatement).expression
 
-                while (node && node instanceof MethodCallExpression) {
-                    def mex = node as MethodCallExpression
+                if (expression instanceof MethodCallExpression) {
+                    def methodXs = [:]
+                    def node = expression
 
-                    String methodName = (mex.method as ConstantExpression).text
-                    methodXs[methodName] = (mex.arguments as ArgumentListExpression).expressions
-                    node = (node as MethodCallExpression).objectExpression
-                }
+                    while (node && node instanceof MethodCallExpression) {
+                        def mex = node as MethodCallExpression
 
-                if (methodXs.containsKey('ignore')) {
-                    methodXs.ignore.each { mi ->
-                        mapperConfig.ignore((mi as ConstantExpression).text)
+                        String methodName = (mex.method as ConstantExpression).text
+                        methodXs[methodName] = (mex.arguments as ArgumentListExpression).expressions
+                        node = (node as MethodCallExpression).objectExpression
                     }
 
-                } else if (methodXs.containsKey('map')) {
-                    def propertyNameX = (methodXs.map as List<Expression>)[0] as ConstantExpression
-                    FieldMapping fieldMapping = mapperConfig.map(propertyNameX.value as String)
+                    if (methodXs.containsKey('ignore')) {
+                        methodXs.ignore.each { mi ->
+                            mapperConfig.ignore((mi as ConstantExpression).text)
+                        }
 
-                    handleFroms methodXs, fieldMapping
+                    } else if (methodXs.containsKey('map')) {
+                        def propertyNameX = (methodXs.map as List<Expression>)[0] as ConstantExpression
+                        FieldMapping fieldMapping = mapperConfig.map(propertyNameX.value as String)
 
-                    if (methodXs.containsKey('using')) {
-                        // TODO: refactor the config so I don't need to shoehorn the compiled stuff into closures (?)
-                        fieldMapping.using({ (methodXs.using as List<Expression>)[0] as ClosureExpression })
+                        handleFroms methodXs, fieldMapping
+
+                        if (methodXs.containsKey('using')) {
+                            // TODO: refactor the config so I don't need to shoehorn the compiled stuff into closures (?)
+                            fieldMapping.using({ (methodXs.using as List<Expression>)[0] as ClosureExpression })
+                        }
+
+                    } else {
+                        throw new IllegalArgumentException('Mapper DSL commands must at least contain \'map\' or \'ignore\' calls.')
                     }
-
-                } else {
-                    throw new IllegalArgumentException('Mapper DSL commands must at least contain \'map\' or \'ignore\' calls.')
                 }
+            }
+
+        } else {
+            // FIXME: this is causing problems
+
+            // implicit without DSL
+            mappedType.fields.each { FieldNode fn ->
+                mapperConfig.map(fn.name)
             }
         }
 

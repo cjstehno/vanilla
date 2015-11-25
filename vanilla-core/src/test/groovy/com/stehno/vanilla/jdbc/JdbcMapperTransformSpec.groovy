@@ -16,6 +16,7 @@
 package com.stehno.vanilla.jdbc
 import com.stehno.vanilla.test.Person
 import com.stehno.vanilla.transform.GroovyShellEnvironment
+import groovy.transform.Canonical
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -26,18 +27,12 @@ class JdbcMapperTransformSpec extends Specification {
     @Rule GroovyShellEnvironment shell
 
     // FIXME: test without implicit (no value)
-    // FIXME: test with explicit
     // FIXME: test with no DSL and implicit
-    // FIXME: test with no DSL and explicit (error)
     // FIXME: test with POGO having setters rather than properties
-
-    // FIXME: make this (and the one in dyn mapper) use randomizer
 
     def 'implicit mapper'() {
         setup:
-        def person = new Person(
-            name: 'Bob', age: 42, birthDate: new Date()
-        )
+        def person = new Person(name: 'Bob', age: 42, birthDate: new Date())
 
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
@@ -82,11 +77,47 @@ class JdbcMapperTransformSpec extends Specification {
         )
     }
 
+    def 'implicit mapper without config should map everything'() {
+        setup:
+        DummyObjectC objectC = new DummyObjectC('Larry', 56, 125.65f)
+
+        def rs = resultSet {
+            columns 'name', 'age', 'weight'
+            object objectC
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.JdbcMapper
+            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import java.time.format.*
+            import com.stehno.vanilla.jdbc.DummyObjectC
+
+            import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
+
+            class Foo {
+                @JdbcMapper(
+                    value = DummyObjectC,
+                    style = IMPLICIT
+                )
+                static ResultSetMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == objectC
+    }
+
     def 'explicit mapper'() {
         setup:
-        def person = new Person(
-            name: 'Bob', age: 42, birthDate: new Date()
-        )
+        def person = new Person(name: 'Bob', age: 42, birthDate: new Date())
 
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
@@ -127,4 +158,11 @@ class JdbcMapperTransformSpec extends Specification {
             name: 'Name: Bob', age: 37, birthDate: person.birthDate
         )
     }
+}
+
+@Canonical
+class DummyObjectC {
+    String name
+    int age
+    float weight
 }
