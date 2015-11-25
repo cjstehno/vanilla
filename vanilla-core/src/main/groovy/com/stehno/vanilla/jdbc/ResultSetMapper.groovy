@@ -21,16 +21,23 @@ import java.sql.ResultSet
 
 import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
 
+interface ResultSetMapper {
+
+    def mapRow(ResultSet rs, int row)
+
+    def call(ResultSet rs)
+}
+
 /**
  * FIXME: document me
  */
 @TypeChecked
-class ResultSetMapper { // FIXME: should probably be an interface
+class DynamicResultSetMapper implements ResultSetMapper {
 
     private static final Collection<String> DEFAULT_IGNORED = ['class'].asImmutable()
     private final ResultSetMapperBuilder builder
 
-    ResultSetMapper(ResultSetMapperBuilder builder) {
+    DynamicResultSetMapper(ResultSetMapperBuilder builder) {
         this.builder = builder
     }
 
@@ -90,5 +97,13 @@ class ResultSetMapper { // FIXME: should probably be an interface
 
     private static boolean isWritable(MetaClass meta, String name, Class argType) {
         return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])
+    }
+}
+
+abstract class CompiledResultSetMapper implements ResultSetMapper {
+
+    @Override
+    def mapRow(ResultSet rs, int row) {
+        call(rs)
     }
 }

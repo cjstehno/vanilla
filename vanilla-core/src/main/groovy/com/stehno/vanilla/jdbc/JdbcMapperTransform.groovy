@@ -15,28 +15,24 @@
  */
 package com.stehno.vanilla.jdbc
 
-import com.stehno.vanilla.mapper.ObjectMapperConfig
-import com.stehno.vanilla.mapper.PropertyMappingConfig
 import groovy.transform.TypeChecked
-import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.AnnotatedNode
-import org.codehaus.groovy.ast.AnnotationNode
-import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.FieldNode
-import org.codehaus.groovy.ast.MethodNode
-import org.codehaus.groovy.ast.PropertyNode
-import org.codehaus.groovy.ast.expr.ArgumentListExpression
-import org.codehaus.groovy.ast.expr.ClassExpression
-import org.codehaus.groovy.ast.expr.ClosureExpression
-import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.Expression
-import org.codehaus.groovy.ast.expr.MethodCallExpression
+import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
+import java.sql.ResultSet
+
+import static com.stehno.vanilla.jdbc.MappingStyle.valueOf
+import static groovy.transform.TypeCheckingMode.SKIP
+import static java.lang.reflect.Modifier.*
+import static org.codehaus.groovy.ast.ClassHelper.OBJECT_TYPE
+import static org.codehaus.groovy.ast.ClassHelper.make
+import static org.codehaus.groovy.ast.tools.GeneralUtils.*
+import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 
 /**
@@ -45,6 +41,12 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
 class JdbcMapperTransform extends AbstractASTTransformation {
 
+    private static final Collection<String> DEFAULT_IGNORED = [
+        'class', 'metaClass', '$staticClassInfo', '__$stMC', '$staticClassInfo$', '$callSiteArray'
+    ].asImmutable()
+
+    private static final String RS = 'rs'
+
     @Override
     void visit(ASTNode[] nodes, SourceUnit source) {
         AnnotationNode annotationNode = nodes[0] as AnnotationNode
@@ -52,28 +54,32 @@ class JdbcMapperTransform extends AbstractASTTransformation {
 
         if (targetNode instanceof FieldNode || targetNode instanceof PropertyNode || targetNode instanceof MethodNode) {
             try {
-                ClassNode mappingType = annotationNode.getMember('value') as ClassNode
+                ClassExpression mappedType = annotationNode.getMember('value') as ClassExpression
                 ClosureExpression dslClosureX = annotationNode.getMember('config') as ClosureExpression
-                // FIXME: style
+                PropertyExpression mappingStyle = annotationNode.getMember('style') as PropertyExpression
+                ConstantExpression nameX = annotationNode.getMember('name') as ConstantExpression
 
-                ObjectMapperConfig mapperConfig = extractMapperConfig(dslClosureX)
+                CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(
+                    mappedType.type,
+                    dslClosureX,
+                    mappingStyle ? valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT
+                )
 
-                // generate the static object mapper to be used
-//                ClassNode mapperClassNode = createObjectMapperClass(targetNode.declaringClass, mapperName, mapperConfig)
-//                source.AST.addClass(mapperClassNode)
-//
-//                if (targetNode instanceof MethodNode) {
-//                    transformMethodNode mapperName, targetNode, mapperClassNode
-//
-//                } else if (targetNode instanceof FieldNode) {
-//                    transformFieldNode targetNode, mapperClassNode
-//
-//                } else if (targetNode instanceof PropertyNode) {
-//                    transformPropertyNode targetNode, mapperClassNode
-//
-//                } else {
-//                    addError "Unsupported application of Mapper annotation for ${targetNode}", targetNode
-//                }
+                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig)
+                source.AST.addClass(mapperClassNode)
+
+                if (targetNode instanceof MethodNode) {
+                    transformMethodNode targetNode, mapperClassNode
+
+                } else if (targetNode instanceof FieldNode) {
+                    transformFieldNode targetNode, mapperClassNode
+
+                } else if (targetNode instanceof PropertyNode) {
+                    transformPropertyNode targetNode, mapperClassNode
+
+                } else {
+                    addError "Unsupported application of JdbcMapper annotation for ${targetNode}", targetNode
+                }
 
             } catch (Exception ex) {
                 ex.printStackTrace()
@@ -81,12 +87,16 @@ class JdbcMapperTransform extends AbstractASTTransformation {
             }
 
         } else {
-            addError "Invalid member type for object mapper (${targetNode}) - only Fields, Properties and Methods are supported.", targetNode
+            addError "Invalid member type for mapper (${targetNode}) - only Fields, Properties and Methods are supported.", targetNode
         }
     }
 
-    private ObjectMapperConfig extractMapperConfig(final ClosureExpression dslClosureX) {
-        ObjectMapperConfig mapperConfig = new ObjectMapperConfig()
+    private static String mapperName(ClassExpression mappedType, ConstantExpression nameX) {
+        return nameX ? "${mappedType.type.package.name}.${nameX.value}" : "${mappedType.type.name}RowMapper"
+    }
+
+    private CompiledResultSetMapperBuilder extractMapperConfig(ClassNode mappedType, ClosureExpression dslClosureX, MappingStyle mappingStyle) {
+        CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType, mappingStyle)
 
         BlockStatement block = dslClosureX.code as BlockStatement
         block.statements.findAll { st -> st instanceof ExpressionStatement }.each { es ->
@@ -100,29 +110,125 @@ class JdbcMapperTransform extends AbstractASTTransformation {
                     def mex = node as MethodCallExpression
 
                     String methodName = (mex.method as ConstantExpression).text
-                    Object argument = (mex.arguments as ArgumentListExpression)[0]
-                    methodXs[methodName] = argument
-
+                    methodXs[methodName] = (mex.arguments as ArgumentListExpression).expressions
                     node = (node as MethodCallExpression).objectExpression
                 }
 
-                if (!methodXs.containsKey('map')) {
-                    throw new IllegalArgumentException('The static mapper DSL commands must at least contain \'map\' calls.')
-                }
+                if (methodXs.containsKey('ignore')) {
+                    methodXs.ignore.each { mi ->
+                        mapperConfig.ignore((mi as ConstantExpression).text)
+                    }
 
-                PropertyMappingConfig propConfig = mapperConfig.map((methodXs.map as ConstantExpression).text)
+                } else if (methodXs.containsKey('map')) {
+                    def propertyNameX = (methodXs.map as List<Expression>)[0] as ConstantExpression
+                    FieldMapping fieldMapping = mapperConfig.map(propertyNameX.value as String)
 
-                if (methodXs.containsKey('into')) {
-                    propConfig.into((methodXs.into as ConstantExpression).text)
-                }
+                    handleFroms methodXs, fieldMapping
 
-                if (methodXs.containsKey('using')) {
-                    propConfig.using(methodXs.using)
+                    if (methodXs.containsKey('using')) {
+                        // TODO: refactor the config so I don't need to shoehorn the compiled stuff into closures (?)
+                        fieldMapping.using({ (methodXs.using as List<Expression>)[0] as ClosureExpression })
+                    }
+
+                } else {
+                    throw new IllegalArgumentException('Mapper DSL commands must at least contain \'map\' or \'ignore\' calls.')
                 }
             }
         }
 
         mapperConfig
+    }
+
+    @TypeChecked(SKIP)
+    private static void handleFroms(Map<String, Expression> methods, FieldMapping mapping) {
+        def fromEntry = methods.find { k, v -> k.startsWith('from') }
+        if (fromEntry) {
+            mapping."${fromEntry.key}"(fromEntry.value[0] as ConstantExpression)
+        }
+    }
+
+    private static ClassNode createMapperClass(final String mapperName, final CompiledResultSetMapperBuilder config) {
+        ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
+
+        List<MapEntryExpression> mapEntryExpressions = []
+
+        if (config.style == MappingStyle.IMPLICIT) {
+            def ignored = DEFAULT_IGNORED + config.ignored()
+
+            config.mappedTypeNode.fields.findAll { FieldNode fn -> !(fn.name in ignored) }.each { FieldNode fn ->
+                implementMapping mapEntryExpressions, config.findMapping(fn.name)
+            }
+
+        } else {
+            config.mappings().each { fieldMapping ->
+                implementMapping mapEntryExpressions, fieldMapping
+            }
+        }
+
+        mapperClass.addMethod(new MethodNode(
+            'call',
+            PUBLIC,
+            OBJECT_TYPE,
+            params(param(make(ResultSet), RS),),
+            [] as ClassNode[],
+            returnS(ctorX(newClass(config.mappedTypeNode), args(new MapExpression(mapEntryExpressions))))
+        ))
+
+        mapperClass
+    }
+
+    @TypeChecked(SKIP)
+    private static void implementMapping(List<MapEntryExpression> mapEntryExpressions, FieldMapping fieldMapping) {
+        Expression extractorX = fieldMapping.extractor() as Expression
+
+        if (fieldMapping.converter) {
+            Expression convertX
+            if (fieldMapping.converter() instanceof ClosureExpression) {
+                ClosureExpression convertClosureX = fieldMapping.converter() as ClosureExpression
+
+                convertX = new MethodCallExpression(convertClosureX, 'call', convertClosureX.parameters.size() ? args(extractorX) : args())
+
+            } else {
+                throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')
+            }
+
+            mapEntryExpressions << new MapEntryExpression(constX(fieldMapping.propertyName), convertX)
+
+        } else {
+            mapEntryExpressions << new MapEntryExpression(constX(fieldMapping.propertyName), extractorX)
+        }
+    }
+
+    private void transformMethodNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        String fieldName = "_mapper${mapperClassNode.nameWithoutPackage}"
+
+        targetNode.declaringClass.addField(createFieldNode(fieldName, targetNode, mapperClassNode))
+
+        MethodNode methodNode = targetNode as MethodNode
+        methodNode.modifiers = PUBLIC | STATIC | FINAL
+        methodNode.code = returnS(varX(fieldName))
+    }
+
+    private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        return new FieldNode(
+            fieldName,
+            STATIC | FINAL | PRIVATE,
+            make(ResultSetMapper),
+            targetNode.declaringClass,
+            ctorX(newClass(mapperClassNode))
+        )
+    }
+
+    private void transformFieldNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        FieldNode fieldNode = targetNode as FieldNode
+        fieldNode.modifiers = STATIC | FINAL | PUBLIC
+        fieldNode.initialValueExpression = ctorX(newClass(mapperClassNode))
+        fieldNode.type = make(ResultSetMapper)
+    }
+
+    private void transformPropertyNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
+        PropertyNode propertyNode = targetNode as PropertyNode
+        propertyNode.field = createFieldNode(propertyNode.name, targetNode, mapperClassNode)
     }
 
 }

@@ -16,6 +16,7 @@
 package com.stehno.vanilla.jdbc
 
 import com.stehno.vanilla.util.Strings
+import groovy.transform.ToString
 
 import java.sql.ResultSet
 
@@ -30,10 +31,11 @@ import static com.stehno.vanilla.Affirmations.affirm
  * fromDate --> getDate
  * etc (field name or position is valid)
  */
+@ToString(includeNames = true, includeFields = true)
 class FieldMapping {
 
     final String propertyName
-    private Closure extractor
+    protected Closure extractor
     private Closure converter
 
     Closure getExtractor() {
@@ -44,10 +46,13 @@ class FieldMapping {
         converter
     }
 
-    FieldMapping(String propertyName) {
+    FieldMapping(String propertyName, boolean applyDefault=true) {
         this.propertyName = propertyName
 
-        from Strings.camelCaseToUnderscore(propertyName)
+        // TODO: these configs need to be refactored and cleaned up
+        if(applyDefault){
+            from Strings.camelCaseToUnderscore(propertyName)
+        }
     }
 
     FieldMapping from(nameOrPosition) {
@@ -58,7 +63,7 @@ class FieldMapping {
         extract(nameOrPosition) { ResultSet rs -> rs.getObject(nameOrPosition) }
     }
 
-    private FieldMapping extract(nameOrPosition, Closure closure) {
+    protected FieldMapping extract(nameOrPosition, Closure closure) {
         affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
         extractor = closure
         this

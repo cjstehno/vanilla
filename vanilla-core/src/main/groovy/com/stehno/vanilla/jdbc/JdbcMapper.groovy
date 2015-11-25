@@ -43,4 +43,6 @@ import java.lang.annotation.*
      * FIXME: Document
      */
     MappingStyle style() default MappingStyle.IMPLICIT
+
+    String name() default ''
 }

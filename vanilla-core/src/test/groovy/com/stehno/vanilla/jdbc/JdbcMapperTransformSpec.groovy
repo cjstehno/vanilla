@@ -14,63 +14,117 @@
  * limitations under the License.
  */
 package com.stehno.vanilla.jdbc
-
-import com.stehno.vanilla.mapper.BarObject
-import com.stehno.vanilla.mapper.FooObject
-import com.stehno.vanilla.test.PropertyRandomizer
+import com.stehno.vanilla.test.Person
 import com.stehno.vanilla.transform.GroovyShellEnvironment
 import org.junit.Rule
 import spock.lang.Specification
 
-import java.time.LocalDate
+import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
 
-import static com.stehno.vanilla.test.PropertyRandomizer.randomize
-
-/**
- * FIXME: document me
- */
 class JdbcMapperTransformSpec extends Specification {
 
     @Rule GroovyShellEnvironment shell
 
-    private BarObject bar = new BarObject()
-    private PropertyRandomizer rando = randomize(FooObject) {
-        propertyRandomizer 'startDate', { new Date().format('MM/dd/yyyy') }
-        propertyRandomizer 'birthDate', { LocalDate.now() }
-        ignoringProperties 'child'
-    }
+    // FIXME: test without implicit (no value)
+    // FIXME: test with explicit
+    // FIXME: test with no DSL and implicit
+    // FIXME: test with no DSL and explicit (error)
+    // FIXME: test with POGO having setters rather than properties
 
-    def 'simple usage as method'() {
+    // FIXME: make this (and the one in dyn mapper) use randomizer
+
+    def 'implicit mapper'() {
         setup:
-        FooObject foo = rando.one()
+        def person = new Person(
+            name: 'Bob', age: 42, birthDate: new Date()
+        )
+
+        def rs = resultSet {
+            columns 'name', 'age', 'birth_date', 'bank_pin'
+            object person
+        }
 
         when:
-        def results = shell.evaluate("""
+        def mapper = shell.evaluate('''
             package testing
 
             import com.stehno.vanilla.jdbc.JdbcMapper
-            import com.stehno.vanilla.mapper.ObjectMapper
+            import com.stehno.vanilla.jdbc.ResultSetMapper
             import java.time.format.*
 
+            import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
+
             class Foo {
-                @JdbcMapper({
-                    map 'name'
-                    map 'age' into 'years'
-                    map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
-                    map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
-                })
-                static ObjectMapper createMapper(){}
+                @JdbcMapper(
+                    value = com.stehno.vanilla.test.Person,
+                    style = IMPLICIT,
+                    config = {
+                        ignore 'bankPin'
+                        ignore 'pet'
+                        map 'birthDate' fromDate 'birth_date'
+                        map 'age' from 2 using { a -> a - 5 }
+                        map 'name' from 'name'
+                        ignore 'children'
+                    }
+                )
+                static ResultSetMapper createMapper(){}
             }
 
             Foo.createMapper()
-        """)
+        ''')
 
-        results.copy(foo, bar)
+        rs.next()
+        def obj = mapper(rs)
 
         then:
-        bar.name == foo.name
-        bar.years == foo.age
-        bar.startDate.format('MM/dd/yyyy') == foo.startDate
-        bar.birthday
+        obj == new Person(
+            name: 'Bob', age: 37, birthDate: person.birthDate
+        )
+    }
+
+    def 'explicit mapper'() {
+        setup:
+        def person = new Person(
+            name: 'Bob', age: 42, birthDate: new Date()
+        )
+
+        def rs = resultSet {
+            columns 'name', 'age', 'birth_date', 'bank_pin'
+            object person
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.JdbcMapper
+            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import java.time.format.*
+
+            import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
+
+            class Foo {
+                @JdbcMapper(
+                    value = com.stehno.vanilla.test.Person,
+                    style = EXPLICIT,
+                    config = {
+                        map 'birthDate' fromDate 'birth_date\'
+                        map 'age' from 2 using { a -> a - 5 }
+                        map 'name' using { n-> "Name: $n"}
+                    }
+                )
+                static ResultSetMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == new Person(
+            name: 'Name: Bob', age: 37, birthDate: person.birthDate
+        )
     }
 }
