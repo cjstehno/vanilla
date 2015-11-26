@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package com.stehno.vanilla.jdbc
+
 import com.stehno.vanilla.test.Person
 import com.stehno.vanilla.transform.GroovyShellEnvironment
-import groovy.transform.Canonical
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -40,11 +40,11 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.JdbcMapper
-            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
 
-            import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
             class Foo {
                 @JdbcMapper(
@@ -73,7 +73,7 @@ class JdbcMapperTransformSpec extends Specification {
 
         then:
         obj == new Person(name: 'Bob', age: 37, birthDate: person.birthDate)
-        empty == new Person(age:-5)
+        empty == new Person(age: -5)
     }
 
     def 'implicit mapper without config should map everything'() {
@@ -91,12 +91,12 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.JdbcMapper
-            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
             import com.stehno.vanilla.jdbc.DummyObjectC
 
-            import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
             class Foo {
                 @JdbcMapper(
@@ -134,8 +134,8 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.JdbcMapper
-            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
             import com.stehno.vanilla.jdbc.DummyObjectC
 
@@ -168,11 +168,11 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.JdbcMapper
-            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
 
-            import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
 
             class Foo {
                 @JdbcMapper(
@@ -198,7 +198,7 @@ class JdbcMapperTransformSpec extends Specification {
 
         then:
         obj == new Person(name: 'Name: Bob', age: 37, birthDate: person.birthDate)
-        empty == new Person(name: 'Name: null', age:-5)
+        empty == new Person(name: 'Name: null', age: -5)
     }
 
     def 'explicit mapper with setter-property'() {
@@ -215,12 +215,12 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.JdbcMapper
-            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
             import com.stehno.vanilla.jdbc.DummyObjectC
 
-            import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
 
             class Foo {
                 @JdbcMapper(
@@ -247,19 +247,3 @@ class JdbcMapperTransformSpec extends Specification {
     }
 }
 
-@Canonical
-class DummyObjectC {
-    String name
-    int age
-    float weight
-
-    private byte _somethingElse
-
-    void setSomethingElse(byte value){
-        _somethingElse = value
-    }
-
-    byte getSomethingElse(){
-        _somethingElse
-    }
-}

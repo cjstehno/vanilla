@@ -15,17 +15,24 @@
  */
 package com.stehno.vanilla.jdbc
 
-/**
- * FIXME: document me
- */
-enum MappingStyle {
-    /**
-     * Mapping is implied - All properties of the bean are mapped and must be "ignored" to skip.
-     */
-    IMPLICIT,
+import groovy.transform.Canonical
 
-    /**
-     * Mapping is explicit - only mentioned properties mapped from bean.
-     */
-    EXPLICIT
+/**
+ * Created by cjstehno on 11/26/15.
+ */
+@Canonical
+class DummyObjectC {
+    String name
+    int age
+    float weight
+
+    private byte _somethingElse
+
+    void setSomethingElse(byte value) {
+        _somethingElse = value
+    }
+
+    byte getSomethingElse() {
+        _somethingElse
+    }
 }

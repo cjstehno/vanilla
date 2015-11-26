@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc
+package com.stehno.vanilla.jdbc.mapper
 
 import groovy.transform.TypeChecked
 
 import java.sql.ResultSet
-
-import static com.stehno.vanilla.jdbc.MappingStyle.IMPLICIT
-
-interface ResultSetMapper {
-
-    def mapRow(ResultSet rs, int row)
-
-    def call(ResultSet rs)
-}
 
 /**
  * FIXME: document me
@@ -50,7 +41,7 @@ class DynamicResultSetMapper implements ResultSetMapper {
         def instanceProps = [:]
         MetaClass mappedMeta = builder.mappedType.metaClass
 
-        if (builder.style == IMPLICIT) {
+        if (builder.style == MappingStyle.IMPLICIT) {
             def ignored = DEFAULT_IGNORED + builder.ignored()
 
             mappedMeta.properties.findAll { MetaProperty mp ->
@@ -58,13 +49,14 @@ class DynamicResultSetMapper implements ResultSetMapper {
             }.each { MetaProperty mp ->
                 FieldMapping mapping = builder.findMapping(mp.name)
                 if (mapping) {
-                    def mappedValue = mapping.extractor.call(rs)
-                    if (mapping.converter) {
-                        int argCount = mapping.converter.maximumNumberOfParameters
+                    def mappedValue = (mapping.extractor as Closure).call(rs)
+                    Closure converter = mapping.converter as Closure
+                    if (converter) {
+                        int argCount = converter.maximumNumberOfParameters
                         if (argCount > 0) {
-                            mappedValue = mapping.converter.call(mappedValue)
+                            mappedValue = converter.call(mappedValue)
                         } else {
-                            mappedValue = mapping.converter.call()
+                            mappedValue = converter.call()
                         }
                     }
 
@@ -78,13 +70,14 @@ class DynamicResultSetMapper implements ResultSetMapper {
         } else {
             // loop through mappings and map data
             builder.mappings().each { FieldMapping mapping ->
-                def value = mapping.extractor.call(rs)
-                if (mapping.converter) {
-                    int argCount = mapping.converter.maximumNumberOfParameters
+                def value = (mapping.extractor as Closure).call(rs)
+                Closure converter = mapping.converter as Closure
+                if (converter) {
+                    int argCount = converter.maximumNumberOfParameters
                     if (argCount > 0) {
-                        value = mapping.converter.call(value)
+                        value = converter.call(value)
                     } else {
-                        value = mapping.converter.call()
+                        value = converter.call()
                     }
                 }
 
@@ -97,13 +90,5 @@ class DynamicResultSetMapper implements ResultSetMapper {
 
     private static boolean isWritable(MetaClass meta, String name, Class argType) {
         return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])
-    }
-}
-
-abstract class CompiledResultSetMapper implements ResultSetMapper {
-
-    @Override
-    def mapRow(ResultSet rs, int row) {
-        call(rs)
     }
 }

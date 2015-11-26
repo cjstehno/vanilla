@@ -13,14 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc
+package com.stehno.vanilla.jdbc.mapper
+
+import org.codehaus.groovy.transform.GroovyASTTransformationClass
+
+import java.lang.annotation.*
 
 /**
  * FIXME: document me
  */
-interface ResultSetMapperDsl {
+@Target(value = [ElementType.FIELD, ElementType.METHOD])
+@Retention(RetentionPolicy.SOURCE)
+@Documented
+@GroovyASTTransformationClass(classes = [JdbcMapperTransform])
+@interface JdbcMapper {
 
-    FieldMapping map(String propertyName)
+    /**
+     *
+     * @return
+     */
+    Class value()
 
-    void ignore(String... propertyNames)
+    /**
+     * The ResultSetMapper DSL closure.
+     */
+    Class config() default {}
+
+    /**
+     * FIXME: Document
+     */
+    MappingStyle style() default MappingStyle.IMPLICIT
+
+    String name() default ''
 }

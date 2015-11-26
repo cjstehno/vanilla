@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc
+package com.stehno.vanilla.jdbc.mapper
 
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
@@ -26,8 +26,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 
 import java.sql.ResultSet
 
-import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
-import static com.stehno.vanilla.jdbc.MappingStyle.valueOf
 import static groovy.transform.TypeCheckingMode.SKIP
 import static java.lang.reflect.Modifier.*
 import static org.codehaus.groovy.ast.ClassHelper.OBJECT_TYPE
@@ -58,9 +56,9 @@ class JdbcMapperTransform extends AbstractASTTransformation {
                 PropertyExpression mappingStyle = annotationNode.getMember('style') as PropertyExpression
                 ConstantExpression nameX = annotationNode.getMember('name') as ConstantExpression
 
-                MappingStyle styleEnum = mappingStyle ? valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT
+                MappingStyle styleEnum = mappingStyle ? MappingStyle.valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT
 
-                if (!dslClosureX && styleEnum == EXPLICIT) {
+                if (!dslClosureX && styleEnum == MappingStyle.EXPLICIT) {
                     throw new IllegalArgumentException('A configuration closure must be provided for EXPLICIT mappers.')
                 }
 
@@ -129,12 +127,11 @@ class JdbcMapperTransform extends AbstractASTTransformation {
                         handleFroms methodXs, fieldMapping
 
                         if (methodXs.containsKey('using')) {
-                            // TODO: refactor the config so I don't need to shoehorn the compiled stuff into closures (?)
-                            fieldMapping.using({ (methodXs.using as List<Expression>)[0] as ClosureExpression })
+                            fieldMapping.using((methodXs.using as List<Expression>)[0] as ClosureExpression)
                         }
 
                     } else {
-                        throw new IllegalArgumentException('Mapper DSL commands must at least contain \'map\' or \'ignore\' calls.')
+                        throw new IllegalArgumentException(/Mapper DSL commands must at least contain 'map' or 'ignore' calls./)
                     }
                 }
             }
@@ -198,12 +195,12 @@ class JdbcMapperTransform extends AbstractASTTransformation {
 
     @TypeChecked(SKIP)
     private static void implementMapping(List<MapEntryExpression> mapEntryExpressions, FieldMapping fieldMapping) {
-        Expression extractorX = fieldMapping.extractor() as Expression
+        Expression extractorX = fieldMapping.extractor as Expression
 
         if (fieldMapping.converter) {
             Expression convertX
-            if (fieldMapping.converter() instanceof ClosureExpression) {
-                ClosureExpression convertClosureX = fieldMapping.converter() as ClosureExpression
+            if (fieldMapping.converter instanceof ClosureExpression) {
+                ClosureExpression convertClosureX = fieldMapping.converter as ClosureExpression
 
                 convertX = new MethodCallExpression(convertClosureX, 'call', convertClosureX.parameters.size() ? args(extractorX) : args())
 

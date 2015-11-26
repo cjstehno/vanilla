@@ -18,8 +18,8 @@ package com.stehno.vanilla.jdbc
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
-import static ResultSetMapperBuilder.mapper
-import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
+import static com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder.mapper
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
 import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
 
 class ResultSetMapperBuilderSpec extends Specification {

@@ -13,36 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc
+package com.stehno.vanilla.jdbc.mapper
 
-import org.codehaus.groovy.transform.GroovyASTTransformationClass
-
-import java.lang.annotation.*
+import org.codehaus.groovy.ast.ClassNode
 
 /**
- * FIXME: document me
+ * Created by cjstehno on 11/26/15.
  */
-@Target(value = [ElementType.FIELD, ElementType.METHOD])
-@Retention(RetentionPolicy.SOURCE)
-@Documented
-@GroovyASTTransformationClass(classes = [JdbcMapperTransform])
-@interface JdbcMapper {
+class CompiledResultSetMapperBuilder extends ResultSetMapperBuilder {
 
-    /**
-     *
-     * @return
-     */
-    Class value()
+    final ClassNode mappedTypeNode
 
-    /**
-     * The ResultSetMapper DSL closure.
-     */
-    Class config() default {}
+    CompiledResultSetMapperBuilder(ClassNode mappedTypeNode, MappingStyle style) {
+        super(mappedTypeNode.typeClass, style)
+        this.mappedTypeNode = mappedTypeNode
+    }
 
-    /**
-     * FIXME: Document
-     */
-    MappingStyle style() default MappingStyle.IMPLICIT
-
-    String name() default ''
+    @Override
+    FieldMapping map(String propertyName) {
+        CompiledFieldMapping mapping = new CompiledFieldMapping(propertyName)
+        mappings[propertyName] = mapping
+        mapping
+    }
 }

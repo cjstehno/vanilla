@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc
+package com.stehno.vanilla.jdbc.mapper
 
+import com.stehno.vanilla.Affirmations
 import com.stehno.vanilla.util.Strings
 import groovy.transform.ToString
 
@@ -32,132 +33,155 @@ import static com.stehno.vanilla.Affirmations.affirm
  * etc (field name or position is valid)
  */
 @ToString(includeNames = true, includeFields = true)
-class FieldMapping {
+class DynamicFieldMapping implements FieldMapping {
 
     final String propertyName
-    protected Closure extractor
+    private Closure extractor
     private Closure converter
 
-    Closure getExtractor() {
+    DynamicFieldMapping(final String propertyName) {
+        this.propertyName = propertyName
+
+        from Strings.camelCaseToUnderscore(propertyName)
+    }
+
+    Object getExtractor() {
         extractor
     }
 
-    Closure getConverter() {
+    Object getConverter() {
         converter
     }
 
-    FieldMapping(String propertyName, boolean applyDefault=true) {
-        this.propertyName = propertyName
-
-        // TODO: these configs need to be refactored and cleaned up
-        if(applyDefault){
-            from Strings.camelCaseToUnderscore(propertyName)
-        }
-    }
-
+    @Override
     FieldMapping from(nameOrPosition) {
         fromObject nameOrPosition
     }
 
+    @Override
     FieldMapping fromObject(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getObject(nameOrPosition) }
     }
 
     protected FieldMapping extract(nameOrPosition, Closure closure) {
-        affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
+        Affirmations.affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
         extractor = closure
         this
     }
 
+    @Override
     FieldMapping fromString(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getString(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromBoolean(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getBoolean(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromByte(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getByte(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromShort(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getShort(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromInt(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getInt(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromLong(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getLong(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromFloat(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getFloat(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromDouble(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getDouble(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromBytes(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getBytes(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromDate(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getDate(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromTime(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getTime(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromTimestamp(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getTimestamp(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromAsciiStream(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getAsciiStream(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromUnicodeStream(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getUnicodeStream(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromBinaryStream(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getBinaryStream(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromCharacterStream(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getCharacterStream(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromBigDecimal(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getBigDecimal(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromRef(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getRef(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromBlob(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getBlob(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromClob(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getClob(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromArray(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getArray(nameOrPosition) }
     }
 
+    @Override
     FieldMapping fromURL(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getURL(nameOrPosition) }
     }
 
-    void using(Closure closure) {
+    @Override
+    void using(closure) {
+        affirm closure instanceof Closure, 'Only Closures are supported as field converters.'
         converter = closure
     }
 }
