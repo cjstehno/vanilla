@@ -26,10 +26,6 @@ class JdbcMapperTransformSpec extends Specification {
 
     @Rule GroovyShellEnvironment shell
 
-    // FIXME: test without implicit (no value)
-    // FIXME: test with no DSL and implicit
-    // FIXME: test with POGO having setters rather than properties
-
     def 'implicit mapper'() {
         setup:
         def person = new Person(name: 'Bob', age: 42, birthDate: new Date())
@@ -37,6 +33,7 @@ class JdbcMapperTransformSpec extends Specification {
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
             object person
+            object new Person()
         }
 
         when:
@@ -71,19 +68,23 @@ class JdbcMapperTransformSpec extends Specification {
         rs.next()
         def obj = mapper(rs)
 
+        rs.next()
+        def empty = mapper(rs)
+
         then:
-        obj == new Person(
-            name: 'Bob', age: 37, birthDate: person.birthDate
-        )
+        obj == new Person(name: 'Bob', age: 37, birthDate: person.birthDate)
+        empty == new Person(age:-5)
     }
 
     def 'implicit mapper without config should map everything'() {
         setup:
         DummyObjectC objectC = new DummyObjectC('Larry', 56, 125.65f)
+        objectC.somethingElse = 55 as byte
 
         def rs = resultSet {
-            columns 'name', 'age', 'weight'
+            columns 'name', 'age', 'weight', 'something_else'
             object objectC
+            object new DummyObjectC()
         }
 
         when:
@@ -111,6 +112,44 @@ class JdbcMapperTransformSpec extends Specification {
         rs.next()
         def obj = mapper(rs)
 
+        rs.next()
+        def empty = mapper.call(rs)
+
+        then:
+        obj == objectC
+        empty == new DummyObjectC()
+    }
+
+    def 'unspecified style should be implicit'() {
+        setup:
+        DummyObjectC objectC = new DummyObjectC('Larry', 56, 125.65f)
+        objectC.somethingElse = 55 as byte
+
+        def rs = resultSet {
+            columns 'name', 'age', 'weight', 'something_else'
+            object objectC
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.JdbcMapper
+            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import java.time.format.*
+            import com.stehno.vanilla.jdbc.DummyObjectC
+
+            class Foo {
+                @JdbcMapper(DummyObjectC)
+                static ResultSetMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
         then:
         obj == objectC
     }
@@ -122,6 +161,7 @@ class JdbcMapperTransformSpec extends Specification {
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
             object person
+            object new Person()
         }
 
         when:
@@ -153,10 +193,57 @@ class JdbcMapperTransformSpec extends Specification {
         rs.next()
         def obj = mapper(rs)
 
+        rs.next()
+        def empty = mapper(rs)
+
         then:
-        obj == new Person(
-            name: 'Name: Bob', age: 37, birthDate: person.birthDate
-        )
+        obj == new Person(name: 'Name: Bob', age: 37, birthDate: person.birthDate)
+        empty == new Person(name: 'Name: null', age:-5)
+    }
+
+    def 'explicit mapper with setter-property'() {
+        setup:
+        def dummy = new DummyObjectC('Fred', 42, 250.6f)
+        dummy.somethingElse = 56 as byte
+
+        def rs = resultSet {
+            columns 'name', 'age', 'weight', 'something_else'
+            object dummy
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.JdbcMapper
+            import com.stehno.vanilla.jdbc.ResultSetMapper
+            import java.time.format.*
+            import com.stehno.vanilla.jdbc.DummyObjectC
+
+            import static com.stehno.vanilla.jdbc.MappingStyle.EXPLICIT
+
+            class Foo {
+                @JdbcMapper(
+                    value = DummyObjectC,
+                    style = EXPLICIT,
+                    config = {
+                        map 'name' fromString 'name'
+                        map 'age' fromInt 'age'
+                        map 'weight' fromFloat 'weight'
+                        map 'somethingElse' fromByte 'something_else'
+                    }
+                )
+                static ResultSetMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == dummy
     }
 }
 
@@ -165,4 +252,14 @@ class DummyObjectC {
     String name
     int age
     float weight
+
+    private byte _somethingElse
+
+    void setSomethingElse(byte value){
+        _somethingElse = value
+    }
+
+    byte getSomethingElse(){
+        _somethingElse
+    }
 }

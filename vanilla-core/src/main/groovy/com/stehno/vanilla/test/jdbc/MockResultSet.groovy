@@ -1024,7 +1024,10 @@ class MockResultSet implements ResultSet {
 
         long millis
 
-        if (type.isAssignableFrom(item.class)) {
+        if( item == null ){
+            return null
+
+        } else if (type.isAssignableFrom(item.class)) {
             millis = (item.asType(type)).time
 
         } else if (item instanceof java.util.Date) {

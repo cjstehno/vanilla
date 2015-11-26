@@ -42,9 +42,7 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
 class JdbcMapperTransform extends AbstractASTTransformation {
 
-    private static final Collection<String> DEFAULT_IGNORED = [
-        'class', 'metaClass', '$staticClassInfo', '__$stMC', '$staticClassInfo$', '$callSiteArray'
-    ].asImmutable()
+    private static final Collection<String> DEFAULT_IGNORED = ['metaClass', 'property'].asImmutable()
 
     private static final String RS = 'rs'
 
@@ -142,11 +140,9 @@ class JdbcMapperTransform extends AbstractASTTransformation {
             }
 
         } else {
-            // FIXME: this is causing problems
-
             // implicit without DSL
-            mappedType.fields.each { FieldNode fn ->
-                mapperConfig.map(fn.name)
+            mappedType.methods.findAll { MethodNode mn -> isAcceptedSetter(mn, DEFAULT_IGNORED) }.each { MethodNode mn ->
+                mapperConfig.map(propertyName(mn.name))
             }
         }
 
@@ -161,6 +157,11 @@ class JdbcMapperTransform extends AbstractASTTransformation {
         }
     }
 
+    private static String propertyName(String setterName) {
+        String x = setterName[3..(-1)]
+        return "${x[0].toLowerCase()}${x[1..(-1)]}"
+    }
+
     private static ClassNode createMapperClass(final String mapperName, final CompiledResultSetMapperBuilder config) {
         ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
 
@@ -169,8 +170,8 @@ class JdbcMapperTransform extends AbstractASTTransformation {
         if (config.style == MappingStyle.IMPLICIT) {
             def ignored = DEFAULT_IGNORED + config.ignored()
 
-            config.mappedTypeNode.fields.findAll { FieldNode fn -> !(fn.name in ignored) }.each { FieldNode fn ->
-                implementMapping mapEntryExpressions, config.findMapping(fn.name)
+            config.mappedTypeNode.methods.findAll { MethodNode mn -> isAcceptedSetter(mn, ignored) }.each { MethodNode mn ->
+                implementMapping mapEntryExpressions, config.findMapping(propertyName(mn.name))
             }
 
         } else {
@@ -189,6 +190,10 @@ class JdbcMapperTransform extends AbstractASTTransformation {
         ))
 
         mapperClass
+    }
+
+    private static boolean isAcceptedSetter(final MethodNode mn, final Collection ignored) {
+        mn.public && !mn.static && mn.name.startsWith('set') && !(propertyName(mn.name) in ignored)
     }
 
     @TypeChecked(SKIP)
