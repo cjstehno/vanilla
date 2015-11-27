@@ -37,6 +37,7 @@ import java.lang.annotation.*
     /**
      * The ResultSetMapper DSL closure.
      */
+    @SuppressWarnings(['SpaceAfterOpeningBrace', 'SpaceBeforeClosingBrace'])
     Class config() default {}
 
     /**

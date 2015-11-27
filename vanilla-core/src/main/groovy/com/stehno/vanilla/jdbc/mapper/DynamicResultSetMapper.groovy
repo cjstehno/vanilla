@@ -32,7 +32,7 @@ class DynamicResultSetMapper implements ResultSetMapper {
         this.builder = builder
     }
 
-    // FIXME: document and test this "as RowMapper" - similar for ResultSetExtractor?
+    @SuppressWarnings('UnusedMethodParameter')
     def mapRow(ResultSet rs, int rownum) {
         call rs
     }

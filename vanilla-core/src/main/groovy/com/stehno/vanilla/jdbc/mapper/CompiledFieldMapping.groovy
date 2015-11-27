@@ -15,24 +15,35 @@
  */
 package com.stehno.vanilla.jdbc.mapper
 
-import com.stehno.vanilla.Affirmations
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.Expression
-import org.codehaus.groovy.ast.expr.MethodCallExpression
 
 import static com.stehno.vanilla.util.Strings.camelCaseToUnderscore
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 
 /**
- * Created by cjstehno on 11/26/15.
+ * FieldMapping implementation used by compiled version of the ResultSet Mapper DSL.
+ *
+ * This class is used in AST operations and should not be used externally.
  */
 class CompiledFieldMapping implements FieldMapping {
 
+    /**
+     * The name of the object property being mapped.
+     */
     final String propertyName
+
+    private static final String RS = 'rs'
+
     private Expression extractor
     private Expression converter
 
-    CompiledFieldMapping(String propertyName) {
+    /**
+     * Creates a property mapping for the specified property.
+     *
+     * @param propertyName the name of the mapped property
+     */
+    protected CompiledFieldMapping(String propertyName) {
         this.propertyName = propertyName
 
         from constX(camelCaseToUnderscore(propertyName))
@@ -53,110 +64,104 @@ class CompiledFieldMapping implements FieldMapping {
     }
 
     FieldMapping fromObject(nameOrPosition) {
-        extract(nameOrPosition, callResultSetGetter('getObject', nameOrPosition as ConstantExpression))
+        extract(nameOrPosition, 'getObject')
     }
 
     FieldMapping fromString(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getString', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getString'
     }
 
     FieldMapping fromBoolean(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getBoolean', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getBoolean'
     }
 
     FieldMapping fromByte(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getByte', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getByte'
     }
 
     FieldMapping fromShort(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getShort', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getShort'
     }
 
     FieldMapping fromInt(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getInt', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getInt'
     }
 
     FieldMapping fromLong(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getLong', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getLong'
     }
 
     FieldMapping fromFloat(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getFloat', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getFloat'
     }
 
     FieldMapping fromDouble(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getDouble', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getDouble'
     }
 
     FieldMapping fromBytes(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getBytes', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getBytes'
     }
 
     FieldMapping fromDate(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getDate', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getDate'
     }
 
     FieldMapping fromTime(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getTime', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getTime'
     }
 
     FieldMapping fromTimestamp(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getTimestamp', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getTimestamp'
     }
 
     FieldMapping fromAsciiStream(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getAsciiStream', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getAsciiStream'
     }
 
     FieldMapping fromUnicodeStream(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getUnicodeStream', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getUnicodeStream'
     }
 
     FieldMapping fromBinaryStream(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getBinaryStream', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getBinaryStream'
     }
 
     FieldMapping fromCharacterStream(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getCharacterStream', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getCharacterStream'
     }
 
     FieldMapping fromBigDecimal(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getBigDecimal', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getBigDecimal'
     }
 
     FieldMapping fromRef(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getRef', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getRef'
     }
 
     FieldMapping fromBlob(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getBlob', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getBlob'
     }
 
     FieldMapping fromClob(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getClob', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getClob'
     }
 
     FieldMapping fromArray(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getArray', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getArray'
     }
 
     FieldMapping fromURL(nameOrPosition) {
-        extract nameOrPosition, callResultSetGetter('getURL', nameOrPosition as ConstantExpression)
+        extract nameOrPosition, 'getURL'
+    }
+
+    private FieldMapping extract(nameOrPosition, String getterName) {
+        extractor = callX(varX(RS), getterName, args(nameOrPosition as ConstantExpression))
+        this
     }
 
     @Override
     void using(converter) {
         this.converter = converter
-    }
-
-    // FIXME: this should be collapsed more now that I dont have a closure
-    protected FieldMapping extract(nameOrPosition, Expression expression) {
-        Affirmations.affirm nameOrPosition instanceof ConstantExpression
-        extractor = expression
-        this
-    }
-
-    private static MethodCallExpression callResultSetGetter(final String getterName, final ConstantExpression argX) {
-        return callX(varX('rs'), getterName, args(argX))
     }
 }

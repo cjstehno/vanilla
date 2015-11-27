@@ -18,7 +18,6 @@ package com.stehno.vanilla.test
 import static com.stehno.vanilla.test.Randomizers.*
 import static groovy.lang.Closure.DELEGATE_FIRST
 
-//@formatter:off
 /**
  * Utility for injecting random property values into POJOs and POGOs for testing. This utility may be used directly as a builder or as a DSL for
  * configuring a randomizer.
@@ -28,7 +27,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  *
  * An example usage, would be similar to the following:
  *
- * ```
+ * <pre><code>
  * def rando = randomize(Person){
  *     typeRandomizers(
  *         (Date):{ new Date() },
@@ -36,26 +35,27 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  *     )
  * }
  * def instance = rando.one()
- * ```
+ * </code></pre>
  *
- * More information may be found in my blog post, "[Property Randomization for Testing](http://coffeaelectronica.com/blog/2015/property-randomization.html)"
+ * More information may be found in my blog post,
+ * "<a href="http://coffeaelectronica.com/blog/2015/property-randomization.html">Property Randomization for Testing</a>"
  *
  */
-//@formatter:on
 class PropertyRandomizer {
 
     private final List<Class> ignoredTypes = [Class]
     private final List<String> ignoredProperties = []
 
+    private static final INT_BOUNDS = 80
+
     @SuppressWarnings('InsecureRandom')
     private final Random rng = new Random()
-
     private final Class target
 
     private final Map<Class, Object> classRandomizers = [
         (String)   : forString(),
-        (int)      : forInteger(80),
-        (Integer)  : forInteger(80),
+        (int)      : forInteger(INT_BOUNDS),
+        (Integer)  : forInteger(INT_BOUNDS),
         (byte)     : forByte(),
         (Byte)     : forByte(),
         (short)    : forShort(),
@@ -209,9 +209,8 @@ class PropertyRandomizer {
             inst.metaClass.asType = { Class type ->
                 if (type.isAssignableFrom(Map)) {
                     return props.asImmutable()
-                } else {
-                    return originalAsType.invoke(delegate, [type] as Object[])
                 }
+                return originalAsType.invoke(delegate, [type] as Object[])
             }
         }
 

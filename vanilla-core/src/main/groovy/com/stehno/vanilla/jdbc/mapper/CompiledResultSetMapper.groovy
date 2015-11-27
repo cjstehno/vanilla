@@ -18,8 +18,9 @@ package com.stehno.vanilla.jdbc.mapper
 import java.sql.ResultSet
 
 /**
- * Created by cjstehno on 11/26/15.
+ * Abstract base class for ResultSetMapper implementations created using the compiled version of the DSL.
  */
+@SuppressWarnings(['AbstractClassWithoutAbstractMethod', 'JdbcResultSetReference'])
 abstract class CompiledResultSetMapper implements ResultSetMapper {
 
     @Override

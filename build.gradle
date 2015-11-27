@@ -47,13 +47,13 @@ subprojects {
     }
 
     dependencies {
-        compile "org.codehaus.groovy:groovy-all:2.4.5"
+        compile "org.codehaus.groovy:groovy-all:$groovyVersion"
 
         testCompile 'junit:junit:4.12'
         testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
 
-        groovyDoc "org.codehaus.groovy:groovy-groovydoc:2.4.5"
-        groovyDoc "org.codehaus.groovy:groovy-ant:2.4.5"
+        groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
+        groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
     }
 
     test {
@@ -65,7 +65,7 @@ subprojects {
     }
 
     codenarcMain {
-        ignoreFailures true
+        ignoreFailures false
         configFile file('../config/codenarc-main.rules')
 
         maxPriority1Violations 0

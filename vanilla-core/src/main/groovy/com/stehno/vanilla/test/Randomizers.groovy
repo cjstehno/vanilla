@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.stehno.vanilla.test
+
 /**
  * A collection of useful randomizers for use with the PropertyRandomizer.
  */
@@ -63,7 +64,7 @@ class Randomizers {
         }
     }
 
-    static Closure<BigDecimal> forBigDecimal(Integer scale=null){
+    static Closure<BigDecimal> forBigDecimal(Integer scale = null) {
         return { Random rng ->
             scale ? new BigDecimal(rng.nextLong(), scale) : new BigDecimal(rng.nextLong())
         }

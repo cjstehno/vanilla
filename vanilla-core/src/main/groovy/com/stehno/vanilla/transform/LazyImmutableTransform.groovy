@@ -45,7 +45,7 @@ class LazyImmutableTransform extends AbstractASTTransformation {
     private static final String COPY_WITH = 'copyWith'
     private static final String ATTRS = 'attrs'
 
-    @Override
+    @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
     void visit(final ASTNode[] nodes, final SourceUnit source) {
         AnnotationNode unmodifiableNode = nodes[0] as AnnotationNode
         ClassNode classNode = nodes[1] as ClassNode
@@ -62,6 +62,7 @@ class LazyImmutableTransform extends AbstractASTTransformation {
             }
 
         } catch (Exception ex) {
+            ex.printStackTrace()
             addError("Problem making ${classNode.name} unmodifiable: ${ex.message}", classNode)
         }
     }

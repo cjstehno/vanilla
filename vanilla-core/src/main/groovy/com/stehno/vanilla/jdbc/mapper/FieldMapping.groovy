@@ -15,12 +15,30 @@
  */
 package com.stehno.vanilla.jdbc.mapper
 
+/**
+ * ResultSet mapper DSL model class representation of an object property mapping to a field in the database.
+ */
 interface FieldMapping {
 
+    /**
+     * Retrieves the name of the property being mapped.
+     *
+     * @return the name of the property being mapped
+     */
     String getPropertyName()
 
+    /**
+     * Retrieves the object used to extract the property value from the database result set.
+     *
+     * @return the extraction object
+     */
     Object getExtractor()
 
+    /**
+     * Retrieves the object used (if any) to convert the database field value into the desired value required by the mapped property.
+     *
+     * @return the converter object
+     */
     Object getConverter()
 
     FieldMapping from(nameOrPosition)
@@ -71,7 +89,10 @@ interface FieldMapping {
 
     FieldMapping fromURL(nameOrPosition)
 
+    /**
+     * DSL method used to apply a converter object to the field mapping.
+     *
+     * @param converter the converter object to be used
+     */
     void using(converter)
 }
-
-

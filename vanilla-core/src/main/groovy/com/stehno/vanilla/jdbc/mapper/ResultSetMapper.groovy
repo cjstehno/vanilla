@@ -17,12 +17,29 @@ package com.stehno.vanilla.jdbc.mapper
 
 import java.sql.ResultSet
 
+/**
+ * Defines a mapper used to map fields of a ResultSet into Java or Groovy objects.
+ */
 interface ResultSetMapper {
 
+    /**
+     * An alias to the <code>call(ResultSet)</code> method used to facilitate simple inter-operation with the SpringFramework RowMapper interface.
+     * A <code>ResultSetMapper</code> should be usable as a <code>RowMapper</code> by simply casting it (in Groovy).
+     *
+     * <pre><code>
+     *     RowMapper rowMapper = myResultSetMapper as RowMapper
+     * </code></pre>
+     *
+     * @param rs the ResultSet being operated on
+     * @param row the current row (not used)
+     * @return the object value of the mapped row
+     */
     def mapRow(ResultSet rs, int row)
 
+    /**
+     * FIXME: document me
+     * @param rs
+     * @return
+     */
     def call(ResultSet rs)
 }
-
-
-

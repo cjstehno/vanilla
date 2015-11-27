@@ -21,6 +21,8 @@ import groovy.transform.TypeChecked
 
 import java.sql.*
 
+import static com.stehno.vanilla.Affirmations.affirm
+import static com.stehno.vanilla.Affirmations.affirmNot
 import static groovy.transform.TypeCheckingMode.SKIP
 
 /**
@@ -31,6 +33,7 @@ import static groovy.transform.TypeCheckingMode.SKIP
  * some that are implemented are simply intended to store values for later retrieval during testing.
  */
 @TypeChecked @TupleConstructor @ToString(includeNames = true)
+@SuppressWarnings(['MethodCount', 'DuplicateNumberLiteral', 'ClassSize'])
 class MockResultSet implements ResultSet {
 
     final List<String> columnNames
@@ -56,9 +59,9 @@ class MockResultSet implements ResultSet {
         if (currentRow + 1 < rows.size()) {
             currentRow++
             return true
-        } else {
-            return false
         }
+
+        return false
     }
 
     @Override
@@ -129,17 +132,17 @@ class MockResultSet implements ResultSet {
 
     @Override
     Date getDate(int columnIndex) throws SQLException {
-        getDate(columnIndex, Calendar.getInstance())
+        getDate(columnIndex, Calendar.instance)
     }
 
     @Override
     Time getTime(int columnIndex) throws SQLException {
-        return getTime(columnIndex, Calendar.getInstance())
+        return getTime(columnIndex, Calendar.instance)
     }
 
     @Override
     Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return getTimestamp(columnIndex, Calendar.getInstance())
+        return getTimestamp(columnIndex, Calendar.instance)
     }
 
     @Override
@@ -342,10 +345,10 @@ class MockResultSet implements ResultSet {
             currentRow = rows.size()
             return false
 
-        } else {
-            currentRow = row - 1
-            return true
         }
+
+        currentRow = row - 1
+        return true
     }
 
     @Override
@@ -362,9 +365,9 @@ class MockResultSet implements ResultSet {
             currentRow = rows.size()
             return false
 
-        } else {
-            return true
         }
+
+        return true
     }
 
     @Override
@@ -692,7 +695,7 @@ class MockResultSet implements ResultSet {
 
     @Override
     Time getTime(String columnLabel, Calendar cal) throws SQLException {
-        return getTime(columnIndex(columnLabel), Calendar.getInstance())
+        return getTime(columnIndex(columnLabel), Calendar.instance)
     }
 
     @Override
@@ -1024,7 +1027,7 @@ class MockResultSet implements ResultSet {
 
         long millis
 
-        if( item == null ){
+        if (item == null) {
             return null
 
         } else if (type.isAssignableFrom(item.class)) {
@@ -1052,21 +1055,18 @@ class MockResultSet implements ResultSet {
     }
 
     private void assertValidIndex(int index) {
-        if (index < 1 || index > columnNames.size()) throw new IndexOutOfBoundsException()
+        affirm index >= 1 || index <= columnNames.size(), IndexOutOfBoundsException
     }
 
     private void assertNotClosed() {
-        if (closed) throw new SQLException('ResultSet-Closed')
+        affirmNot closed, 'ResultSet-Closed', SQLException
     }
 
     private void assertRowBounds() {
-        if (currentRow < 0 || currentRow >= rows.size()) throw new SQLException("Current row out of bounds: ${currentRow}")
+        affirm currentRow >= 0 || currentRow < rows.size(), "Current row out of bounds: ${currentRow}", SQLException
     }
 
     private static void unsupported(String name) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("$name is not supported.")
     }
 }
-
-
-

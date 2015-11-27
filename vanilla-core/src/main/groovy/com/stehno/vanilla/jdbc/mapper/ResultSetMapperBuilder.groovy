@@ -57,6 +57,7 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
         propertyName in ignoredNames
     }
 
+    @SuppressWarnings('ConfusingMethodName')
     Collection<FieldMapping> mappings() {
         mappings.values().asImmutable()
     }
@@ -75,5 +76,3 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
         this.ignoredNames.addAll(propertyNames)
     }
 }
-
-

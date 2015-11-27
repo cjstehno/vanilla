@@ -29,7 +29,7 @@ import static java.util.Arrays.copyOf
  * A simple implementation of the Blob interface useful for unit test scenarios. This is primarily meant for use with
  * the MockResultSet; however, there is no restriction as such.
  */
-@EqualsAndHashCode @TypeChecked
+@EqualsAndHashCode @TypeChecked @SuppressWarnings('DuplicateNumberLiteral')
 class MockBlob implements Blob, DataObject {
 
     private byte[] bytes
@@ -84,7 +84,7 @@ class MockBlob implements Blob, DataObject {
             }
         }
 
-        return index != -1 ? index + 1 : -1
+        return index == -1 ? -1 : index + 1
     }
 
     @Override

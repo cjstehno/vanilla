@@ -45,7 +45,7 @@ class MapperTransform extends AbstractASTTransformation {
     public static final String DESTINATION = 'destination'
     public static final String SOURCE = 'source'
 
-    @Override
+    @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
     void visit(final ASTNode[] nodes, final SourceUnit source) {
         AnnotationNode annotationNode = nodes[0] as AnnotationNode
         AnnotatedNode targetNode = nodes[1] as AnnotatedNode

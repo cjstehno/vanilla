@@ -43,8 +43,9 @@ class JdbcMapperTransform extends AbstractASTTransformation {
     private static final Collection<String> DEFAULT_IGNORED = ['metaClass', 'property'].asImmutable()
 
     private static final String RS = 'rs'
+    private static final String CALL = 'call'
 
-    @Override
+    @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
     void visit(ASTNode[] nodes, SourceUnit source) {
         AnnotationNode annotationNode = nodes[0] as AnnotationNode
         AnnotatedNode targetNode = nodes[1] as AnnotatedNode
@@ -178,7 +179,7 @@ class JdbcMapperTransform extends AbstractASTTransformation {
         }
 
         mapperClass.addMethod(new MethodNode(
-            'call',
+            CALL,
             PUBLIC,
             OBJECT_TYPE,
             params(param(make(ResultSet), RS),),
@@ -202,7 +203,7 @@ class JdbcMapperTransform extends AbstractASTTransformation {
             if (fieldMapping.converter instanceof ClosureExpression) {
                 ClosureExpression convertClosureX = fieldMapping.converter as ClosureExpression
 
-                convertX = new MethodCallExpression(convertClosureX, 'call', convertClosureX.parameters.size() ? args(extractorX) : args())
+                convertX = new MethodCallExpression(convertClosureX, CALL, convertClosureX.parameters.size() ? args(extractorX) : args())
 
             } else {
                 throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')

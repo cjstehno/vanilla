@@ -68,8 +68,8 @@ class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapperSupp
         } else if (closure.maximumNumberOfParameters == 2) {
             return closure.call(prop, src)
 
-        } else {
-            return closure.call(prop, src, dest)
         }
+
+        return closure.call(prop, src, dest)
     }
 }

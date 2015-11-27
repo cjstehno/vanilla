@@ -22,8 +22,6 @@ import static java.util.Calendar.*
  */
 final class Assertions {
 
-    private Assertions(){}
-
     /**
      * Tests the given set objects for proper equals(Object) and hashCode() behavior. The three objects being tested
      * must be of the same class.

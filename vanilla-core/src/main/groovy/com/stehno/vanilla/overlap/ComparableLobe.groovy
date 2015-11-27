@@ -80,7 +80,9 @@ class ComparableLobe implements Lobe {
                 other.rules.find { orule -> rangesOverlap(rule, orule) }
             }
 
-            if (overlappedRule) overlap = true
+            if (overlappedRule) {
+                overlap = true
+            }
         }
         overlap
     }

@@ -96,7 +96,6 @@ ruleset {
     BooleanMethodReturnsNull
     BuilderMethodWithSideEffects
     CloneableWithoutClone
-    CloseWithoutCloseable
     CompareToWithoutComparable
     ConstantsOnlyInterface
     EmptyMethodInAbstractClass
@@ -226,7 +225,6 @@ ruleset {
     // rulesets/jdbc.xml
     DirectConnectionManagement
     JdbcConnectionReference
-    JdbcResultSetReference
     JdbcStatementReference
 
     // rulesets/junit.xml

@@ -40,6 +40,7 @@ class ObjectMapperConfig {
 
     private final List<PropertyMappingConfig> mappings = []
 
+    @SuppressWarnings('ConfusingMethodName')
     Collection<PropertyMappingConfig> mappings() {
         mappings.asImmutable()
     }

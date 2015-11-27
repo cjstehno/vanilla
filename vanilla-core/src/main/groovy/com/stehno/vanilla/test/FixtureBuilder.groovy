@@ -104,8 +104,8 @@ class Fixture {
     }
 
     /**
-     * Used to retrieve the immutable map of fixture data for the specified fixture. If no fixture key is specified, the first configured fixture will be
-     * returned. If no fixtures are found, an assertion error is thrown.
+     * Used to retrieve the immutable map of fixture data for the specified fixture. If no fixture key is specified, the first configured fixture
+     * will be returned. If no fixtures are found, an assertion error is thrown.
      *
      * @param attrs optional extra attributes to be applied to the map to override or add properties of the fixture (internal fixture is unchanged)
      * @param fix the fixture key

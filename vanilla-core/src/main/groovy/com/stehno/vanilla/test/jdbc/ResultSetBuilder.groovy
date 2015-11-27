@@ -42,10 +42,12 @@ class ResultSetBuilder implements ResultSetDsl {
         builder(closure).build()
     }
 
+    @SuppressWarnings('ConfusingMethodName')
     void columns(List<String> colNames) {
         columns.addAll(colNames)
     }
 
+    @SuppressWarnings('ConfusingMethodName')
     void columns(String... colNames) {
         columns.addAll(colNames.collect())
     }

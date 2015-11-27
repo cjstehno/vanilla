@@ -21,10 +21,10 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 import java.lang.annotation.*
 
 /**
- * When this annotation is applied to a class, it will add a method <code>asImmutable()</code> which will generate an immutable instance of the object.
- * The original instance will be unchanged. The generated immutable instance is annotated with the <code>@Immutable</code> annotation and the class
- * annotated with <code>@LazyImmutable</code> should follow all of the rules described in the documentation of the <code>@Immutable</code> annotation
- * (specifically the restriction to property values which are immutable or can be guaranteed immutable).
+ * When this annotation is applied to a class, it will add a method <code>asImmutable()</code> which will generate an immutable instance of the
+ * object. The original instance will be unchanged. The generated immutable instance is annotated with the <code>@Immutable</code> annotation and the
+ * class annotated with <code>@LazyImmutable</code> should follow all of the rules described in the documentation of the <code>@Immutable</code>
+ * annotation (specifically the restriction to property values which are immutable or can be guaranteed immutable).
  *
  * The immutable version of the object will have a method <code>asMutable()</code> added to it, which will provide a new instance of the original
  * mutable version of the object (a new instance, not a reference).

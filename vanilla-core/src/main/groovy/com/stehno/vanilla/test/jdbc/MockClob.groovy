@@ -22,7 +22,6 @@ import groovy.transform.TypeChecked
 import java.sql.Clob
 import java.sql.SQLException
 
-import static com.stehno.vanilla.Affirmations.affirm
 import static java.lang.String.valueOf
 import static java.lang.System.arraycopy
 import static java.nio.charset.StandardCharsets.US_ASCII
@@ -78,7 +77,7 @@ class MockClob implements Clob, DataObject {
         checkFree()
 
         int index = toString().indexOf(str, positionIndex(start))
-        return index != -1 ? index + 1 : -1
+        return index == -1 ? -1 : index + 1
     }
 
     @Override
