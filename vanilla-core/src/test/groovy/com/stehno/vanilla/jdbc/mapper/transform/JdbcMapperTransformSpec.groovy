@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc
+package com.stehno.vanilla.jdbc.mapper.transform
 
+import com.stehno.vanilla.jdbc.DummyObjectC
 import com.stehno.vanilla.test.Person
 import com.stehno.vanilla.transform.GroovyShellEnvironment
 import org.junit.Rule
@@ -22,7 +23,7 @@ import spock.lang.Specification
 
 import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
 
-class JdbcMapperTransformSpec extends Specification {
+class InjectResultSetMapperTransformSpec extends Specification {
 
     @Rule GroovyShellEnvironment shell
 
@@ -40,14 +41,14 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
             import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
 
             import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
             class Foo {
-                @JdbcMapper(
+                @InjectResultSetMapper(
                     value = com.stehno.vanilla.test.Person,
                     style = IMPLICIT,
                     config = {
@@ -91,7 +92,7 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
             import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
             import com.stehno.vanilla.jdbc.DummyObjectC
@@ -99,7 +100,7 @@ class JdbcMapperTransformSpec extends Specification {
             import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
             class Foo {
-                @JdbcMapper(
+                @InjectResultSetMapper(
                     value = DummyObjectC,
                     style = IMPLICIT
                 )
@@ -134,13 +135,13 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
             import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
             import com.stehno.vanilla.jdbc.DummyObjectC
 
             class Foo {
-                @JdbcMapper(DummyObjectC)
+                @InjectResultSetMapper(DummyObjectC)
                 static ResultSetMapper createMapper(){}
             }
 
@@ -168,14 +169,14 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
             import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
 
             import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
 
             class Foo {
-                @JdbcMapper(
+                @InjectResultSetMapper(
                     value = com.stehno.vanilla.test.Person,
                     style = EXPLICIT,
                     config = {
@@ -215,7 +216,7 @@ class JdbcMapperTransformSpec extends Specification {
         def mapper = shell.evaluate('''
             package testing
 
-            import com.stehno.vanilla.jdbc.mapper.JdbcMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
             import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
             import java.time.format.*
             import com.stehno.vanilla.jdbc.DummyObjectC
@@ -223,7 +224,7 @@ class JdbcMapperTransformSpec extends Specification {
             import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
 
             class Foo {
-                @JdbcMapper(
+                @InjectResultSetMapper(
                     value = DummyObjectC,
                     style = EXPLICIT,
                     config = {

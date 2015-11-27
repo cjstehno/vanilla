@@ -7,7 +7,6 @@ TODO: review the DSL and builder interactions to clean them up
 TODO: move any useful AST utils in from Effigy
 TODO: compile the user guide documentation
 TOOD: update the web site
-TODO: re-enable the codenarc stuff
 TODO: add cobertura
 
 TODO: add in useful stub/dummy objects for tests (like Person)

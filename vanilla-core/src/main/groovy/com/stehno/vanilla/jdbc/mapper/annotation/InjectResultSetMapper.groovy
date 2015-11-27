@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc.mapper
+package com.stehno.vanilla.jdbc.mapper.annotation
 
+import com.stehno.vanilla.jdbc.mapper.transform.JdbcMapperTransform
+import com.stehno.vanilla.jdbc.mapper.MappingStyle
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
 import java.lang.annotation.*
@@ -26,7 +28,7 @@ import java.lang.annotation.*
 @Retention(RetentionPolicy.SOURCE)
 @Documented
 @GroovyASTTransformationClass(classes = [JdbcMapperTransform])
-@interface JdbcMapper {
+@interface InjectResultSetMapper {
 
     /**
      *

@@ -23,12 +23,12 @@ import java.sql.ResultSet
  * FIXME: document me
  */
 @TypeChecked
-class DynamicResultSetMapper implements ResultSetMapper {
+class RuntimeResultSetMapper implements ResultSetMapper {
 
     private static final Collection<String> DEFAULT_IGNORED = ['class'].asImmutable()
     private final ResultSetMapperBuilder builder
 
-    DynamicResultSetMapper(ResultSetMapperBuilder builder) {
+    RuntimeResultSetMapper(ResultSetMapperBuilder builder) {
         this.builder = builder
     }
 

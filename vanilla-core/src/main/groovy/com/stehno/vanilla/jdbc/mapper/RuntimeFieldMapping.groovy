@@ -33,13 +33,13 @@ import static com.stehno.vanilla.Affirmations.affirm
  * etc (field name or position is valid)
  */
 @ToString(includeNames = true, includeFields = true)
-class DynamicFieldMapping implements FieldMapping {
+class RuntimeFieldMapping implements FieldMapping {
 
     final String propertyName
     private Closure extractor
     private Closure converter
 
-    DynamicFieldMapping(final String propertyName) {
+    RuntimeFieldMapping(final String propertyName) {
         this.propertyName = propertyName
 
         from Strings.camelCaseToUnderscore(propertyName)

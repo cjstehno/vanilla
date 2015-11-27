@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc.mapper
+package com.stehno.vanilla.jdbc.mapper.transform
 
+import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.Expression
 

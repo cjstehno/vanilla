@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc.mapper
+package com.stehno.vanilla.jdbc.mapper.transform
 
+import com.stehno.vanilla.jdbc.mapper.FieldMapping
+import com.stehno.vanilla.jdbc.mapper.MappingStyle
+import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -161,7 +164,7 @@ class JdbcMapperTransform extends AbstractASTTransformation {
     }
 
     private static ClassNode createMapperClass(final String mapperName, final CompiledResultSetMapperBuilder config) {
-        ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
+        ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(ClassHelper.make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
 
         List<MapEntryExpression> mapEntryExpressions = []
 
@@ -230,7 +233,7 @@ class JdbcMapperTransform extends AbstractASTTransformation {
         return new FieldNode(
             fieldName,
             STATIC | FINAL | PRIVATE,
-            make(ResultSetMapper),
+            ClassHelper.make(ResultSetMapper),
             targetNode.declaringClass,
             ctorX(newClass(mapperClassNode))
         )

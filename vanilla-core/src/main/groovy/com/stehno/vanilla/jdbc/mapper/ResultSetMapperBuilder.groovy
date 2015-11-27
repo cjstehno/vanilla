@@ -63,11 +63,11 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
     }
 
     ResultSetMapper build() {
-        new DynamicResultSetMapper(this)
+        new RuntimeResultSetMapper(this)
     }
 
     FieldMapping map(String propertyName) {
-        FieldMapping mapping = new DynamicFieldMapping(propertyName)
+        FieldMapping mapping = new RuntimeFieldMapping(propertyName)
         mappings[propertyName] = mapping
         mapping
     }

@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc.mapper
+package com.stehno.vanilla.jdbc.mapper.transform
 
+import com.stehno.vanilla.jdbc.mapper.FieldMapping
+import com.stehno.vanilla.jdbc.mapper.MappingStyle
+import com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder
 import org.codehaus.groovy.ast.ClassNode
 
 /**
