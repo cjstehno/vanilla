@@ -41,53 +41,197 @@ interface FieldMapping {
      */
     Object getConverter()
 
-    FieldMapping from(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an Object.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping from(columnIdentifier)
 
-    FieldMapping fromObject(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an Object.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromObject(columnIdentifier)
 
-    FieldMapping fromString(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a String.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromString(columnIdentifier)
 
-    FieldMapping fromBoolean(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Boolean.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBoolean(columnIdentifier)
 
-    FieldMapping fromByte(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a byte.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromByte(columnIdentifier)
 
-    FieldMapping fromShort(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a short.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromShort(columnIdentifier)
 
-    FieldMapping fromInt(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an int.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromInt(columnIdentifier)
 
-    FieldMapping fromLong(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a long.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromLong(columnIdentifier)
 
-    FieldMapping fromFloat(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a float.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromFloat(columnIdentifier)
 
-    FieldMapping fromDouble(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a double.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromDouble(columnIdentifier)
 
-    FieldMapping fromBytes(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an array of bytes.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBytes(columnIdentifier)
 
-    FieldMapping fromDate(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a SQL Date.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromDate(columnIdentifier)
 
-    FieldMapping fromTime(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Time instance.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromTime(columnIdentifier)
 
-    FieldMapping fromTimestamp(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Timestamp instance.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromTimestamp(columnIdentifier)
 
-    FieldMapping fromAsciiStream(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an ASCII stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromAsciiStream(columnIdentifier)
 
-    FieldMapping fromUnicodeStream(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Unicode stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromUnicodeStream(columnIdentifier)
 
-    FieldMapping fromBinaryStream(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a binary stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBinaryStream(columnIdentifier)
 
-    FieldMapping fromCharacterStream(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a character stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromCharacterStream(columnIdentifier)
 
-    FieldMapping fromBigDecimal(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a BigDecimal.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBigDecimal(columnIdentifier)
 
-    FieldMapping fromRef(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Ref.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromRef(columnIdentifier)
 
-    FieldMapping fromBlob(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Blob.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBlob(columnIdentifier)
 
-    FieldMapping fromClob(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Clob.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromClob(columnIdentifier)
 
-    FieldMapping fromArray(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an Array.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromArray(columnIdentifier)
 
-    FieldMapping fromURL(nameOrPosition)
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a URL.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromURL(columnIdentifier)
 
     /**
      * DSL method used to apply a converter object to the field mapping.

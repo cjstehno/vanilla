@@ -32,10 +32,7 @@ class CompiledResultSetMapperBuilder extends ResultSetMapperBuilder {
         this.mappedTypeNode = mappedTypeNode
     }
 
-    @Override
-    FieldMapping map(String propertyName) {
-        CompiledFieldMapping mapping = new CompiledFieldMapping(propertyName)
-        mappings[propertyName] = mapping
-        mapping
+    protected FieldMapping createMapping(final String propertyName) {
+        new CompiledFieldMapping(propertyName)
     }
 }

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc.mapper
+package com.stehno.vanilla.jdbc.mapper.runtime
 
-import com.stehno.vanilla.Affirmations
+import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import com.stehno.vanilla.util.Strings
 import groovy.transform.ToString
 
@@ -61,12 +61,6 @@ class RuntimeFieldMapping implements FieldMapping {
     @Override
     FieldMapping fromObject(nameOrPosition) {
         extract(nameOrPosition) { ResultSet rs -> rs.getObject(nameOrPosition) }
-    }
-
-    protected FieldMapping extract(nameOrPosition, Closure closure) {
-        Affirmations.affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
-        extractor = closure
-        this
     }
 
     @Override
@@ -183,5 +177,17 @@ class RuntimeFieldMapping implements FieldMapping {
     void using(closure) {
         affirm closure instanceof Closure, 'Only Closures are supported as field converters.'
         converter = closure
+    }
+
+    protected FieldMapping extract2(final nameOrPosition, final String getterName) {
+        affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
+        extractor = { ResultSet rs -> rs."$getterName"(nameOrPosition) }
+        this
+    }
+
+    protected FieldMapping extract(nameOrPosition, Closure closure) {
+        affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
+        extractor = closure
+        this
     }
 }

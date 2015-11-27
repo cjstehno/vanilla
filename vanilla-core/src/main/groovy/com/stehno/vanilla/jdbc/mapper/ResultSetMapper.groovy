@@ -37,9 +37,10 @@ interface ResultSetMapper {
     def mapRow(ResultSet rs, int row)
 
     /**
-     * FIXME: document me
-     * @param rs
-     * @return
+     * Executes the mapper on the current row of the provided <code>ResultSet</code>.
+     *
+     * @param rs the ResultSet being operated on
+     * @return the mapped data extracted from the ResultSet row
      */
     def call(ResultSet rs)
 }

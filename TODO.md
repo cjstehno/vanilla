@@ -1,5 +1,6 @@
-TODO: finish and test the dynamic version of result set mapper
-TODO: implement the static version for the result set mapper
+TODO: document the result set mappers 
+TODO: write guide for result set mappers
+TODO: finish testing result set mappers
 
 TODO: clean up naming and packaging
 TODO: review the DSL and builder interactions to clean them up

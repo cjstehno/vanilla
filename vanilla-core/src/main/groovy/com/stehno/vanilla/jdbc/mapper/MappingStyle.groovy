@@ -16,16 +16,17 @@
 package com.stehno.vanilla.jdbc.mapper
 
 /**
- * FIXME: document me
+ * Encapsulates the allowed mapping styles.
  */
 enum MappingStyle {
+
     /**
-     * Mapping is implied - All properties of the bean are mapped and must be "ignored" to skip.
+     * Mapping is implied - All properties of the bean are mapped and must be "ignored" to be skipped.
      */
     IMPLICIT,
 
     /**
-     * Mapping is explicit - only mentioned properties mapped from bean.
+     * Mapping is explicit - only configured properties mapped from bean.
      */
     EXPLICIT
 }

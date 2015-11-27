@@ -22,17 +22,14 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 import java.lang.annotation.*
 
 /**
- * FIXME: document me
+ * Injects a configured ResultSetMapper into a method or field to provide access to the mapper.
  */
-@Target(value = [ElementType.FIELD, ElementType.METHOD])
-@Retention(RetentionPolicy.SOURCE)
-@Documented
-@GroovyASTTransformationClass(classes = [JdbcMapperTransform])
+@Target(value = [ElementType.FIELD, ElementType.METHOD]) @Retention(RetentionPolicy.SOURCE)
+@Documented @GroovyASTTransformationClass(classes = [JdbcMapperTransform])
 @interface InjectResultSetMapper {
 
     /**
-     *
-     * @return
+     * The type of object to be mapped.
      */
     Class value()
 
@@ -43,9 +40,12 @@ import java.lang.annotation.*
     Class config() default {}
 
     /**
-     * FIXME: Document
+     * The style of mapping to be performed. The default is IMPLICIT if not specified.
      */
     MappingStyle style() default MappingStyle.IMPLICIT
 
+    /**
+     * An optional name to be used for the generated mapper. If not specified, a name will be generated based on the object being mapped.
+     */
     String name() default ''
 }

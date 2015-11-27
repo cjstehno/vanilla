@@ -16,11 +16,23 @@
 package com.stehno.vanilla.jdbc.mapper
 
 /**
- * FIXME: document me
+ * Defines the methods available to the ResultSetMapper DSL.
  */
 interface ResultSetMapperDsl {
 
+    /**
+     * Maps an object property and encapsulates it in a FieldMapping object for further configuration.
+     *
+     * @param propertyName the name of the object property
+     * @return the populated FieldMapping object
+     */
     FieldMapping map(String propertyName)
 
+    /**
+     * Specifies one or more object properties to be ignored by the mapper. This operation is only meaningful when using the IMPLICIT style of
+     * mapping.
+     *
+     * @param propertyNames one or more object property names to be ignored during mapping
+     */
     void ignore(String... propertyNames)
 }
