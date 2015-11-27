@@ -15,31 +15,39 @@
  */
 package com.stehno.vanilla.jdbc.mapper
 
+import groovy.transform.ToString
+
 /**
  * ResultSet mapper DSL model class representation of an object property mapping to a field in the database.
  */
-interface FieldMapping {
+@ToString(includeNames = true, includeFields = true)
+abstract class FieldMapping {
 
     /**
-     * Retrieves the name of the property being mapped.
-     *
-     * @return the name of the property being mapped
+     * The name of the mapped object property.
      */
-    String getPropertyName()
+    final String propertyName
+
+    private Object extractor
+    private Object converter
+
+    protected FieldMapping(String propertyName) {
+        this.propertyName = propertyName
+    }
 
     /**
      * Retrieves the object used to extract the property value from the database result set.
      *
      * @return the extraction object
      */
-    Object getExtractor()
+    Object getExtractor() { extractor }
 
     /**
      * Retrieves the object used (if any) to convert the database field value into the desired value required by the mapped property.
      *
      * @return the converter object
      */
-    Object getConverter()
+    Object getConverter() { converter }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as an Object.
@@ -47,7 +55,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping from(columnIdentifier)
+    FieldMapping from(columnIdentifier) {
+        fromObject columnIdentifier
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as an Object.
@@ -55,7 +65,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromObject(columnIdentifier)
+    FieldMapping fromObject(columnIdentifier) {
+        extract columnIdentifier, 'getObject'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a String.
@@ -63,7 +75,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromString(columnIdentifier)
+    FieldMapping fromString(columnIdentifier) {
+        extract columnIdentifier, 'getString'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a Boolean.
@@ -71,7 +85,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromBoolean(columnIdentifier)
+    FieldMapping fromBoolean(columnIdentifier) {
+        extract columnIdentifier, 'getBoolean'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a byte.
@@ -79,7 +95,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromByte(columnIdentifier)
+    FieldMapping fromByte(columnIdentifier) {
+        extract columnIdentifier, 'getByte'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a short.
@@ -87,7 +105,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromShort(columnIdentifier)
+    FieldMapping fromShort(columnIdentifier) {
+        extract columnIdentifier, 'getShort'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as an int.
@@ -95,7 +115,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromInt(columnIdentifier)
+    FieldMapping fromInt(columnIdentifier) {
+        extract columnIdentifier, 'getInt'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a long.
@@ -103,7 +125,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromLong(columnIdentifier)
+    FieldMapping fromLong(columnIdentifier) {
+        extract columnIdentifier, 'getLong'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a float.
@@ -111,7 +135,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromFloat(columnIdentifier)
+    FieldMapping fromFloat(columnIdentifier) {
+        extract columnIdentifier, 'getFloat'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a double.
@@ -119,7 +145,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromDouble(columnIdentifier)
+    FieldMapping fromDouble(columnIdentifier) {
+        extract columnIdentifier, 'getDouble'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as an array of bytes.
@@ -127,7 +155,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromBytes(columnIdentifier)
+    FieldMapping fromBytes(columnIdentifier) {
+        extract columnIdentifier, 'getBytes'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a SQL Date.
@@ -135,7 +165,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromDate(columnIdentifier)
+    FieldMapping fromDate(columnIdentifier) {
+        extract columnIdentifier, 'getDate'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a Time instance.
@@ -143,7 +175,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromTime(columnIdentifier)
+    FieldMapping fromTime(columnIdentifier) {
+        extract columnIdentifier, 'getTime'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a Timestamp instance.
@@ -151,7 +185,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromTimestamp(columnIdentifier)
+    FieldMapping fromTimestamp(columnIdentifier) {
+        extract columnIdentifier, 'getTimestamp'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as an ASCII stream.
@@ -159,7 +195,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromAsciiStream(columnIdentifier)
+    FieldMapping fromAsciiStream(columnIdentifier) {
+        extract columnIdentifier, 'getAsciiStream'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a Unicode stream.
@@ -167,7 +205,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromUnicodeStream(columnIdentifier)
+    FieldMapping fromUnicodeStream(columnIdentifier) {
+        extract columnIdentifier, 'getUnicodeStream'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a binary stream.
@@ -175,7 +215,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromBinaryStream(columnIdentifier)
+    FieldMapping fromBinaryStream(columnIdentifier) {
+        extract columnIdentifier, 'getBinaryStream'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a character stream.
@@ -183,7 +225,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromCharacterStream(columnIdentifier)
+    FieldMapping fromCharacterStream(columnIdentifier) {
+        extract columnIdentifier, 'getCharacterStream'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a BigDecimal.
@@ -191,7 +235,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromBigDecimal(columnIdentifier)
+    FieldMapping fromBigDecimal(columnIdentifier) {
+        extract columnIdentifier, 'getBigDecimal'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a Ref.
@@ -199,7 +245,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromRef(columnIdentifier)
+    FieldMapping fromRef(columnIdentifier) {
+        extract columnIdentifier, 'getRef'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a Blob.
@@ -207,7 +255,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromBlob(columnIdentifier)
+    FieldMapping fromBlob(columnIdentifier) {
+        extract columnIdentifier, 'getBlob'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a Clob.
@@ -215,7 +265,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromClob(columnIdentifier)
+    FieldMapping fromClob(columnIdentifier) {
+        extract columnIdentifier, 'getClob'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as an Array.
@@ -223,7 +275,9 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromArray(columnIdentifier)
+    FieldMapping fromArray(columnIdentifier) {
+        extract columnIdentifier, 'getArray'
+    }
 
     /**
      * Configures the FieldMapping to extract the database field value with the specified identifier as a URL.
@@ -231,12 +285,22 @@ interface FieldMapping {
      * @param columnIdentifier the column identifier
      * @return a reference to this FieldMapping object
      */
-    FieldMapping fromURL(columnIdentifier)
+    FieldMapping fromURL(columnIdentifier) {
+        extract columnIdentifier, 'getURL'
+    }
 
     /**
      * DSL method used to apply a converter object to the field mapping.
      *
      * @param converter the converter object to be used
      */
-    void using(converter)
+    void using(converter) {
+        this.converter = converter
+    }
+
+    protected abstract FieldMapping extract(nameOrPosition, String getterName)
+
+    protected void setExtractor(Object extractor) {
+        this.extractor = extractor
+    }
 }

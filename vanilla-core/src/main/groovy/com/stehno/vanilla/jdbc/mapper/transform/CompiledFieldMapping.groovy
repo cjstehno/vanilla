@@ -17,7 +17,6 @@ package com.stehno.vanilla.jdbc.mapper.transform
 
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.Expression
 
 import static com.stehno.vanilla.util.Strings.camelCaseToUnderscore
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
@@ -27,17 +26,9 @@ import static org.codehaus.groovy.ast.tools.GeneralUtils.*
  *
  * This class is used in AST operations and should not be used externally.
  */
-class CompiledFieldMapping implements FieldMapping {
-
-    /**
-     * The name of the object property being mapped.
-     */
-    final String propertyName
+class CompiledFieldMapping extends FieldMapping {
 
     private static final String RS = 'rs'
-
-    private Expression extractor
-    private Expression converter
 
     /**
      * Creates a property mapping for the specified property.
@@ -45,124 +36,14 @@ class CompiledFieldMapping implements FieldMapping {
      * @param propertyName the name of the mapped property
      */
     protected CompiledFieldMapping(String propertyName) {
-        this.propertyName = propertyName
+        super(propertyName)
 
         from constX(camelCaseToUnderscore(propertyName))
     }
 
     @Override
-    Object getExtractor() {
-        extractor
-    }
-
-    @Override
-    Object getConverter() {
-        converter
-    }
-
-    FieldMapping from(nameOrPosition) {
-        fromObject nameOrPosition
-    }
-
-    FieldMapping fromObject(nameOrPosition) {
-        extract(nameOrPosition, 'getObject')
-    }
-
-    FieldMapping fromString(nameOrPosition) {
-        extract nameOrPosition, 'getString'
-    }
-
-    FieldMapping fromBoolean(nameOrPosition) {
-        extract nameOrPosition, 'getBoolean'
-    }
-
-    FieldMapping fromByte(nameOrPosition) {
-        extract nameOrPosition, 'getByte'
-    }
-
-    FieldMapping fromShort(nameOrPosition) {
-        extract nameOrPosition, 'getShort'
-    }
-
-    FieldMapping fromInt(nameOrPosition) {
-        extract nameOrPosition, 'getInt'
-    }
-
-    FieldMapping fromLong(nameOrPosition) {
-        extract nameOrPosition, 'getLong'
-    }
-
-    FieldMapping fromFloat(nameOrPosition) {
-        extract nameOrPosition, 'getFloat'
-    }
-
-    FieldMapping fromDouble(nameOrPosition) {
-        extract nameOrPosition, 'getDouble'
-    }
-
-    FieldMapping fromBytes(nameOrPosition) {
-        extract nameOrPosition, 'getBytes'
-    }
-
-    FieldMapping fromDate(nameOrPosition) {
-        extract nameOrPosition, 'getDate'
-    }
-
-    FieldMapping fromTime(nameOrPosition) {
-        extract nameOrPosition, 'getTime'
-    }
-
-    FieldMapping fromTimestamp(nameOrPosition) {
-        extract nameOrPosition, 'getTimestamp'
-    }
-
-    FieldMapping fromAsciiStream(nameOrPosition) {
-        extract nameOrPosition, 'getAsciiStream'
-    }
-
-    FieldMapping fromUnicodeStream(nameOrPosition) {
-        extract nameOrPosition, 'getUnicodeStream'
-    }
-
-    FieldMapping fromBinaryStream(nameOrPosition) {
-        extract nameOrPosition, 'getBinaryStream'
-    }
-
-    FieldMapping fromCharacterStream(nameOrPosition) {
-        extract nameOrPosition, 'getCharacterStream'
-    }
-
-    FieldMapping fromBigDecimal(nameOrPosition) {
-        extract nameOrPosition, 'getBigDecimal'
-    }
-
-    FieldMapping fromRef(nameOrPosition) {
-        extract nameOrPosition, 'getRef'
-    }
-
-    FieldMapping fromBlob(nameOrPosition) {
-        extract nameOrPosition, 'getBlob'
-    }
-
-    FieldMapping fromClob(nameOrPosition) {
-        extract nameOrPosition, 'getClob'
-    }
-
-    FieldMapping fromArray(nameOrPosition) {
-        extract nameOrPosition, 'getArray'
-    }
-
-    FieldMapping fromURL(nameOrPosition) {
-        extract nameOrPosition, 'getURL'
-    }
-
-    private FieldMapping extract(nameOrPosition, String getterName) {
+    protected FieldMapping extract(nameOrPosition, String getterName) {
         extractor = callX(varX(RS), getterName, args(nameOrPosition as ConstantExpression))
         this
-    }
-
-    @Override
-    void using(converter) {
-        this.converter = converter
     }
 }
