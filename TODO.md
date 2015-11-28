@@ -1,4 +1,3 @@
-TODO: write guide for result set mappers
 TODO: finish testing result set mappers
 
 TODO: clean up naming and packaging
@@ -17,3 +16,5 @@ TODO: any common DSL tools extractable?
 
 TODO: create vanilla-spring with the view resolver code
 TODO: TextTable code
+
+TODO: use the ThreadLocalRandom instead of random

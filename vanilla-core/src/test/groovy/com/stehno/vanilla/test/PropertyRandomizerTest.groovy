@@ -49,10 +49,10 @@ class PropertyRandomizerTest {
         def rando = randomize(Person)
             .ignoringProperties('bankPin')
             .typeRandomizers(
-            (Date): { new Date() },
-            (Pet): { randomize(Pet).one() },
-            (String[]): forStringArray()
-        )
+                (Date): { new Date() },
+                (Pet): { randomize(Pet).one() },
+                (String[]): forStringArray()
+            )
             .propertyRandomizers(name: { 'FixedValue' })
 
         def one = rando.one()

@@ -87,8 +87,7 @@ class PropertyRandomizer {
      * @param closure the closure containing the DSL-style randomizer configuration
      * @return the configured PropertyRandomizer for use or further configuration.
      */
-    static PropertyRandomizer randomize(Class target,
-                                        @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
+    static PropertyRandomizer randomize(Class target, @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
         def rando = new PropertyRandomizer(target)
 
         if (closure) {

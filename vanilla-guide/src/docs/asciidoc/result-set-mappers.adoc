@@ -1,4 +1,4 @@
-=== ResultSet Mappers
+== ResultSet Mappers
 
 A common operation while working with a databases is the mapping of row data to objects in code. This has always seemed very repetitive and error
 prone. The Vanilla library provides a simple DSL-based solution for quickly implementing code that extracts, and optionally transforms, the data
@@ -7,14 +7,14 @@ from the database table (via a `ResultSet`) and uses it to populate the object r
 There are two implementations available, one that is dynamic and does all the extraction and conversion work at runtime, and a second which
 pre-compiles the extraction code at compile time using AST transformations.
 
-==== Mapping Style
+=== Mapping Style
 
 There are two styles of mapping available to both implementations of the mapping framework:
 
 * `MappingStyle.IMPLICIT` - All properties of the mapped object are mapped by default, though the DSL may be used to alter property extraction or ignore properties.
 * `MappingStyle.EXPLICIT` - No properties of the mapped object are mapped by default. All mapping must be explicitly configured by the DSL.
 
-==== DSL
+=== DSL
 
 The DSL used by the `ResultSetMapper` framework is shared between both the runtime and Compiled Implementations. There are five supported mapping
 statements:
@@ -55,7 +55,7 @@ map 'age' from 2 using { a -> a - 5 }
 map 'name' from 'name'
 ----
 
-==== Runtime Implementation
+=== Runtime Implementation
 
 The runtime implementation uses the static `mapper(Class, MappingStyle, Closure)` method from `ResultSetMapperBuilder` as its entry point. The object
 type being mapped is provided, as well as the mapping style and an optional configuration closure (<<DSL>>). Using our example code from the DSL
@@ -98,7 +98,7 @@ The created mappers are reusable and thread-safe.
 
 TIP: While the dynamic runtime implementation is fully supported and maintained, it is generally advisable to use the <<Compiled Implementation>> to generation more performant code.
 
-==== Compiled Implementation
+=== Compiled Implementation
 
 The Compiled Implementation uses the `InjectResultSetMapper` annotation to inject a configured `ResultSetMapper` into a field or method of a class.
 
@@ -167,7 +167,7 @@ the added "Mapper" suffix.
 The generated mapper class may be used directly; however, the method or field injection is required to create the mapper class and it is recommended
 to use the field or method as your access point to the generated class.
 
-==== Usage
+=== Usage
 
 Once you have created a `ResultSetMapper`, you can use it anywhere you have a `ResultSet` or with the `groovy.sql.Sql` class as follows:
 
