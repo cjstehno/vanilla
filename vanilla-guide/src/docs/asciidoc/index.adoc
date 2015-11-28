@@ -1,13 +1,20 @@
 = Vanilla Usage Guide
 Christopher J. Stehno <chris@stehno.com>
-v0.0.1, October 2015
+v0.1.0, December 2015
 :toc: left
+:toclevels: 3
 
 == Introduction
 
-This is the introduction...
+The Vanilla library is a multi-purpose utility library containing a lot of "what if" and experimentation code that actually seemed to have a
+potential use, so it was made publicly available.
 
-== Key Components
+The project web site is: http://stehno.com/vanilla
 
-This is the useful stuff...
+The source code for the project is hosted on GitHub at: https://github.com/cjstehno/vanilla
 
+Vanilla is licensed under the http://www.apache.org/licenses/LICENSE-2.0[Apache 2] open source license.
+
+== Components
+
+include::result-set-mappers.adoc[]
