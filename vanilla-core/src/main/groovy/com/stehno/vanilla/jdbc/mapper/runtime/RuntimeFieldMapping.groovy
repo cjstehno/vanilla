@@ -24,17 +24,16 @@ import static com.stehno.vanilla.Affirmations.affirm
 import static com.stehno.vanilla.util.Strings.camelCaseToUnderscore
 
 /**
- * FIXME: document me
- *
- * from methods map to the get methods of ResultSet
- * from, fromObject --> getObject
- * fromString --> getString
- * fromDate --> getDate
- * etc (field name or position is valid)
+ * Dynamic runtime implementation of the FieldMapping abstraction. The "from" methods accept a database field name (String) or position index (int).
  */
 @ToString(includeNames = true, includeFields = true)
 class RuntimeFieldMapping extends FieldMapping {
 
+    /**
+     * Creates a new field mapping for the given object property.
+     *
+     * @param propertyName the object property name
+     */
     RuntimeFieldMapping(final String propertyName) {
         super(propertyName)
 

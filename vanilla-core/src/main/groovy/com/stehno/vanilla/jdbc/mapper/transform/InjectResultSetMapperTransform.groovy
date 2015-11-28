@@ -38,10 +38,10 @@ import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 
 /**
- * FIXME: document me
+ * AST Transformation used to process the <code>InjectResultSetMapper</code> annotation. This class should not be used externally.
  */
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
-class JdbcMapperTransform extends AbstractASTTransformation {
+class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
     private static final Collection<String> DEFAULT_IGNORED = ['metaClass', 'property'].asImmutable()
 

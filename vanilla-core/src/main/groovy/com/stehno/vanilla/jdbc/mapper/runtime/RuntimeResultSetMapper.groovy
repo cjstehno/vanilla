@@ -25,7 +25,10 @@ import java.sql.ResultSet
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
 /**
- * FIXME: document me
+ * Dynamic runtime implementation of the <code>ResultSetMapper</code> interface. The mapping information is immutable and the actual mapping
+ * and extraction operations occur at runtime.
+ *
+ * The mapper is reusable and thread-safe.
  */
 @TypeChecked
 class RuntimeResultSetMapper implements ResultSetMapper {
@@ -37,6 +40,15 @@ class RuntimeResultSetMapper implements ResultSetMapper {
     private final Map<String, FieldMapping> mappings
     private final Collection<String> ignored = []
 
+    /**
+     * Creates an instance of the mapper with the provided configuration information. Generally, the <code>ResultSetMapperBuilder</code> is used to
+     * create instances of this mapper; however, using this constructor directly is acceptable.
+     *
+     * @param mappedType the type being mapped
+     * @param mappingStyle the mapping style to be used
+     * @param mappings the map of object property name to field mappings
+     * @param ignored the collection of ignored object properties (may be omitted)
+     */
     RuntimeResultSetMapper(Class mappedType, MappingStyle mappingStyle, Map<String, FieldMapping> mappings, Collection<String> ignored = []) {
         this.mappedType = mappedType
         this.mappingStyle = mappingStyle
@@ -81,7 +93,7 @@ class RuntimeResultSetMapper implements ResultSetMapper {
         mappedType.newInstance(instanceProps)
     }
 
-    private static void applyMapping(ResultSet rs, FieldMapping mapping, Map<String, Object> instanceProps) {
+    private static void applyMapping(final ResultSet rs, final FieldMapping mapping, final Map<String, Object> instanceProps) {
         def mappedValue = (mapping.extractor as Closure).call(rs)
         Closure converter = mapping.converter as Closure
         if (converter) {
@@ -96,7 +108,7 @@ class RuntimeResultSetMapper implements ResultSetMapper {
         instanceProps[mapping.propertyName] = mappedValue
     }
 
-    private static boolean isWritable(MetaClass meta, String name, Class argType) {
+    private static boolean isWritable(final MetaClass meta, final String name, final Class argType) {
         return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])
     }
 }

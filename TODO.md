@@ -1,9 +1,9 @@
-TODO: document the result set mappers 
 TODO: write guide for result set mappers
 TODO: finish testing result set mappers
 
 TODO: clean up naming and packaging
-TODO: review the DSL and builder interactions to clean them up
+TODO: review the object mapper DSL and builder interactions to clean them up
+TODO: review any other DSL impls
 
 TODO: move any useful AST utils in from Effigy
 TODO: compile the user guide documentation

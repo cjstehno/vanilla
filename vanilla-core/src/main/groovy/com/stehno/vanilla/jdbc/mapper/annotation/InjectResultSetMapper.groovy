@@ -15,7 +15,7 @@
  */
 package com.stehno.vanilla.jdbc.mapper.annotation
 
-import com.stehno.vanilla.jdbc.mapper.transform.JdbcMapperTransform
+import com.stehno.vanilla.jdbc.mapper.transform.InjectResultSetMapperTransform
 import com.stehno.vanilla.jdbc.mapper.MappingStyle
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
@@ -25,7 +25,7 @@ import java.lang.annotation.*
  * Injects a configured ResultSetMapper into a method or field to provide access to the mapper.
  */
 @Target(value = [ElementType.FIELD, ElementType.METHOD]) @Retention(RetentionPolicy.SOURCE)
-@Documented @GroovyASTTransformationClass(classes = [JdbcMapperTransform])
+@Documented @GroovyASTTransformationClass(classes = [InjectResultSetMapperTransform])
 @interface InjectResultSetMapper {
 
     /**

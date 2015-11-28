@@ -20,7 +20,7 @@ import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
 import java.sql.ResultSet
 
 /**
- * Abstract base class for ResultSetMapper implementations created using the compiled version of the DSL.
+ * Abstract base class for ResultSetMapper implementations created using the compiled (AST) version of the DSL.
  */
 @SuppressWarnings(['AbstractClassWithoutAbstractMethod', 'JdbcResultSetReference'])
 abstract class CompiledResultSetMapper implements ResultSetMapper {

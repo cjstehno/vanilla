@@ -21,7 +21,7 @@ import com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder
 import org.codehaus.groovy.ast.ClassNode
 
 /**
- * Created by cjstehno on 11/26/15.
+ * Compile-time-based extension of the <code>ResultSetMapperBuilder</code> class. This class should not be used externally.
  */
 class CompiledResultSetMapperBuilder extends ResultSetMapperBuilder {
 
