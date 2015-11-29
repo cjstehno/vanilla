@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.mapper
+package com.stehno.vanilla.mapper.runtime
 
+import com.stehno.vanilla.mapper.ObjectMapper
+import com.stehno.vanilla.mapper.ObjectMapperConfig
+import com.stehno.vanilla.mapper.ObjectMapperSupport
+import com.stehno.vanilla.mapper.PropertyMappingConfig
 import groovy.transform.TypeChecked
 
 /**

@@ -28,6 +28,11 @@ class PropertyMappingConfig {
     private String destinationName
     private Object converter
 
+    /**
+     * Creates a new mapping for the named property.
+     *
+     * @param sourceName the source property name.
+     */
     PropertyMappingConfig(final String sourceName) {
         this.sourceName = sourceName
     }

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.mapper
+package com.stehno.vanilla.mapper.transform
 
+import com.stehno.vanilla.mapper.ObjectMapperSupport
 import groovy.transform.TypeChecked
 
 /**
@@ -22,7 +23,7 @@ import groovy.transform.TypeChecked
  * Generally, this class should be only used internally.
  */
 @TypeChecked @SuppressWarnings('AbstractClassWithoutAbstractMethod')
-abstract class StaticObjectMapper implements ObjectMapperSupport {
+abstract class CompiledObjectMapper implements ObjectMapperSupport {
     // Nothing special, just giving the compiled mapper something to use.
 }
 

@@ -19,7 +19,7 @@ import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeFieldMapping
 import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeResultSetMapper
 import groovy.transform.ToString
 
-import static MappingStyle.IMPLICIT
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
 /**
  * Configuration model implementation of the <code>ResultSetMapperDsl</code> interface, used for configuration and creation of a

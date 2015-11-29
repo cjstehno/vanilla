@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.transform
+package com.stehno.vanilla.mapper.transform
 
 import com.stehno.vanilla.mapper.BarObject
 import com.stehno.vanilla.mapper.FooObject
 import com.stehno.vanilla.test.PropertyRandomizer
+import com.stehno.vanilla.transform.GroovyShellEnvironment
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -45,12 +46,12 @@ class MapperTransformSpec extends Specification {
         def results = shell.evaluate("""
             package testing
 
-            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
             import com.stehno.vanilla.mapper.ObjectMapper
             import java.time.format.*
 
             class Foo {
-                @Mapper({
+                @InjectObjectMapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
@@ -79,12 +80,12 @@ class MapperTransformSpec extends Specification {
         def results = shell.evaluate("""
             package testing
 
-            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
             import com.stehno.vanilla.mapper.ObjectMapper
             import java.time.format.*
 
             class Foo {
-                @Mapper({
+                @InjectObjectMapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
@@ -101,7 +102,7 @@ class MapperTransformSpec extends Specification {
         then:
         bars.size() == 3
 
-        bars.eachWithIndex{ bar, idx ->
+        bars.eachWithIndex { bar, idx ->
             assert bar.name == foos[idx].name
             assert bar.years == foos[idx].age
             assert bar.startDate.format('MM/dd/yyyy') == foos[idx].startDate
@@ -117,12 +118,12 @@ class MapperTransformSpec extends Specification {
         def results = shell.evaluate("""
             package testing
 
-            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
             import com.stehno.vanilla.mapper.ObjectMapper
             import java.time.format.*
 
             class Foo {
-                @Mapper({
+                @InjectObjectMapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { it ? Date.parse('MM/dd/yyyy', it) : null }
@@ -151,12 +152,12 @@ class MapperTransformSpec extends Specification {
         def results = shell.evaluate("""
             package testing
 
-            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
             import com.stehno.vanilla.mapper.ObjectMapper
             import java.time.format.*
 
             class Foo {
-                @Mapper({
+                @InjectObjectMapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { Date.parse('MM/dd/yyyy','12/21/2012') }
@@ -189,14 +190,14 @@ class MapperTransformSpec extends Specification {
         def om = shell.evaluate("""
             package testing
 
-            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
             import com.stehno.vanilla.mapper.ObjectMapper
             import com.stehno.vanilla.mapper.BarObject
             import java.time.format.*
             import java.time.*
 
             class Foo {
-                @Mapper(
+                @InjectObjectMapper(
                     name='FooChild',
                     value={
                         map 'name'
@@ -207,7 +208,7 @@ class MapperTransformSpec extends Specification {
                 )
                 static ObjectMapper childMapper(){}
 
-                @Mapper({
+                @InjectObjectMapper({
                     map 'child' into 'descendent' using { x->
                         def y = new BarObject()
                         Foo.childMapper().copy(x, y)
@@ -242,12 +243,12 @@ class MapperTransformSpec extends Specification {
         def results = shell.evaluate("""
             package testing
 
-            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
             import com.stehno.vanilla.mapper.ObjectMapper
             import java.time.format.*
 
             class Foo {
-                @Mapper({
+                @InjectObjectMapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }
@@ -278,12 +279,12 @@ class MapperTransformSpec extends Specification {
         def results = shell.evaluate("""
             package testing
 
-            import com.stehno.vanilla.annotation.Mapper
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
             import com.stehno.vanilla.mapper.ObjectMapper
             import java.time.format.*
 
             class Foo {
-                @Mapper({
+                @InjectObjectMapper({
                     map 'name'
                     map 'age' into 'years'
                     map 'startDate' using { String d -> Date.parse('MM/dd/yyyy', d) }

@@ -15,6 +15,9 @@
  */
 package com.stehno.vanilla.mapper
 
+/**
+ * Defines an object used to map or copy properties from one object instance to another.
+ */
 interface ObjectMapper {
 
     /**

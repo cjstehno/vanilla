@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.transform
+package com.stehno.vanilla.mapper.transform
 
 import com.stehno.vanilla.mapper.ObjectMapper
 import com.stehno.vanilla.mapper.ObjectMapperConfig
 import com.stehno.vanilla.mapper.PropertyMappingConfig
-import com.stehno.vanilla.mapper.StaticObjectMapper
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -28,9 +27,7 @@ import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
-import java.lang.reflect.Modifier
-
-import static java.lang.reflect.Modifier.PUBLIC
+import static java.lang.reflect.Modifier.*
 import static org.codehaus.groovy.ast.ClassHelper.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
@@ -40,7 +37,7 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
  * AST transformer used to process the Mapper annotated methods, properties and fields.
  */
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
-class MapperTransform extends AbstractASTTransformation {
+class InjectObjectMapperTransform extends AbstractASTTransformation {
 
     public static final String DESTINATION = 'destination'
     public static final String SOURCE = 'source'
@@ -90,13 +87,13 @@ class MapperTransform extends AbstractASTTransformation {
         targetNode.declaringClass.addField(createFieldNode(fieldName, targetNode, mapperClassNode))
 
         MethodNode methodNode = targetNode as MethodNode
-        methodNode.modifiers = Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL
+        methodNode.modifiers = PUBLIC | STATIC | FINAL
         methodNode.code = returnS(varX(fieldName))
     }
 
     private void transformFieldNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
         FieldNode fieldNode = targetNode as FieldNode
-        fieldNode.modifiers = Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC
+        fieldNode.modifiers = STATIC | FINAL | PUBLIC
         fieldNode.initialValueExpression = ctorX(newClass(mapperClassNode))
         fieldNode.type = make(ObjectMapper)
     }
@@ -109,7 +106,7 @@ class MapperTransform extends AbstractASTTransformation {
     private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
         return new FieldNode(
             fieldName,
-            Modifier.STATIC | Modifier.FINAL | Modifier.PRIVATE,
+            STATIC | FINAL | PRIVATE,
             make(ObjectMapper),
             targetNode.declaringClass,
             ctorX(newClass(mapperClassNode))
@@ -165,7 +162,7 @@ class MapperTransform extends AbstractASTTransformation {
             [] as ClassNode[],
             [] as MixinNode[]
         )
-        mapperClass.setSuperClass(make(StaticObjectMapper))
+        mapperClass.setSuperClass(make(CompiledObjectMapper))
 
         def code = block()
 

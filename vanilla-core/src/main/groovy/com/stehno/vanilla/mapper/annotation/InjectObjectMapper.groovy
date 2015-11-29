@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.annotation
+package com.stehno.vanilla.mapper.annotation
 
-import com.stehno.vanilla.transform.MapperTransform
+import com.stehno.vanilla.mapper.transform.InjectObjectMapperTransform
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
 import java.lang.annotation.*
@@ -25,7 +25,7 @@ import java.lang.annotation.*
  * ObjectMapper created/injected in this manner allows for a slight performance boost since there is less logic code
  * centered around figuring out how to build the mapper - this is done at compile time.
  *
- * The @Mapper annotation may be placed on methods, fields or properties.
+ * The @InjectObjectMapper annotation may be placed on methods, fields or properties.
  *
  * When used to annotate a method: the method will be made public, static and final and it will use a shared private
  * field instance of the mapper so that it is not created with every method call.
@@ -37,11 +37,11 @@ import java.lang.annotation.*
  * Note: the static version of the ObjectMapper DSL only supports Closure-style converters. Another mapper may be wrapped
  * inside a closure call; however, they are not directly supported as converters as they are in the runtime mapper.
  */
-@Target(value=[ElementType.FIELD, ElementType.METHOD])
+@Target(value = [ElementType.FIELD, ElementType.METHOD])
 @Retention(RetentionPolicy.SOURCE)
 @Documented
-@GroovyASTTransformationClass(classes = [MapperTransform])
-@interface Mapper {
+@GroovyASTTransformationClass(classes = [InjectObjectMapperTransform])
+@interface InjectObjectMapper {
 
     /**
      * The ObjectMapper DSL closure.

@@ -1,6 +1,6 @@
 
 TODO: review, clean, test and document LazyImmutable
-TODO: review, clean, test and document ObjectMapper
+TODO: test and document ObjectMapper
     TODO: add implicit/explicit behavior
 TODO: review, clean, test and document IO utils
 TODO: review, clean, test and document overlap
@@ -24,3 +24,4 @@ TODO: create vanilla-spring with the view resolver code
 TODO: TextTable code
 
 TODO: use the ThreadLocalRandom instead of random in randomizers
+TODO: add sql operation injection annotations (like Effigy SQL?)
