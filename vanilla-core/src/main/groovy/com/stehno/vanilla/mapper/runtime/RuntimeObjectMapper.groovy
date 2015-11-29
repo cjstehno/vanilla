@@ -15,27 +15,32 @@
  */
 package com.stehno.vanilla.mapper.runtime
 
-import com.stehno.vanilla.mapper.ObjectMapper
-import com.stehno.vanilla.mapper.ObjectMapperConfig
-import com.stehno.vanilla.mapper.ObjectMapperSupport
-import com.stehno.vanilla.mapper.PropertyMappingConfig
+import com.stehno.vanilla.mapper.*
 import groovy.transform.TypeChecked
 
+import static com.stehno.vanilla.mapper.ObjectMapperConfig.MappingStyle.IMPLICIT
+
 /**
- * ObjectMapper implementation used by the runtime ObjectMapper DSL to contain the configuration
- * and execute the mappings.
+ * Runtime implementation of ObjectMapper used by the runtime ObjectMapper DSL to contain the configuration and execute the mappings.
  */
 @TypeChecked
 class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapperSupport {
 
+    private MappingStyle mappingStyle
+
+    RuntimeObjectMapper(MappingStyle mappingStyle) {
+        this.mappingStyle = mappingStyle
+    }
+
     /**
      * Creates an ObjectMapper configured by the given Closure.
      *
+     * @param mappingStyle the optional style of mapping to be used (defaults to IMPLICIT)
      * @param closure the configuration closure
      * @return the configured ObjectMapper
      */
-    static ObjectMapper mapper(@DelegatesTo(ObjectMapperConfig) final Closure closure) {
-        RuntimeObjectMapper mapper = new RuntimeObjectMapper()
+    static ObjectMapper mapper(MappingStyle mappingStyle = IMPLICIT, @DelegatesTo(ObjectMapperDsl) final Closure closure) {
+        RuntimeObjectMapper mapper = new RuntimeObjectMapper(mappingStyle)
         closure.setDelegate(mapper)
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.call()
@@ -44,25 +49,51 @@ class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapperSupp
 
     @Override
     void copy(final Object src, final Object dest) {
-        mappings().each { PropertyMappingConfig pmc ->
-            if (!pmc.converter) {
-                dest[pmc.destinationName] = src[pmc.sourceName]
+        MetaClass sourceMeta = src.metaClass
 
-            } else if (pmc.converter instanceof ObjectMapper) {
-                def instance = dest.metaClass.getMetaProperty(pmc.destinationName).type.newInstance()
-                (pmc.converter as ObjectMapper).copy(src[pmc.sourceName], instance)
-                dest[pmc.destinationName] = instance
+        if (mappingStyle == IMPLICIT) {
+            //            def ignoredProperties = DEFAULT_IGNORED + ignored()
+            //
+            //            sourceMeta.properties.findAll { MetaProperty mp ->
+            //                !(mp.name in ignoredProperties) && isReadable(sourceMeta, mp.name, mp.type)
+            //            }.each { MetaProperty mp ->
+            //                PropertyMapping mapping = findMapping(mp.name)
+            //                /*
+            //                    copy all 1:1 by default unless overrideen by ignore or a mapping
+            //                    FIXME: make sure implicit pattern works right in other mapper
+            //                 */
+            //
+            //            }
 
-            } else if (pmc.converter instanceof Closure) {
-                dest[pmc.destinationName] = callConverter(pmc.converter as Closure, src[pmc.sourceName], src, dest)
-
-            } else {
-                throw new UnsupportedOperationException("Converter type (${pmc.converter.class}) is not supported.")
+        } else {
+            mappings().each { PropertyMapping pmc ->
+                applyMapping pmc, src, dest
             }
         }
     }
 
-    private callConverter(Closure closure, prop, src, dest) {
+    private static void applyMapping(final PropertyMapping mapping, final Object src, final Object dest) {
+        if (!mapping.converter) {
+            dest[mapping.destinationName] = src[mapping.sourceName]
+
+        } else if (mapping.converter instanceof ObjectMapper) {
+            def instance = dest.metaClass.getMetaProperty(mapping.destinationName).type.newInstance()
+            (mapping.converter as ObjectMapper).copy(src[mapping.sourceName], instance)
+            dest[mapping.destinationName] = instance
+
+        } else if (mapping.converter instanceof Closure) {
+            dest[mapping.destinationName] = callConverter(mapping.converter as Closure, src[mapping.sourceName], src, dest)
+
+        } else {
+            throw new UnsupportedOperationException("Converter type (${mapping.converter.class}) is not supported.")
+        }
+    }
+
+    private static boolean isReadable(final MetaClass meta, final String name, final Class argType) {
+        return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])
+    }
+
+    private static callConverter(Closure closure, prop, src, dest) {
         if (closure.maximumNumberOfParameters == 0) {
             return closure.call()
 

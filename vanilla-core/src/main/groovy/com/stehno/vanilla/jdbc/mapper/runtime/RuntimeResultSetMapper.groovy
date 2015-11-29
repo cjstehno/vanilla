@@ -74,6 +74,10 @@ class RuntimeResultSetMapper implements ResultSetMapper {
             mappedMeta.properties.findAll { MetaProperty mp ->
                 !(mp.name in ignoredProperties) && isWritable(mappedMeta, mp.name, mp.type)
             }.each { MetaProperty mp ->
+
+                // FIXME: there is no support for actual implicit behavior!
+                fixing here
+
                 FieldMapping mapping = mappings[mp.name]
                 if (mapping) {
                     applyMapping rs, mapping, instanceProps

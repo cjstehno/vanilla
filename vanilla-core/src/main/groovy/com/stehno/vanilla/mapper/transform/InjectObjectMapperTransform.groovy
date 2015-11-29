@@ -17,7 +17,7 @@ package com.stehno.vanilla.mapper.transform
 
 import com.stehno.vanilla.mapper.ObjectMapper
 import com.stehno.vanilla.mapper.ObjectMapperConfig
-import com.stehno.vanilla.mapper.PropertyMappingConfig
+import com.stehno.vanilla.mapper.PropertyMapping
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -38,6 +38,8 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
  */
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
 class InjectObjectMapperTransform extends AbstractASTTransformation {
+
+    // FIXME: needs implicit/explicit support
 
     public static final String DESTINATION = 'destination'
     public static final String SOURCE = 'source'
@@ -138,7 +140,7 @@ class InjectObjectMapperTransform extends AbstractASTTransformation {
                     throw new IllegalArgumentException('The static mapper DSL commands must at least contain \'map\' calls.')
                 }
 
-                PropertyMappingConfig propConfig = mapperConfig.map((methodXs.map as ConstantExpression).text)
+                PropertyMapping propConfig = mapperConfig.map((methodXs.map as ConstantExpression).text)
 
                 if (methodXs.containsKey('into')) {
                     propConfig.into((methodXs.into as ConstantExpression).text)

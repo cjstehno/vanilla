@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc.mapper
+package com.stehno.vanilla.mapper
 
 /**
- * Encapsulates the allowed mapping styles.
+ * Defines the operations available to the Object Mapper DSL.
  */
-enum MappingStyle {
-
-    // FIXME: move this into one of the other classes or come up with a way to share it with the other mapper
+interface ObjectMapperDsl {
 
     /**
-     * Mapping is implied - All properties of the bean are mapped and must be "ignored" to be skipped.
+     * Configures a mapping for the given source object property.
+     *
+     * @param propertyName the name of the source object property.
+     * @return the PropertyMapping instance
      */
-    IMPLICIT,
+    PropertyMapping map(final String propertyName)
 
     /**
-     * Mapping is explicit - only configured properties mapped from bean.
+     * FIXME: document
+     *
+     * @param propertyNames
      */
-    EXPLICIT
+    void ignore(String... propertyNames)
 }
+

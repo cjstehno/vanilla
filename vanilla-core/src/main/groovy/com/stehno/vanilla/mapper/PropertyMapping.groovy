@@ -15,35 +15,16 @@
  */
 package com.stehno.vanilla.mapper
 
-import groovy.transform.ToString
-import groovy.transform.TypeChecked
-
 /**
- * The DSL object representation of a property mapping.
+ * Defines a property mapping object for the Object Mapper DSL.
  */
-@TypeChecked @ToString(includeNames = true, includeFields = true)
-class PropertyMappingConfig implements PropertyMapping {
+interface PropertyMapping {
 
-    final String sourceName
-    private String destinationName
-    private Object converter
+    String getSourceName()
 
-    /**
-     * Creates a new mapping for the named property.
-     *
-     * @param sourceName the source property name.
-     */
-    PropertyMappingConfig(final String sourceName) {
-        this.sourceName = sourceName
-    }
+    String getDestinationName()
 
-    String getDestinationName() {
-        destinationName ?: sourceName
-    }
-
-    Object getConverter() {
-        converter
-    }
+    Object getConverter()
 
     /**
      * Maps the source property into the destination property with the provided name.
@@ -51,17 +32,12 @@ class PropertyMappingConfig implements PropertyMapping {
      * @param propertyName the destination property name
      * @return this PropertyMapping instance
      */
-    PropertyMapping into(final String propertyName) {
-        destinationName = propertyName
-        this
-    }
+    PropertyMapping into(final String propertyName)
 
     /**
      * Applies the provided converter when copying the source property to the destination property.
      *
      * @param converter the converter
      */
-    void using(final Object converter) {
-        this.converter = converter
-    }
+    void using(final Object converter)
 }

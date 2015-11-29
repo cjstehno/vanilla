@@ -15,10 +15,12 @@
  */
 package com.stehno.vanilla.jdbc.mapper
 
+import com.stehno.vanilla.jdbc.DummyObjectA
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 import static com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder.mapper
 import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
@@ -35,7 +37,8 @@ class ResultSetMapperBuilderSpec extends Specification {
             object person
         }
 
-        def mapper = mapper(Person) {
+        // FIXME: get the one-arg version working again
+        def mapper = mapper(Person, IMPLICIT) {
             ignore 'bankPin'
             ignore 'pet'
             map 'birthDate' fromDate 'birth_date'
@@ -52,6 +55,28 @@ class ResultSetMapperBuilderSpec extends Specification {
         obj == new Person(
             name: 'Bob', age: 37, birthDate: person.birthDate
         )
+    }
+
+    // FIXME: test with no config
+    // FIXME: test with some config
+
+    def 'mapper: Implicit (no config)'() {
+        setup:
+        def dummy = new DummyObjectA('one', 2, 3.14159f)
+
+        def rs = resultSet {
+            columns 'alpha', 'bravo', 'charlie'
+            object dummy
+        }
+
+        def mapper = mapper(DummyObjectA)
+
+        when:
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == dummy
     }
 
     def 'mapper: Explicit'() {

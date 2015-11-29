@@ -15,10 +15,13 @@
  */
 package com.stehno.vanilla.mapper.annotation
 
+import com.stehno.vanilla.mapper.ObjectMapperConfig
 import com.stehno.vanilla.mapper.transform.InjectObjectMapperTransform
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
 import java.lang.annotation.*
+
+import static com.stehno.vanilla.mapper.ObjectMapperConfig.MappingStyle.IMPLICIT
 
 /**
  * Annotation used to inject a static ObjectMapper instance into a class using the ObjectMapper DSL. Having the
@@ -54,4 +57,9 @@ import java.lang.annotation.*
      * them.
      */
     String name() default ''
+
+    /**
+     * FIXME: document me
+     */
+    ObjectMapperConfig.MappingStyle style() default IMPLICIT
 }

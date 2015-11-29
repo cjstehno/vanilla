@@ -60,12 +60,14 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      * @param closure the DSL closure
      * @return the configured ResultSetMapper
      */
-    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure) {
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure=null) {
         ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)
 
-        closure.delegate = builder
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.call()
+        if( closure ){
+            closure.delegate = builder
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure.call()
+        }
 
         builder.build()
     }
