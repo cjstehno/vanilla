@@ -40,8 +40,6 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
 class InjectObjectMapperTransform extends AbstractASTTransformation {
 
-    // FIXME: needs implicit/explicit support
-
     public static final String DESTINATION = 'destination'
     public static final String SOURCE = 'source'
 

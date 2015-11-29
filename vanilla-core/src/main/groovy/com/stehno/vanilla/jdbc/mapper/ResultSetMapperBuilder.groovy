@@ -60,7 +60,7 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      * @param closure the DSL closure
      * @return the configured ResultSetMapper
      */
-    // FIXME: move this into the runtime impl
+    // FIXME: move this into the runtime impl (similar to what I did in the object mapper)
     static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure) {
         ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)
 
