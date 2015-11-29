@@ -21,7 +21,7 @@ import com.stehno.vanilla.transform.GroovyShellEnvironment
 import org.junit.Rule
 import spock.lang.Specification
 
-import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
+import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
 class InjectResultSetMapperTransformSpec extends Specification {
 

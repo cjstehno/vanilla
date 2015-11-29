@@ -1,20 +1,26 @@
-TODO: finish testing result set mappers
 
-TODO: clean up naming and packaging
-TODO: review the object mapper DSL and builder interactions to clean them up
-TODO: review any other DSL impls
+TODO: review, clean, test and document LazyImmutable
+TODO: review, clean, test and document ObjectMapper
+    TODO: add implicit/explicit behavior
+TODO: review, clean, test and document IO utils
+TODO: review, clean, test and document overlap
+TODO: review, clean, test and document utils & Affirmations
+TODO: review, clean, test and document mock ResultSet
+TODO: review, clean, test and document Fixtures
+TODO: review, clean, test and document Assertions
+
+TODO: more tests for ResultSetMapper
 
 TODO: move any useful AST utils in from Effigy
 TODO: compile the user guide documentation
 TOOD: update the web site
-TODO: add cobertura
+TODO: replace jacoco with cobertura
 
 TODO: add in useful stub/dummy objects for tests (like Person)
-TODO: add explicit/implicit behavior to the ObjectMapper
 
 TODO: any common DSL tools extractable?
 
 TODO: create vanilla-spring with the view resolver code
 TODO: TextTable code
 
-TODO: use the ThreadLocalRandom instead of random
+TODO: use the ThreadLocalRandom instead of random in randomizers

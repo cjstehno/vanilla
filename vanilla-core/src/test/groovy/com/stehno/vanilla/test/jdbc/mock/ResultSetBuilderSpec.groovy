@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.test.jdbc
+package com.stehno.vanilla.test.jdbc.mock
 
 import groovy.transform.Canonical
 import spock.lang.Specification
 
-import static ResultSetBuilder.resultSet
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
+import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
 class ResultSetBuilderSpec extends Specification {
 

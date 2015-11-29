@@ -18,9 +18,9 @@ package com.stehno.vanilla.jdbc.mapper
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
-import static com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder.mapper
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
-import static com.stehno.vanilla.test.jdbc.ResultSetBuilder.resultSet
+import static com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder.mapper
+import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
 class ResultSetMapperBuilderSpec extends Specification {
 
@@ -68,7 +68,7 @@ class ResultSetMapperBuilderSpec extends Specification {
         def mapper = mapper(Person, EXPLICIT) {
             map 'birthDate' fromDate 'birth_date'
             map 'age' from 2 using { a -> a - 5 }
-            map 'name' using { n-> "Name: $n"}
+            map 'name' using { n -> "Name: $n" }
         }
 
         when:

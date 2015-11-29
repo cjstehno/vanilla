@@ -13,24 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.test.jdbc
+package com.stehno.vanilla.test.jdbc.mock
 
-import groovy.transform.Canonical
+import groovy.transform.TupleConstructor
 
-import java.sql.Ref
+import java.sql.Clob
 import java.sql.SQLException
 
 /**
- * FIXME: document me
+ * Created by cjstehno on 11/29/15.
  */
-@Canonical
-class MockRef implements Ref {
+@TupleConstructor
+class ClobWriter extends Writer {
 
-    String baseTypeName
-    Object object
+    Clob clob
+    int index
 
     @Override
-    Object getObject(Map<String, Class<?>> map) throws SQLException {
-        object
+    void write(final char[] buf, final int off, final int len) throws IOException {
+        try {
+            clob.setString(index + 1, String.valueOf(buf, off, len))
+            index += len
+
+        } catch (SQLException ex) {
+            throw new IOException(ex.message)
+        }
+    }
+
+    @Override
+    void close() throws IOException {
+        // nothing
+    }
+
+    @Override
+    void flush() throws IOException {
+        // nothing
     }
 }

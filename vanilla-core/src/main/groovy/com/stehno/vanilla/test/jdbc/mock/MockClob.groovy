@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.test.jdbc
+package com.stehno.vanilla.test.jdbc.mock
 
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.TupleConstructor
 import groovy.transform.TypeChecked
 
 import java.sql.Clob
@@ -134,48 +133,5 @@ class MockClob implements Clob, DataObject {
     }
 }
 
-@TupleConstructor
-class ClobWriter extends Writer {
 
-    Clob clob
-    int index
-
-    @Override
-    void write(final char[] buf, final int off, final int len) throws IOException {
-        try {
-            clob.setString(index + 1, valueOf(buf, off, len))
-            index += len
-
-        } catch (SQLException ex) {
-            throw new IOException(ex.message)
-        }
-    }
-
-    @Override
-    void close() throws IOException {
-        // nothing
-    }
-
-    @Override
-    void flush() throws IOException {
-        // nothing
-    }
-}
-
-@TupleConstructor
-class ClobOutputStream extends OutputStream {
-
-    Clob clob
-    int index
-
-    void write(int byteValue) throws IOException {
-        try {
-            clob.setString(index + 1, new String([byteValue as byte] as byte[]))
-            index++
-
-        } catch (SQLException ex) {
-            throw new IOException(ex.message)
-        }
-    }
-}
 
