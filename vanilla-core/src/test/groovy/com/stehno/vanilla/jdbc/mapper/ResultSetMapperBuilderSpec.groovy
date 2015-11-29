@@ -20,7 +20,6 @@ import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
-import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 import static com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder.mapper
 import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
@@ -37,8 +36,7 @@ class ResultSetMapperBuilderSpec extends Specification {
             object person
         }
 
-        // FIXME: get the one-arg version working again
-        def mapper = mapper(Person, IMPLICIT) {
+        def mapper = mapper(Person) {
             ignore 'bankPin'
             ignore 'pet'
             map 'birthDate' fromDate 'birth_date'
@@ -57,9 +55,6 @@ class ResultSetMapperBuilderSpec extends Specification {
         )
     }
 
-    // FIXME: test with no config
-    // FIXME: test with some config
-
     def 'mapper: Implicit (no config)'() {
         setup:
         def dummy = new DummyObjectA('one', 2, 3.14159f)
@@ -77,6 +72,27 @@ class ResultSetMapperBuilderSpec extends Specification {
 
         then:
         obj == dummy
+    }
+
+    def 'mapper: Implicit (some config)'() {
+        setup:
+        def dummy = new DummyObjectA('one', 2, 3.14159f)
+
+        def rs = resultSet {
+            columns 'alpha', 'bravo', 'charlie'
+            object dummy
+        }
+
+        def mapper = mapper(DummyObjectA) {
+            map 'alpha' from 'charlie' using { x -> x as String }
+        }
+
+        when:
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == new DummyObjectA('3.14159', 2, 3.14159f)
     }
 
     def 'mapper: Explicit'() {

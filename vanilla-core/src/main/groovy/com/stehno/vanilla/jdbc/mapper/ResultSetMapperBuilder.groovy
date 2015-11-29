@@ -60,16 +60,21 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      * @param closure the DSL closure
      * @return the configured ResultSetMapper
      */
-    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure=null) {
+    // FIXME: move this into the runtime impl
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure) {
         ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)
 
-        if( closure ){
+        if (closure) {
             closure.delegate = builder
             closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure.call()
         }
 
         builder.build()
+    }
+
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT) {
+        mapper(mappedType, style, null)
     }
 
     /**
@@ -107,7 +112,11 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      * @return a configured ResultSetMapper
      */
     ResultSetMapper build() {
-        new RuntimeResultSetMapper(mappedType, style, mappings, ignoredNames)
+        if (style == IMPLICIT) {
+            applyImpliedMappings()
+        }
+
+        new RuntimeResultSetMapper(mappedType, mappings, ignoredNames)
     }
 
     /**
@@ -134,5 +143,20 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      */
     void ignore(String... propertyNames) {
         this.ignoredNames.addAll(propertyNames)
+    }
+
+    private void applyImpliedMappings() {
+        MetaClass mappedMeta = mappedType.metaClass
+        def ignoredProperties = ['class'] + ignoredNames
+
+        mappedMeta.properties
+            .findAll { MetaProperty mp -> isWritable(mappedMeta, mp.name, mp.type) }
+            .findAll { MetaProperty mp -> !(mp.name in ignoredProperties) }
+            .findAll { MetaProperty mp -> !mappings.containsKey(mp.name) }
+            .each { MetaProperty mp -> map mp.name }
+    }
+
+    private static boolean isWritable(final MetaClass meta, final String name, final Class argType) {
+        return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])
     }
 }

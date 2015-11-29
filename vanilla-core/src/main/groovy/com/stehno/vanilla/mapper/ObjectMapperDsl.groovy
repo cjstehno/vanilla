@@ -27,12 +27,5 @@ interface ObjectMapperDsl {
      * @return the PropertyMapping instance
      */
     PropertyMapping map(final String propertyName)
-
-    /**
-     * FIXME: document
-     *
-     * @param propertyNames
-     */
-    void ignore(String... propertyNames)
 }
 

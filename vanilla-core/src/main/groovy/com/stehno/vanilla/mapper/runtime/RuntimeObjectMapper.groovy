@@ -18,57 +18,36 @@ package com.stehno.vanilla.mapper.runtime
 import com.stehno.vanilla.mapper.*
 import groovy.transform.TypeChecked
 
-import static com.stehno.vanilla.mapper.ObjectMapperConfig.MappingStyle.IMPLICIT
-
 /**
  * Runtime implementation of ObjectMapper used by the runtime ObjectMapper DSL to contain the configuration and execute the mappings.
  */
 @TypeChecked
-class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapperSupport {
+class RuntimeObjectMapper extends AbstractObjectMapper {
 
-    private MappingStyle mappingStyle
-
-    RuntimeObjectMapper(MappingStyle mappingStyle) {
-        this.mappingStyle = mappingStyle
-    }
+    ObjectMapperConfig config
 
     /**
      * Creates an ObjectMapper configured by the given Closure.
      *
-     * @param mappingStyle the optional style of mapping to be used (defaults to IMPLICIT)
      * @param closure the configuration closure
      * @return the configured ObjectMapper
      */
-    static ObjectMapper mapper(MappingStyle mappingStyle = IMPLICIT, @DelegatesTo(ObjectMapperDsl) final Closure closure) {
-        RuntimeObjectMapper mapper = new RuntimeObjectMapper(mappingStyle)
-        closure.setDelegate(mapper)
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.call()
-        mapper
+    static ObjectMapper mapper(@DelegatesTo(ObjectMapperDsl) final Closure closure) {
+        ObjectMapperConfig config = new ObjectMapperConfig()
+
+        if (closure) {
+            closure.setDelegate(config)
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure.call()
+        }
+
+        new RuntimeObjectMapper(config: config)
     }
 
     @Override
     void copy(final Object src, final Object dest) {
-        MetaClass sourceMeta = src.metaClass
-
-        if (mappingStyle == IMPLICIT) {
-            //            def ignoredProperties = DEFAULT_IGNORED + ignored()
-            //
-            //            sourceMeta.properties.findAll { MetaProperty mp ->
-            //                !(mp.name in ignoredProperties) && isReadable(sourceMeta, mp.name, mp.type)
-            //            }.each { MetaProperty mp ->
-            //                PropertyMapping mapping = findMapping(mp.name)
-            //                /*
-            //                    copy all 1:1 by default unless overrideen by ignore or a mapping
-            //                    FIXME: make sure implicit pattern works right in other mapper
-            //                 */
-            //
-            //            }
-
-        } else {
-            mappings().each { PropertyMapping pmc ->
-                applyMapping pmc, src, dest
-            }
+        config.mappings().each { PropertyMapping pmc ->
+            applyMapping pmc, src, dest
         }
     }
 
@@ -87,10 +66,6 @@ class RuntimeObjectMapper extends ObjectMapperConfig implements ObjectMapperSupp
         } else {
             throw new UnsupportedOperationException("Converter type (${mapping.converter.class}) is not supported.")
         }
-    }
-
-    private static boolean isReadable(final MetaClass meta, final String name, final Class argType) {
-        return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])
     }
 
     private static callConverter(Closure closure, prop, src, dest) {

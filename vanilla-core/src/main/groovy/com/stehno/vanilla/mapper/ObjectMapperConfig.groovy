@@ -23,8 +23,6 @@ import groovy.transform.TypeChecked
  * The mappings are meant to be explicit; only properties described in the mapping closure will be mapped, others will be ignored. The supported
  * mappings are as follows:
  *
- * FIXME: document ignore
- *
  * <ul>
  *     <li>"map 'foo'" - maps the property named "foo" from the source object to a property named "foo" in the destination object.</li>
  *     <li>"map 'foo' into 'bar'" - maps the property named "foo" from the source object to a property named "bar" in the destination object.</li>
@@ -40,24 +38,11 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class ObjectMapperConfig implements ObjectMapperDsl {
 
-    static enum MappingStyle {
-        IMPLICIT, EXPLICIT
-    }
-
     private final Map<String, PropertyMapping> mappings = [:]
-    private final List<String> ignored = []
-
-    PropertyMapping findMapping(String propertyName) {
-        mappings[propertyName]
-    }
 
     @SuppressWarnings('ConfusingMethodName')
     Collection<PropertyMapping> mappings() {
         mappings.values().asImmutable()
-    }
-
-    Collection<String> ignored(){
-        ignored.asImmutable()
     }
 
     /**
@@ -70,10 +55,5 @@ class ObjectMapperConfig implements ObjectMapperDsl {
         def propertyMapping = new PropertyMappingConfig(propertyName)
         mappings[propertyName] = propertyMapping
         propertyMapping
-    }
-
-    @Override
-    void ignore(String... propertyNames) {
-        ignored.addAll(propertyNames.collect())
     }
 }

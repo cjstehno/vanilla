@@ -21,7 +21,7 @@ import groovy.transform.TypeChecked
  * Provides implementations for the common methods of the ObjectMapper interface.
  */
 @TypeChecked @SuppressWarnings('AbstractClassWithoutAbstractMethod')
-abstract trait ObjectMapperSupport implements ObjectMapper {
+abstract class AbstractObjectMapper implements ObjectMapper {
 
     Object create(final Object src, final Class destClass) {
         def dest = destClass.newInstance()

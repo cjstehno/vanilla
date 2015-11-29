@@ -1,7 +1,6 @@
 
 TODO: review, clean, test and document LazyImmutable
-TODO: test and document ObjectMapper
-    TODO: add implicit/explicit behavior
+TODO: test ObjectMapper
 TODO: review, clean, test and document IO utils
 TODO: review, clean, test and document overlap
 TODO: review, clean, test and document utils & Affirmations

@@ -16,13 +16,10 @@
 package com.stehno.vanilla.jdbc.mapper.runtime
 
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
-import com.stehno.vanilla.jdbc.mapper.MappingStyle
 import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
 import groovy.transform.TypeChecked
 
 import java.sql.ResultSet
-
-import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
 /**
  * Dynamic runtime implementation of the <code>ResultSetMapper</code> interface. The mapping information is immutable and the actual mapping
@@ -33,10 +30,7 @@ import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 @TypeChecked
 class RuntimeResultSetMapper implements ResultSetMapper {
 
-    private static final Collection<String> DEFAULT_IGNORED = ['class'].asImmutable()
-
     private final Class mappedType
-    private final MappingStyle mappingStyle
     private final Map<String, FieldMapping> mappings
     private final Collection<String> ignored = []
 
@@ -45,13 +39,11 @@ class RuntimeResultSetMapper implements ResultSetMapper {
      * create instances of this mapper; however, using this constructor directly is acceptable.
      *
      * @param mappedType the type being mapped
-     * @param mappingStyle the mapping style to be used
      * @param mappings the map of object property name to field mappings
      * @param ignored the collection of ignored object properties (may be omitted)
      */
-    RuntimeResultSetMapper(Class mappedType, MappingStyle mappingStyle, Map<String, FieldMapping> mappings, Collection<String> ignored = []) {
+    RuntimeResultSetMapper(Class mappedType, Map<String, FieldMapping> mappings, Collection<String> ignored = []) {
         this.mappedType = mappedType
-        this.mappingStyle = mappingStyle
         this.mappings = mappings.asImmutable()
 
         if (ignored) {
@@ -66,32 +58,9 @@ class RuntimeResultSetMapper implements ResultSetMapper {
 
     def call(ResultSet rs) {
         def instanceProps = [:]
-        MetaClass mappedMeta = mappedType.metaClass
 
-        if (mappingStyle == IMPLICIT) {
-            def ignoredProperties = DEFAULT_IGNORED + ignored
-
-            mappedMeta.properties.findAll { MetaProperty mp ->
-                !(mp.name in ignoredProperties) && isWritable(mappedMeta, mp.name, mp.type)
-            }.each { MetaProperty mp ->
-
-                // FIXME: there is no support for actual implicit behavior!
-                fixing here
-
-                FieldMapping mapping = mappings[mp.name]
-                if (mapping) {
-                    applyMapping rs, mapping, instanceProps
-
-                } else {
-                    throw new IllegalArgumentException("Missing mapping for field (${mp.name}).")
-                }
-            }
-
-        } else {
-            // loop through mappings and map data
-            mappings.each { String prop, FieldMapping mapping ->
-                applyMapping rs, mapping, instanceProps
-            }
+        mappings.each { String prop, FieldMapping mapping ->
+            applyMapping rs, mapping, instanceProps
         }
 
         mappedType.newInstance(instanceProps)
@@ -110,9 +79,5 @@ class RuntimeResultSetMapper implements ResultSetMapper {
         }
 
         instanceProps[mapping.propertyName] = mappedValue
-    }
-
-    private static boolean isWritable(final MetaClass meta, final String name, final Class argType) {
-        return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.stehno.vanilla.mapper.transform
 
+import com.stehno.vanilla.mapper.AbstractObjectMapper
 import com.stehno.vanilla.mapper.ObjectMapper
 import com.stehno.vanilla.mapper.ObjectMapperConfig
 import com.stehno.vanilla.mapper.PropertyMapping
@@ -155,16 +156,14 @@ class InjectObjectMapperTransform extends AbstractASTTransformation {
         mapperConfig
     }
 
-    private static ClassNode createObjectMapperClass(
-        final ClassNode classNode, final String mapperName, final ObjectMapperConfig config) {
+    private static ClassNode createObjectMapperClass(final ClassNode classNode, final String mapperName, final ObjectMapperConfig config) {
         ClassNode mapperClass = new ClassNode(
             "${classNode.packageName}.${mapperName ?: classNode.nameWithoutPackage + 'Mapper'}",
             PUBLIC,
-            newClass(OBJECT_TYPE),
+            make(AbstractObjectMapper),
             [] as ClassNode[],
             [] as MixinNode[]
         )
-        mapperClass.setSuperClass(make(CompiledObjectMapper))
 
         def code = block()
 
