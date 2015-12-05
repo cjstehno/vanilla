@@ -8,8 +8,7 @@ These libraries are still in development; however, they are generally usable, es
 
 They are available via the JCenter repository:
 
-    compile 'com.stehno.vanilla:vanilla-core:0.0.9'
-    testCompile 'com.stehno.vanilla:vanilla-testing:0.0.9'
+    compile 'com.stehno.vanilla:vanilla-core:0.1.0'
 
 
 
