@@ -15,7 +15,6 @@
  */
 package com.stehno.vanilla.transform
 
-import groovy.transform.Canonical
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -222,16 +221,3 @@ class LazyImmutableTransformSpec extends Specification {
     }
 }
 
-@Canonical
-class SomeImmutable {
-
-    private final int value
-
-    SomeImmutable(final int value) {
-        this.value = value
-    }
-
-    int getValue() {
-        return value
-    }
-}
