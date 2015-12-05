@@ -15,6 +15,8 @@
  */
 package com.stehno.vanilla.test.jdbc.mock
 
+import com.mockrunner.mock.jdbc.MockResultSet
+
 import java.sql.ResultSet
 
 import static com.stehno.vanilla.Affirmations.affirm
@@ -30,6 +32,12 @@ class ResultSetBuilder implements ResultSetDsl {
     private final List<String> columns = []
     private final List<Object[]> rows = []
 
+    /**
+     * Creates a new <code>ResultSetBuilder</code> based on the provided DSL closure.
+     *
+     * @param closure the DSL closure
+     * @return the configured ResultSetBuilder
+     */
     static ResultSetBuilder builder(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
         ResultSetBuilder factory = new ResultSetBuilder()
         closure.delegate = factory
@@ -38,6 +46,13 @@ class ResultSetBuilder implements ResultSetDsl {
         factory
     }
 
+    /**
+     * Creates a new <code>ResultSet</code> based on the provided DSL closure. The underlying implementation is an configured instance of
+     * <code>com.mockrunner.mock.jdbc.MockResultSet</code>.
+     *
+     * @param closure the DSL closure
+     * @return the configured ResultSet
+     */
     static ResultSet resultSet(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
         builder(closure).build()
     }
@@ -75,12 +90,22 @@ class ResultSetBuilder implements ResultSetDsl {
     }
 
     /**
-     * Builds a MockResultSet based on the provided data.
+     * Builds a <code>ResultSet</code> (implemented by <code>com.mockrunner.mock.jdbc.MockResultSet</code>) based on the provided data.
      *
-     * @return a configured MockResultSet
+     * @return a configured ResultSet
      */
     ResultSet build() {
-        new MockResultSet(columns, rows)
+        MockResultSet mrs = new MockResultSet("mock-${System.currentTimeMillis()}")
+
+        columns.each { col ->
+            mrs.addColumn(col)
+        }
+
+        rows.each { row ->
+            mrs.addRow(row as Object[])
+        }
+
+        return mrs
     }
 
     private void checkColumnSizes(int argCount) {

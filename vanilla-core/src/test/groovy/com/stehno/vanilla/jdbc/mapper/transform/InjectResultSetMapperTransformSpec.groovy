@@ -21,6 +21,7 @@ import com.stehno.vanilla.transform.GroovyShellEnvironment
 import org.junit.Rule
 import spock.lang.Specification
 
+import static com.stehno.vanilla.test.Assertions.assertMatches
 import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
 class InjectResultSetMapperTransformSpec extends Specification {
@@ -33,8 +34,8 @@ class InjectResultSetMapperTransformSpec extends Specification {
 
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
-            object person
-            object new Person()
+            data person.name, person.age, person.birthDate.format('yyyy-MM-dd'), person.bankPin
+            data null, 0, null, null
         }
 
         when:
@@ -73,8 +74,21 @@ class InjectResultSetMapperTransformSpec extends Specification {
         def empty = mapper(rs)
 
         then:
-        obj == new Person(name: 'Bob', age: 37, birthDate: person.birthDate)
-        empty == new Person(age: -5)
+        assertMatches(
+            obj,
+            name: person.name,
+            age: person.age - 5,
+            birthDate: { act -> person.birthDate.format('yyyy-MM-dd') == act.format('yyyy-MM-dd') },
+            bankPin: person.bankPin
+        )
+
+        assertMatches(
+            empty,
+            name: null,
+            age: -5,
+            birthDate: null,
+            bankPin: null
+        )
     }
 
     def 'implicit mapper without config should map everything'() {
@@ -161,8 +175,8 @@ class InjectResultSetMapperTransformSpec extends Specification {
 
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
-            object person
-            object new Person()
+            data person.name, person.age, person.birthDate.format('yyyy-MM-dd'), person.bankPin
+            data null, 0, null, null
         }
 
         when:
@@ -198,8 +212,21 @@ class InjectResultSetMapperTransformSpec extends Specification {
         def empty = mapper(rs)
 
         then:
-        obj == new Person(name: 'Name: Bob', age: 37, birthDate: person.birthDate)
-        empty == new Person(name: 'Name: null', age: -5)
+        assertMatches(
+            obj,
+            name: "Name: ${person.name}",
+            age: person.age - 5,
+            birthDate: { act -> person.birthDate.format('yyyy-MM-dd') == act.format('yyyy-MM-dd') },
+            bankPin: person.bankPin
+        )
+
+        assertMatches(
+            empty,
+            name: 'Name: null',
+            age: -5,
+            birthDate: null,
+            bankPin: null
+        )
     }
 
     def 'explicit mapper with setter-property'() {

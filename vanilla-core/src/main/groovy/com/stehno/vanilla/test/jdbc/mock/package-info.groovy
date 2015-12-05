@@ -15,7 +15,7 @@
  */
 
 /**
- * The JDBC Mock package contains mocked and stubbed versions of various JDBC-related objects. Most of the objects are fully mocked; however, their
- * primary intent is to be used with the <code>ResultSetBuilder</code> rather than as stand-alone mock objects.
+ * The JDBC Mock package contains a DSL to assist in creating mocked and stubbed versions of various JDBC-related objects using the
+ * <a href="http://mockrunner.github.io/">MockRunner</a> API.
  */
 package com.stehno.vanilla.test.jdbc.mock

@@ -15,8 +15,9 @@
  */
 package com.stehno.vanilla.test.jdbc.mock
 
-import groovy.transform.Canonical
 import spock.lang.Specification
+
+import java.sql.ResultSetMetaData
 
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
@@ -37,8 +38,12 @@ class ResultSetBuilderSpec extends Specification {
         }
 
         then:
-        rs.columnNames == ['a', 'b']
-        rs.size() == 4
+        ResultSetMetaData rsmd = rs.metaData
+        rsmd.columnCount == 2
+        rsmd.getColumnName(1) == 'a'
+        rsmd.getColumnName(2) == 'b'
+
+        rs.rowCount == 4
     }
 
     def 'usage: no cols'() {
@@ -53,14 +58,4 @@ class ResultSetBuilderSpec extends Specification {
         then:
         thrown(IllegalArgumentException)
     }
-}
-
-// FIXME: pull out and collect some common test POJO objects
-@Canonical
-class FourPartObject {
-
-    Object a
-    Object b
-    Object c
-    Object d
 }

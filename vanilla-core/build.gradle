@@ -10,6 +10,10 @@ task sourcesJar(type: Jar) {
     from project.sourceSets.main.allSource
 }
 
+dependencies {
+    compile 'com.mockrunner:mockrunner-jdbc:1.1.0'
+}
+
 artifacts {
     archives jar
     archives sourcesJar

@@ -15,28 +15,16 @@
  */
 package com.stehno.vanilla.test.jdbc.mock
 
-import groovy.transform.TupleConstructor
-
-import java.sql.Blob
-import java.sql.SQLException
+import groovy.transform.Canonical
 
 /**
- * OutputStream facade over data contained in a Blob. This class is not generally meant for external use.
+ * Simple test object.
  */
-@TupleConstructor
-class BlobOutputStream extends OutputStream {
+@Canonical
+class FourPartObject {
 
-    Blob blob = new MockBlob()
-    int index
-
-    @Override
-    void write(int b) throws IOException {
-        try {
-            blob.setBytes(index + 1, [b] as byte[])
-            index++
-
-        } catch (SQLException ex) {
-            throw new IOException(ex.message)
-        }
-    }
+    Object a
+    Object b
+    Object c
+    Object d
 }

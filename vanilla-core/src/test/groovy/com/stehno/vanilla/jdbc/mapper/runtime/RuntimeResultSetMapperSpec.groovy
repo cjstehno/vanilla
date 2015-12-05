@@ -21,6 +21,7 @@ import spock.lang.Specification
 
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
 import static com.stehno.vanilla.jdbc.mapper.runtime.RuntimeResultSetMapper.mapper
+import static com.stehno.vanilla.test.Assertions.assertMatches
 import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
 class RuntimeResultSetMapperSpec extends Specification {
@@ -33,7 +34,7 @@ class RuntimeResultSetMapperSpec extends Specification {
 
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
-            object person
+            data person.name, person.age, person.birthDate.format('yyyy-MM-dd'), person.bankPin
         }
 
         def mapper = mapper(Person) {
@@ -50,8 +51,12 @@ class RuntimeResultSetMapperSpec extends Specification {
         def obj = mapper(rs)
 
         then:
-        obj == new Person(
-            name: 'Bob', age: 37, birthDate: person.birthDate
+        assertMatches(
+            obj,
+            name: person.name,
+            age: person.age - 5,
+            birthDate: { act -> person.birthDate.format('yyyy-MM-dd') == act.format('yyyy-MM-dd') },
+            bankPin: person.bankPin
         )
     }
 
@@ -103,7 +108,7 @@ class RuntimeResultSetMapperSpec extends Specification {
 
         def rs = resultSet {
             columns 'name', 'age', 'birth_date', 'bank_pin'
-            object person
+            data person.name, person.age, person.birthDate.format('yyyy-MM-dd'), person.bankPin
         }
 
         def mapper = mapper(Person, EXPLICIT) {
@@ -117,8 +122,12 @@ class RuntimeResultSetMapperSpec extends Specification {
         def obj = mapper(rs)
 
         then:
-        obj == new Person(
-            name: 'Name: Bob', age: 37, birthDate: person.birthDate
+        assertMatches(
+            obj,
+            name: "Name: ${person.name}",
+            age: person.age - 5,
+            birthDate: { act -> person.birthDate.format('yyyy-MM-dd') == act.format('yyyy-MM-dd') },
+            bankPin: person.bankPin
         )
     }
 }
