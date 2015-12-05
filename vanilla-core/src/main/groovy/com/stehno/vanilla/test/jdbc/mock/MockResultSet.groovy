@@ -48,8 +48,6 @@ class MockResultSet implements ResultSet {
     SQLWarning warnings
     String cursorName
 
-    // FIXME: needs a lot of type coersion and testing
-
     private int currentRow = -1
 
     @Override

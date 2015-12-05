@@ -22,7 +22,7 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 /**
- * FIXME: document me
+ * Mock JDBC Array support object for the <code>MockResultSet</code>.
  */
 @Canonical
 class MockArray implements Array, DataObject {

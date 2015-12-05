@@ -21,7 +21,7 @@ import java.sql.Clob
 import java.sql.SQLException
 
 /**
- * Created by cjstehno on 11/29/15.
+ * Writer facade over data contained in a Clob. This class is not generally meant for external use.
  */
 @TupleConstructor
 class ClobWriter extends Writer {

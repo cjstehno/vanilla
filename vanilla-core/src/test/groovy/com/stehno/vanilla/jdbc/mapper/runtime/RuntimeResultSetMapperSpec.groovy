@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stehno.vanilla.jdbc.mapper
+package com.stehno.vanilla.jdbc.mapper.runtime
 
 import com.stehno.vanilla.jdbc.DummyObjectA
 import com.stehno.vanilla.test.Person
 import spock.lang.Specification
 
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
-import static com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder.mapper
+import static com.stehno.vanilla.jdbc.mapper.runtime.RuntimeResultSetMapper.mapper
 import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
-class ResultSetMapperBuilderSpec extends Specification {
+class RuntimeResultSetMapperSpec extends Specification {
 
     def 'mapper: Implicit'() {
         setup:

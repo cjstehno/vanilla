@@ -15,11 +15,12 @@
  */
 package com.stehno.vanilla.jdbc.mapper.runtime
 
-import com.stehno.vanilla.jdbc.mapper.FieldMapping
-import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+import com.stehno.vanilla.jdbc.mapper.*
 import groovy.transform.TypeChecked
 
 import java.sql.ResultSet
+
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
 /**
  * Dynamic runtime implementation of the <code>ResultSetMapper</code> interface. The mapping information is immutable and the actual mapping
@@ -49,6 +50,30 @@ class RuntimeResultSetMapper implements ResultSetMapper {
         if (ignored) {
             this.ignored.addAll(ignored)
         }
+    }
+
+    /**
+     * Used to build a <code>ResultSetMapper</code> using the DSL.
+     *
+     * @param mappedType the type of object being mapped
+     * @param style the mapping style to be used (defaults to IMPLICIT if not specified)
+     * @param closure the DSL closure
+     * @return the configured ResultSetMapper
+     */
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure) {
+        ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)
+
+        if (closure) {
+            closure.delegate = builder
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure.call()
+        }
+
+        builder.build()
+    }
+
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT) {
+        mapper(mappedType, style, null)
     }
 
     @SuppressWarnings('UnusedMethodParameter')

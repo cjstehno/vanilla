@@ -18,6 +18,7 @@ package com.stehno.vanilla.jdbc.mapper
 import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeFieldMapping
 import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeResultSetMapper
 import groovy.transform.ToString
+import groovy.transform.TypeChecked
 
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 
@@ -25,7 +26,7 @@ import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
  * Configuration model implementation of the <code>ResultSetMapperDsl</code> interface, used for configuration and creation of a
  * <code>ResultSetMapper</code>.
  */
-@ToString(includeFields = true, includeNames = true)
+@TypeChecked @ToString(includeFields = true, includeNames = true)
 class ResultSetMapperBuilder implements ResultSetMapperDsl {
 
     /**
@@ -50,31 +51,6 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
     ResultSetMapperBuilder(final Class mappedType, final MappingStyle style = IMPLICIT) {
         this.mappedType = mappedType
         this.style = style
-    }
-
-    /**
-     * Used to build a <code>ResultSetMapper</code> using the DSL.
-     *
-     * @param mappedType the type of object being mapped
-     * @param style the mapping style to be used (defaults to IMPLICIT if not specified)
-     * @param closure the DSL closure
-     * @return the configured ResultSetMapper
-     */
-    // FIXME: move this into the runtime impl (similar to what I did in the object mapper)
-    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure) {
-        ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)
-
-        if (closure) {
-            closure.delegate = builder
-            closure.resolveStrategy = Closure.DELEGATE_FIRST
-            closure.call()
-        }
-
-        builder.build()
-    }
-
-    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT) {
-        mapper(mappedType, style, null)
     }
 
     /**

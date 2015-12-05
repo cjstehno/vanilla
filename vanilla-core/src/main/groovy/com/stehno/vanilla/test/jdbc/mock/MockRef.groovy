@@ -21,7 +21,7 @@ import java.sql.Ref
 import java.sql.SQLException
 
 /**
- * FIXME: document me
+ * Mock JDBC Ref support object for the <code>MockResultSet</code>.
  */
 @Canonical
 class MockRef implements Ref {

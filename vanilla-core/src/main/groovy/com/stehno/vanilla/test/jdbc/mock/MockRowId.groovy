@@ -20,7 +20,7 @@ import groovy.transform.Canonical
 import java.sql.RowId
 
 /**
- * FIXME: document me
+ * Mock JDBC RowId support object for the <code>MockResultSet</code>.
  */
 @Canonical
 class MockRowId implements RowId {

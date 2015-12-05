@@ -20,8 +20,6 @@ package com.stehno.vanilla.jdbc.mapper
  */
 enum MappingStyle {
 
-    // FIXME: move this into one of the other classes or come up with a way to share it with the other mapper
-
     /**
      * Mapping is implied - All properties of the bean are mapped and must be "ignored" to be skipped.
      */

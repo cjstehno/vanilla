@@ -26,7 +26,7 @@ import java.sql.SQLException
 @TupleConstructor
 class BlobOutputStream extends OutputStream {
 
-    Blob blob
+    Blob blob = new MockBlob()
     int index
 
     @Override

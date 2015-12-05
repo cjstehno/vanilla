@@ -33,7 +33,7 @@ class MockBlob implements Blob, DataObject {
 
     private byte[] bytes
 
-    MockBlob(byte[] bytes) {
+    MockBlob(byte[] bytes=[] as byte[]) {
         this.bytes = bytes
     }
 
