@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 buildscript {
     repositories {
         jcenter()
@@ -23,7 +23,7 @@ buildscript {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
     }
 }
-    
+
 subprojects {
     version = '0.1.0'
     group = 'com.stehno.vanilla'
@@ -54,6 +54,11 @@ subprojects {
 
         groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
         groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
+
+        codenarc(
+            "org.codenarc:CodeNarc:$codeNarcVersion",
+            "org.codehaus.groovy:groovy-all:$groovyVersion"
+        )
     }
 
     test {
@@ -62,6 +67,10 @@ subprojects {
 
     groovydoc {
         groovyClasspath = configurations.groovyDoc
+    }
+
+    codenarc {
+        toolVersion = codeNarcVersion
     }
 
     codenarcMain {
