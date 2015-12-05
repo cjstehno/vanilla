@@ -18,11 +18,10 @@ package com.stehno.vanilla.io
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 
-//@formatter:off
 /**
  * Unique collection of File object representing a set of files. FileSets are immutable and should be created with the DSL or builder directly.
  *
- * ```
+ * <pre><code>
  * FileSet.fileSet {
  *     dirs '/some/top/dir'
  *     file '/myfile.txt'
@@ -30,9 +29,8 @@ import groovy.transform.Immutable
  *         f.name.endsWith('.txt')
  *     }
  * }
- * ```
+ * </code></pre>
  */
-//@formatter:on
 @Immutable @CompileStatic
 class FileSet {
 

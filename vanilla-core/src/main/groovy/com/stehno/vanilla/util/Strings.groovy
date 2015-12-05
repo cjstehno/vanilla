@@ -16,10 +16,16 @@
 package com.stehno.vanilla.util
 
 /**
- * Created by cjstehno on 10/4/15.
+ * Utilities for working with String objects.
  */
 class Strings {
 
+    /**
+     * Converts a string of characters from underscore style to camel-case (e.g. first_name to firstName).
+     *
+     * @param underscore the underscore-style string
+     * @return the string converted to camel-case
+     */
     static String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {
             return ''
@@ -27,6 +33,12 @@ class Strings {
         return underscore.replaceAll(/_\w/) { it[1].toUpperCase() }
     }
 
+    /**
+     * Converts a string of camel-case characters to underscore-style (e.g. firstName to first_name).
+     *
+     * @param camel the camel-case string
+     * @return the string converted to underscore-style
+     */
     static String camelCaseToUnderscore(String camel) {
         camel.replaceAll(/\B[A-Z]/) { '_' + it }.toLowerCase()
     }
