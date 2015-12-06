@@ -1,9 +1,6 @@
 plugins {
-    id 'com.jfrog.bintray' version '1.2'
-}
-
-dependencies {
-    testCompile project(':vanilla-testing')
+    id 'com.jfrog.bintray' version '1.5'
+    id 'com.github.hierynomus.license' version '0.12.1'
 }
 
 task sourcesJar(type: Jar) {
@@ -11,6 +8,10 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 
     from project.sourceSets.main.allSource
+}
+
+dependencies {
+    compile 'com.mockrunner:mockrunner-jdbc:1.1.0'
 }
 
 artifacts {
@@ -25,6 +26,13 @@ publishing {
             artifact sourcesJar
         }
     }
+}
+
+license {
+    header rootProject.file('license_header.txt')
+    ext.name = 'Christopher J. Stehno'
+    ext.email = 'chris@stehno.com'
+    ext.year = Calendar.instance.get(Calendar.YEAR)
 }
 
 // NOTE: run bintrayUpload and then go to web and publish.

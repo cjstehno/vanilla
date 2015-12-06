@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.transform
 
 import groovy.transform.Immutable
@@ -46,7 +45,7 @@ class LazyImmutableTransform extends AbstractASTTransformation {
     private static final String COPY_WITH = 'copyWith'
     private static final String ATTRS = 'attrs'
 
-    @Override
+    @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
     void visit(final ASTNode[] nodes, final SourceUnit source) {
         AnnotationNode unmodifiableNode = nodes[0] as AnnotationNode
         ClassNode classNode = nodes[1] as ClassNode
@@ -63,6 +62,7 @@ class LazyImmutableTransform extends AbstractASTTransformation {
             }
 
         } catch (Exception ex) {
+            ex.printStackTrace()
             addError("Problem making ${classNode.name} unmodifiable: ${ex.message}", classNode)
         }
     }

@@ -1,1 +1,1 @@
-include 'vanilla-testing', 'vanilla-core'
+include 'vanilla-core'

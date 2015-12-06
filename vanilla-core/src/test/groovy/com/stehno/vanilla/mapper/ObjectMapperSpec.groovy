@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.mapper
 
 import com.stehno.vanilla.test.PropertyRandomizer
@@ -22,15 +21,15 @@ import spock.lang.Specification
 
 import java.time.LocalDate
 
-import static com.stehno.vanilla.mapper.RuntimeObjectMapper.mapper
+import static com.stehno.vanilla.mapper.runtime.RuntimeObjectMapper.mapper
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 import static com.stehno.vanilla.test.Randomizers.forDate
 import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE
 
 class ObjectMapperSpec extends Specification {
 
-    private BarObject bar = new BarObject()
-    private PropertyRandomizer rando = randomize(FooObject) {
+    private final BarObject bar = new BarObject()
+    private final PropertyRandomizer rando = randomize(FooObject) {
         propertyRandomizer 'startDate', { new Date().format('MM/dd/yyyy') }
         propertyRandomizer 'birthDate', { LocalDate.now() }
         ignoringProperties 'child'
@@ -77,7 +76,7 @@ class ObjectMapperSpec extends Specification {
         then:
         bars.size() == 3
 
-        bars.eachWithIndex{ bar, idx ->
+        bars.eachWithIndex { bar, idx ->
             assert bar.name == foos[idx].name
             assert bar.years == foos[idx].age
             assert bar.startDate.format('MM/dd/yyyy') == foos[idx].startDate
@@ -235,9 +234,6 @@ class ObjectMapperSpec extends Specification {
         om.copy(src, dest)
 
         then:
-        println src
-        println dest
-
         src == dest
     }
 }

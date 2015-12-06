@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * The overlap API stems from a demo library used in my blog posting about how to determine the overlap of objects based on multiple variable axes.
  *

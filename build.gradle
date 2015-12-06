@@ -14,16 +14,29 @@
  * limitations under the License.
  */
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.kordamp.gradle:stats-gradle-plugin:0.1.5'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
+    }
+}
+
 subprojects {
+    version = '0.1.0'
     group = 'com.stehno.vanilla'
 
     apply plugin: 'groovy'
     apply plugin: 'maven-publish'
     apply plugin: 'codenarc'
     apply plugin: 'jacoco'
+    apply plugin: 'org.kordamp.gradle.stats'
+    apply plugin: 'com.github.ben-manes.versions'
 
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
+    sourceCompatibility = 8
+    targetCompatibility = 8
 
     repositories {
         jcenter()
@@ -41,6 +54,11 @@ subprojects {
 
         groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
         groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
+
+        codenarc(
+            "org.codenarc:CodeNarc:$codeNarcVersion",
+            "org.codehaus.groovy:groovy-all:$groovyVersion"
+        )
     }
 
     test {
@@ -51,8 +69,12 @@ subprojects {
         groovyClasspath = configurations.groovyDoc
     }
 
+    codenarc {
+        toolVersion = codeNarcVersion
+    }
+
     codenarcMain {
-        ignoreFailures true
+        ignoreFailures false
         configFile file('../config/codenarc-main.rules')
 
         maxPriority1Violations 0
@@ -75,5 +97,20 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.7'
+    gradleVersion = '2.9'
 }
+
+//
+// DOCUMENTATION HELPERS
+//
+
+task compileGuide(type: GradleBuild) {
+    buildFile = 'vanilla-guide/build.gradle'
+    tasks = ['asciidoc']
+}
+
+task compileSite(type: GradleBuild) {
+    buildFile = 'vanilla-site/build.gradle'
+    tasks = ['jbake']
+}
+compileSite.dependsOn = ['vanilla-core:build', 'vanilla-core:test', 'compileGuide', 'vanilla-core:jacocoTestReport', 'vanilla-core:groovydoc']

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.annotation
 
 import com.stehno.vanilla.transform.LazyImmutableTransform
@@ -22,10 +21,10 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 import java.lang.annotation.*
 
 /**
- * When this annotation is applied to a class, it will add a method <code>asImmutable()</code> which will generate an immutable instance of the object.
- * The original instance will be unchanged. The generated immutable instance is annotated with the <code>@Immutable</code> annotation and the class
- * annotated with <code>@LazyImmutable</code> should follow all of the rules described in the documentation of the <code>@Immutable</code> annotation
- * (specifically the restriction to property values which are immutable or can be guaranteed immutable).
+ * When this annotation is applied to a class, it will add a method <code>asImmutable()</code> which will generate an immutable instance of the
+ * object. The original instance will be unchanged. The generated immutable instance is annotated with the <code>@Immutable</code> annotation and the
+ * class annotated with <code>@LazyImmutable</code> should follow all of the rules described in the documentation of the <code>@Immutable</code>
+ * annotation (specifically the restriction to property values which are immutable or can be guaranteed immutable).
  *
  * The immutable version of the object will have a method <code>asMutable()</code> added to it, which will provide a new instance of the original
  * mutable version of the object (a new instance, not a reference).

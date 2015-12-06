@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.transform
 
-import groovy.transform.Canonical
-import org.junit.Rule
 import spock.lang.Specification
 
 class LazyImmutableTransformSpec extends Specification {
 
-    @Rule GroovyShellEnvironment shell
+    private final GroovyShell shell = new GroovyShell()
 
     def 'simple original object usage'() {
         when:
@@ -223,16 +220,3 @@ class LazyImmutableTransformSpec extends Specification {
     }
 }
 
-@Canonical
-class SomeImmutable {
-
-    private final int value
-
-    SomeImmutable(final int value) {
-        this.value = value
-    }
-
-    int getValue() {
-        return value
-    }
-}

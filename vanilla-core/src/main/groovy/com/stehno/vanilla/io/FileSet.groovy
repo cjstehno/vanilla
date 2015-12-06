@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.io
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 
-//@formatter:off
 /**
  * Unique collection of File object representing a set of files. FileSets are immutable and should be created with the DSL or builder directly.
  *
- * ```
+ * <pre><code>
  * FileSet.fileSet {
  *     dirs '/some/top/dir'
  *     file '/myfile.txt'
@@ -31,9 +29,8 @@ import groovy.transform.Immutable
  *         f.name.endsWith('.txt')
  *     }
  * }
- * ```
+ * </code></pre>
  */
-//@formatter:on
 @Immutable @CompileStatic
 class FileSet {
 

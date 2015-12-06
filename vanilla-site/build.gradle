@@ -26,7 +26,7 @@ task clean() << {
     ant.delete dir: 'build/jbake'
 }
 
-task aggregate(group: 'Aggregate', description: 'Aggregates external content into the site.', dependsOn:'jbake'){
+task aggregate(group: 'Aggregate', description: 'Aggregates external content into the site.', dependsOn: 'jbake') {
     logger.info 'Aggregating external content...'
 
     def siteRoot = file('build/jbake')
@@ -39,8 +39,7 @@ task aggregate(group: 'Aggregate', description: 'Aggregates external content int
         fileset(dir: '../vanilla-core/build/reports', includes: '**/**')
     }
 
-    ant.copy(todir: 'build/jbake/testing') {
-        fileset(dir: '../vanilla-testing/build/docs', includes: '**/**')
-        fileset(dir: '../vanilla-testing/build/reports', includes: '**/**')
+    ant.copy(todir: 'build/jbake/guide') {
+        fileset(dir: '../vanilla-guide/build/asciidoc', includes: '**/**')
     }
 }
