@@ -1,8 +1,4 @@
 
-TODO: test ObjectMapper
-TODO: review, clean, test and document overlap
-
-TODO: move any useful AST utils in from Effigy
 TODO: compile the user guide documentation
 TOOD: update the web site
 TODO: replace jacoco with cobertura
