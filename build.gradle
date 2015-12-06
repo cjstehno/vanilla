@@ -99,3 +99,18 @@ subprojects {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.9'
 }
+
+//
+// DOCUMENTATION HELPERS
+//
+
+task compileGuide(type: GradleBuild) {
+    buildFile = 'vanilla-guide/build.gradle'
+    tasks = ['asciidoc']
+}
+
+task compileSite(type: GradleBuild) {
+    buildFile = 'vanilla-site/build.gradle'
+    tasks = ['jbake']
+}
+compileSite.dependsOn = ['vanilla-core:build', 'vanilla-core:test', 'compileGuide', 'vanilla-core:jacocoTestReport', 'vanilla-core:groovydoc']
