@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LazyImmutableTransform.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.transform</a> &gt; <span class="el_source">LazyImmutableTransform.groovy</span></div><h1>LazyImmutableTransform.groovy</h1><pre class="source lang-java linenums">/*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno &lt;chris@stehno.com&gt;
  *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.transform
 
 import groovy.transform.Immutable
@@ -46,23 +45,24 @@ class LazyImmutableTransform extends AbstractASTTransformation {
     private static final String COPY_WITH = 'copyWith'
     private static final String ATTRS = 'attrs'
 
-    @Override
+    @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
     void visit(final ASTNode[] nodes, final SourceUnit source) {
-<span class="pc bpc" id="L51" title="3 of 6 branches missed.">        AnnotationNode unmodifiableNode = nodes[0] as AnnotationNode</span>
-<span class="pc bpc" id="L52" title="3 of 6 branches missed.">        ClassNode classNode = nodes[1] as ClassNode</span>
+<span class="pc bpc" id="L50" title="3 of 6 branches missed.">        AnnotationNode unmodifiableNode = nodes[0] as AnnotationNode</span>
+<span class="pc bpc" id="L51" title="3 of 6 branches missed.">        ClassNode classNode = nodes[1] as ClassNode</span>
         try {
 
             // TODO: should I do similar check as the Immutable transformer to pre-verify the object?
 
-<span class="fc" id="L57">            ClassNode immutableClassNode = createImmutableClass(classNode, unmodifiableNode, source)</span>
+<span class="fc" id="L56">            ClassNode immutableClassNode = createImmutableClass(classNode, unmodifiableNode, source)</span>
 
-<span class="fc" id="L59">            addAsImmutableMethod(classNode, immutableClassNode)</span>
+<span class="fc" id="L58">            addAsImmutableMethod(classNode, immutableClassNode)</span>
 
-<span class="fc bfc" id="L61" title="All 2 branches covered.">            if (unmodifiableNode.getMember(COPY_WITH)) {</span>
-<span class="pc" id="L62">                addCopyWithMethod(classNode)</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            if (unmodifiableNode.getMember(COPY_WITH)) {</span>
+<span class="pc" id="L61">                addCopyWithMethod(classNode)</span>
             }
 
         } catch (Exception ex) {
+<span class="nc" id="L65">            ex.printStackTrace()</span>
 <span class="pc" id="L66">            addError(&quot;Problem making ${classNode.name} unmodifiable: ${ex.message}&quot;, classNode)</span>
         }
     }

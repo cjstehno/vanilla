@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ZipBuilder.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.io</a> &gt; <span class="el_source">ZipBuilder.groovy</span></div><h1>ZipBuilder.groovy</h1><pre class="source lang-java linenums">/*
- * Copyright (c) 2015 Christopher J. Stehno
+ * Copyright (C) 2015 Christopher J. Stehno &lt;chris@stehno.com&gt;
  *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stehno.vanilla.io
 
 import java.util.zip.ZipEntry
@@ -33,7 +32,7 @@ class ZipBuilder {
      * @param os the output stream the zip file is to be written into
      */
     ZipBuilder(final OutputStream os) {
-<span class="fc" id="L36">        zos = new ZipOutputStream(os)</span>
+<span class="fc" id="L35">        zos = new ZipOutputStream(os)</span>
     }
 
     /**
@@ -43,9 +42,9 @@ class ZipBuilder {
      * @return a reference to the zip builder
      */
     ZipBuilder useCompression(final int level = 0) {
-<span class="fc" id="L46">        zos.method = ZipOutputStream.DEFLATED</span>
-<span class="fc" id="L47">        zos.level = level</span>
-<span class="pc" id="L48">        this</span>
+<span class="fc" id="L45">        zos.method = ZipOutputStream.DEFLATED</span>
+<span class="fc" id="L46">        zos.level = level</span>
+<span class="pc" id="L47">        this</span>
     }
 
     /**
@@ -56,8 +55,8 @@ class ZipBuilder {
      * @return a reference to the builder
      */
     ZipBuilder withComment(final String comment) {
-<span class="fc" id="L59">        zos.comment = comment</span>
-<span class="pc" id="L60">        this</span>
+<span class="fc" id="L58">        zos.comment = comment</span>
+<span class="pc" id="L59">        this</span>
     }
 
     /**
@@ -69,10 +68,10 @@ class ZipBuilder {
      * @throws IOException if there is a problem writing the entry data
      */
     ZipBuilder addEntry(final ZipEntry entry, final byte[] bytes) throws IOException {
-<span class="fc" id="L72">        zos.putNextEntry(entry)</span>
-<span class="fc" id="L73">        zos.write(bytes)</span>
-<span class="fc" id="L74">        zos.closeEntry()</span>
-<span class="pc" id="L75">        this</span>
+<span class="fc" id="L71">        zos.putNextEntry(entry)</span>
+<span class="fc" id="L72">        zos.write(bytes)</span>
+<span class="fc" id="L73">        zos.closeEntry()</span>
+<span class="pc" id="L74">        this</span>
     }
 
     /**
@@ -85,10 +84,10 @@ class ZipBuilder {
      * @throws IOException if there is a problem writing the entry data
      */
     ZipBuilder addEntry(final ZipEntry entry, final InputStream ins) throws IOException {
-<span class="fc" id="L88">        zos.putNextEntry(entry)</span>
-<span class="fc" id="L89">        zos &lt;&lt; ins.bytes</span>
-<span class="fc" id="L90">        zos.closeEntry()</span>
-<span class="pc" id="L91">        this</span>
+<span class="fc" id="L87">        zos.putNextEntry(entry)</span>
+<span class="fc" id="L88">        zos &lt;&lt; ins.bytes</span>
+<span class="fc" id="L89">        zos.closeEntry()</span>
+<span class="pc" id="L90">        this</span>
     }
 
     /**
@@ -101,11 +100,11 @@ class ZipBuilder {
      * @throws IOException if there is a problem writing the entry data
      */
     ZipBuilder addEntry(final String name, final byte[] bytes, final String comment = null) throws IOException {
-<span class="fc" id="L104">        final ZipEntry entry = new ZipEntry(name)</span>
-<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (comment) {</span>
-<span class="fc" id="L106">            entry.comment = comment</span>
+<span class="fc" id="L103">        final ZipEntry entry = new ZipEntry(name)</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (comment) {</span>
+<span class="fc" id="L105">            entry.comment = comment</span>
         }
-<span class="pc" id="L108">        addEntry(entry, bytes)</span>
+<span class="pc" id="L107">        addEntry(entry, bytes)</span>
     }
 
     /**
@@ -118,11 +117,11 @@ class ZipBuilder {
      * @throws IOException if there is a problem writing the entry data
      */
     ZipBuilder addEntry(final String name, final InputStream ins, final String comment = null) throws IOException {
-<span class="fc" id="L121">        final ZipEntry entry = new ZipEntry(name)</span>
-<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (comment) {</span>
-<span class="fc" id="L123">            entry.comment = comment</span>
+<span class="fc" id="L120">        final ZipEntry entry = new ZipEntry(name)</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (comment) {</span>
+<span class="fc" id="L122">            entry.comment = comment</span>
         }
-<span class="pc" id="L125">        addEntry(entry, ins)</span>
+<span class="pc" id="L124">        addEntry(entry, ins)</span>
     }
 
     /**
@@ -132,10 +131,10 @@ class ZipBuilder {
      */
     void zip() throws IOException {
         try {
-<span class="fc" id="L135">            zos.finish()</span>
+<span class="fc" id="L134">            zos.finish()</span>
         }
         finally {
-<span class="pc" id="L138">            zos?.close()</span>
+<span class="pc" id="L137">            zos?.close()</span>
         }
     }
 }

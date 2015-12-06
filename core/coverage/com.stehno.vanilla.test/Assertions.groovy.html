@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Assertions.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.test</a> &gt; <span class="el_source">Assertions.groovy</span></div><h1>Assertions.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2015 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.test
+
+import static java.util.Calendar.*
+
+/**
+ *  Reusable assertions for testing common coding constructs.
+ */
+final class Assertions {
+
+    /**
+     * Tests the given set objects for proper equals(Object) and hashCode() behavior. The three objects being tested
+     * must be of the same class.
+     *
+     * The instances used for A, B, and C should be instances of the same class, with equivalent data, but not being
+     * references to the same instance of the object.
+     *
+     * The instance used for D should be an instance of the same class but with non-equivalent data.
+     *
+     * @param objA an equivalent instance
+     * @param objB an equivalent instance
+     * @param objC an equivalent instance
+     * @param objD a non-equivalent instance
+     */
+    @SuppressWarnings(['ExplicitCallToEqualsMethod', 'ComparisonWithSelf'])
+    static void assertValidEqualsAndHashcode(final Object objA, final Object objB, final Object objC, final Object objD) {
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        assert [objA, objB, objC, objD].every { it.class == objA.class }</span>
+
+        // Symmetry: For two references, a and b, a.equals(b) if and only if b.equals(a)
+
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        assert objA.equals(objB), 'Object equality (A:B) is not symmetrical.'</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        assert objB.equals(objA), 'Object equality (B:A) is not symmetrical.'</span>
+
+<span class="pc bpc" id="L48" title="2 of 4 branches missed.">        assert !objA.equals(objD), 'Object equality (A:D) is not symmetrical.'</span>
+<span class="pc bpc" id="L49" title="2 of 4 branches missed.">        assert !objB.equals(objD), 'Object equality (B:D) is not symmetrical.'</span>
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">        assert !objC.equals(objD), 'Object equality (C:D) is not symmetrical.'</span>
+
+<span class="pc bpc" id="L52" title="2 of 4 branches missed.">        assert !objD.equals(objA), 'Object equality (D:A) is not symmetrical.'</span>
+<span class="pc bpc" id="L53" title="2 of 4 branches missed.">        assert !objD.equals(objB), 'Object equality (D:B) is not symmetrical.'</span>
+<span class="pc bpc" id="L54" title="2 of 4 branches missed.">        assert !objD.equals(objC), 'Object equality (D:C) is not symmetrical.'</span>
+
+        // Reflexivity: For all non-null references, a.equals(a)
+
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        assert objA.equals(objA), 'Object equality (A) is not reflexive.'</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        assert objB.equals(objB), 'Object equality (B) is not reflexive.'</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        assert objC.equals(objC), 'Object equality (D) is not reflexive.'</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        assert objD.equals(objD), 'Object equality (D) is not reflexive.'</span>
+
+        // Transitivity: If a.equals(b) and b.equals(c), then a.equals(c)
+
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        assert objA.equals(objC), 'Object equality (A:C) is not transitive.'</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        assert objB.equals(objC), 'Object equality (B:C) is not transitive.'</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'</span>
+
+        // Consistency with hashCode(): Two equal objects must have the same hashCode() value
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        assert objA.hashCode() == objB.hashCode(), 'Object hashCode (A:B) is not consistent.'</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        assert objA.hashCode() == objC.hashCode(), 'Object hashCode (A:C) is not consistent.'</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        assert objB.hashCode() == objC.hashCode(), 'Object hashCode (B:C) is not consistent.'</span>
+    }
+
+    /**
+     * Asserts that the actual value matches the expected values. The expected map values correspond to the properties of the actual object; however,
+     * if a closure is passed in rather than a value, the closure will be given the actual value for additional validation checking.
+     *
+     * &lt;pre&gt;
+     * assertMatches(name:'Bob', age:{a-&gt; a &gt; 20}, person)
+     * &lt;/pre&gt;
+     *
+     * @param expected map of expected values or closures to match
+     * @param actual the actual data object being tested
+     */
+    static void assertMatches(Map expected, actual) {
+<span class="fc" id="L89">        expected.each { k, v -&gt;</span>
+<span class="fc" id="L90">            def actualVal = actual[k]</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (v instanceof Closure) {</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">                assert v(actualVal)</span>
+            } else {
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                assert v == actualVal, &quot;$k: expected $v but was $actualVal&quot;</span>
+            }
+        }
+    }
+
+    /**
+     * A loose assertion of a Date object that simply ensures that the date is sometime today. Potential for error exists when testing a time that
+     * may overlap midnight.
+     *
+     * @param date the date to be tested
+     */
+    static void assertToday(final Date date) {
+<span class="fc" id="L106">        def cal = date.toCalendar()</span>
+<span class="fc" id="L107">        def now = new Date().toCalendar()</span>
+
+<span class="pc bpc" id="L109" title="3 of 10 branches missed.">        assert (cal.get(YEAR) == now.get(YEAR)) &amp;&amp; (cal.get(WEEK_OF_YEAR) == now.get(WEEK_OF_YEAR)) &amp;&amp; (cal.get(DAY_OF_WEEK) == now.get(DAY_OF_WEEK))</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

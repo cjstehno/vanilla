@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RuntimeFieldMapping.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.jdbc.mapper.runtime</a> &gt; <span class="el_source">RuntimeFieldMapping.groovy</span></div><h1>RuntimeFieldMapping.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2015 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.jdbc.mapper.runtime
+
+import com.stehno.vanilla.jdbc.mapper.FieldMapping
+import groovy.transform.ToString
+
+import java.sql.ResultSet
+
+import static com.stehno.vanilla.Affirmations.affirm
+import static com.stehno.vanilla.util.Strings.camelCaseToUnderscore
+
+/**
+ * Dynamic runtime implementation of the FieldMapping abstraction. The &quot;from&quot; methods accept a database field name (String) or position index (int).
+ */
+@ToString(includeNames = true, includeFields = true)
+class RuntimeFieldMapping extends FieldMapping {
+
+    /**
+     * Creates a new field mapping for the given object property.
+     *
+     * @param propertyName the object property name
+     */
+    RuntimeFieldMapping(final String propertyName) {
+<span class="fc" id="L38">        super(propertyName)</span>
+
+<span class="fc" id="L40">        from camelCaseToUnderscore(propertyName)</span>
+    }
+
+    @Override
+    void using(closure) {
+<span class="fc" id="L45">        affirm closure instanceof Closure, 'Only Closures are supported as field converters.'</span>
+<span class="fc" id="L46">        super.using(closure)</span>
+    }
+
+    @Override
+    protected FieldMapping extract(final nameOrPosition, final String getterName) {
+<span class="pc bpc" id="L51" title="1 of 4 branches missed.">        affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer</span>
+<span class="pc" id="L52">        extractor = { ResultSet rs -&gt; rs.&quot;$getterName&quot;(nameOrPosition) }</span>
+<span class="pc" id="L53">        this</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

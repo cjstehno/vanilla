@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Randomizers.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.test</a> &gt; <span class="el_source">Randomizers.groovy</span></div><h1>Randomizers.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2015 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.test
+
+/**
+ * A collection of useful randomizers for use with the PropertyRandomizer.
+ */
+class Randomizers {
+
+    private static final String CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789'
+
+    static Closure&lt;String&gt; forString(IntRange sizeRange = (10..20)) {
+<span class="pc" id="L26">        return { Random rng -&gt;</span>
+<span class="pc" id="L27">            randomString rng, sizeRange</span>
+        }
+    }
+
+    private static String randomString(Random rng, IntRange sizeRange) {
+<span class="fc" id="L32">        int size = sizeRange[rng.nextInt(sizeRange.size())]</span>
+<span class="fc" id="L33">        def chars = []</span>
+<span class="fc" id="L34">        size.times {</span>
+<span class="pc" id="L35">            chars &lt;&lt; CHARS[rng.nextInt(CHARS.size())]</span>
+        }
+<span class="pc" id="L37">        chars.join('')</span>
+    }
+
+    static Closure&lt;String[]&gt; forStringArray(Integer size = null, IntRange sizeRange = (10..20)) {
+<span class="pc" id="L41">        return { Random rng -&gt;</span>
+<span class="pc" id="L42">            randomCollection(rng, size) { randomString(rng, sizeRange) }.toArray()</span>
+        }
+    }
+
+    static Closure&lt;Long[]&gt; forLongArray(Integer size = null) {
+<span class="nc" id="L47">        return { Random rng -&gt;</span>
+<span class="nc" id="L48">            randomCollection(rng, size) { rng.nextLong() }.toArray()</span>
+        }
+    }
+
+    static List randomCollection(Random rng, Integer size = null, Closure generator) {
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        int length = size ?: (rng.nextInt(4) + 1)</span>
+<span class="fc" id="L54">        def items = []</span>
+<span class="fc" id="L55">        length.times {</span>
+<span class="pc" id="L56">            items &lt;&lt; generator()</span>
+        }
+<span class="pc" id="L58">        items</span>
+    }
+
+    static Closure&lt;Integer&gt; forInteger(Integer bounds = null) {
+<span class="pc" id="L62">        return { Random rng -&gt;</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">            bounds ? rng.nextInt(bounds) : rng.nextInt()</span>
+        }
+    }
+
+    static Closure&lt;BigDecimal&gt; forBigDecimal(Integer scale = null) {
+<span class="nc" id="L68">        return { Random rng -&gt;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            scale ? new BigDecimal(rng.nextLong(), scale) : new BigDecimal(rng.nextLong())</span>
+        }
+    }
+
+    static Closure&lt;Long&gt; forLong() {
+<span class="pc" id="L74">        return { Random rng -&gt;</span>
+<span class="nc" id="L75">            rng.nextLong()</span>
+        }
+    }
+
+    static Closure&lt;Boolean&gt; forBoolean() {
+<span class="pc" id="L80">        return { Random rng -&gt;</span>
+<span class="pc" id="L81">            rng.nextBoolean()</span>
+        }
+    }
+
+    static Closure&lt;Byte&gt; forByte() {
+<span class="pc" id="L86">        return { Random rng -&gt;</span>
+<span class="nc" id="L87">            byte[] bytes = new byte[1]</span>
+<span class="nc" id="L88">            rng.nextBytes(bytes)</span>
+<span class="nc bnc" id="L89" title="All 8 branches missed.">            bytes[0]</span>
+        }
+    }
+
+    static Closure&lt;Byte[]&gt; forByteArray(Integer size = null) {
+<span class="nc" id="L94">        return { Random rng -&gt;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            def bytes = new byte[size ?: rng.nextInt(25) + 1]</span>
+<span class="nc" id="L96">            rng.nextBytes(bytes)</span>
+<span class="nc" id="L97">            bytes</span>
+        }
+    }
+
+    static Closure&lt;Short&gt; forShort() {
+<span class="pc" id="L102">        return { Random rng -&gt;</span>
+<span class="nc" id="L103">            rng.nextInt() as short</span>
+        }
+    }
+
+    static Closure&lt;Float&gt; forFloat() {
+<span class="pc" id="L108">        return { Random rng -&gt;</span>
+<span class="pc" id="L109">            rng.nextFloat()</span>
+        }
+    }
+
+    static Closure&lt;Double&gt; forDouble() {
+<span class="pc" id="L114">        return { Random rng -&gt;</span>
+<span class="nc" id="L115">            rng.nextDouble()</span>
+        }
+    }
+
+    static Closure&lt;Date&gt; forDate() {
+<span class="pc" id="L120">        return { Random rng -&gt;</span>
+<span class="pc" id="L121">            new Date(rng.nextLong())</span>
+        }
+    }
+
+    static Closure&lt;Character&gt; forChar() {
+<span class="pc" id="L126">        return { Random rng -&gt;</span>
+<span class="nc" id="L127">            CHARS[rng.nextInt(CHARS.size())] as char</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
