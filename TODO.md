@@ -1,7 +1,6 @@
 
 TODO: test ObjectMapper
 TODO: review, clean, test and document overlap
-TODO: review, clean, test and document Fixtures
 
 TODO: move any useful AST utils in from Effigy
 TODO: compile the user guide documentation

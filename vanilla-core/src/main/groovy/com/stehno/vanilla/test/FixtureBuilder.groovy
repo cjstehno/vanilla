@@ -22,10 +22,12 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 /**
  * Builder used to simplify the reuse of testing fixtures based on maps of data.
  *
- * <pre>
- *     Fixture fixture = define {*         fix 'MyFixture', [ name:'Alpha', number: 42]
+ * <pre><code>
+ *     Fixture fixture = define {
+ *         fix 'MyFixture', [ name:'Alpha', number: 42]
  *         fix 'OtherFixture', [name:'Bravo', number:56]
- *}* </pre>
+ *     }
+ * </code></pre>
  */
 class FixtureBuilder {
 
