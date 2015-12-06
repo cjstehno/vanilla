@@ -14,17 +14,14 @@
       <ul class="nav navbar-nav">
         <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>index.html">Home</a></li>
         <li><a href="https://github.com/cjstehno/vanilla/issues">Issues</a></li>
+        <li><a href="guide/html5" target="_blank">User Guide</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
           <ul class="dropdown-menu">
+            <li><a href="core/groovydoc" target="_blank">GroovyDoc (Core)</a></li>
             <li><a href="core/tests" target="_blank">JUnit (Core)</a></li>
-            <li><a href="testing/tests" target="_blank">JUnit (Testing)</a></li>
             <li><a href="core/codenarc/main.html" target="_blank">CodeNarc (Core: Main)</a></li>
             <li><a href="core/codenarc/test.html" target="_blank">CodeNarc (Core: Test)</a></li>
-            <li><a href="testing/codenarc/main.html" target="_blank">CodeNarc (Testing: Main)</a></li>
-            <li><a href="testing/codenarc/test.html" target="_blank">CodeNarc (Testing: Test)</a></li>
-            <li><a href="core/groovydoc" target="_blank">GroovyDoc (Core)</a></li>
-            <li><a href="testing/groovydoc" target="_blank">GroovyDoc (Testing)</a></li>
           </ul>
         </li>
       </ul>

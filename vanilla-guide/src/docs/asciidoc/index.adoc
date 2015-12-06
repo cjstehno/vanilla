@@ -16,9 +16,15 @@ The source code for the project is hosted on GitHub at: https://github.com/cjste
 Vanilla is licensed under the http://www.apache.org/licenses/LICENSE-2.0[Apache 2] open source license.
 
 include::lazy-immutable.adoc[]
+
 include::property-randomizers.adoc[]
+
 include::object-mappers.adoc[]
+
 include::result-set-mappers.adoc[]
+
 include::result-set-dsl.adoc[]
+
 include::overlap.adoc[]
-include::test-fixtures.adoc[]
+
+include::test-fixture.adoc[]
