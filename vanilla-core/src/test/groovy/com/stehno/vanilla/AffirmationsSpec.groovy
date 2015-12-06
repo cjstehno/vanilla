@@ -19,7 +19,11 @@ import spock.lang.Specification
 
 class AffirmationsSpec extends Specification {
 
-    def 'affirm(negative): one-arg'(){
+    private static final String EXCEPTION_MESSAGE = 'An exception'
+    private static final String EXCEPTION_MESSAGE_2 = 'Another exception'
+    private static final String UNSEEN_MESSAGE = 'Should not see'
+
+    def 'affirm(negative): one-arg'() {
         when:
         Affirmations.affirm(false)
 
@@ -28,16 +32,16 @@ class AffirmationsSpec extends Specification {
         !ex.message
     }
 
-    def 'affirm(negative): two-arg'(){
+    def 'affirm(negative): two-arg'() {
         when:
-        Affirmations.affirm(false, 'An exception')
+        Affirmations.affirm(false, EXCEPTION_MESSAGE)
 
         then:
         def ex = thrown(IllegalArgumentException)
-        ex.message == 'An exception'
+        ex.message == EXCEPTION_MESSAGE
     }
 
-    def 'affirm(negative): two-arg (no message)'(){
+    def 'affirm(negative): two-arg (no message)'() {
         when:
         Affirmations.affirm(false, IllegalStateException)
 
@@ -46,16 +50,16 @@ class AffirmationsSpec extends Specification {
         !ex.message
     }
 
-    def 'affirm(negative): three-arg'(){
+    def 'affirm(negative): three-arg'() {
         when:
-        Affirmations.affirm(false, 'Another exception', IllegalStateException)
+        Affirmations.affirm(false, EXCEPTION_MESSAGE_2, IllegalStateException)
 
         then:
         def ex = thrown(IllegalStateException)
-        ex.message == 'Another exception'
+        ex.message == EXCEPTION_MESSAGE_2
     }
 
-    def 'affirm(positive): one-arg'(){
+    def 'affirm(positive): one-arg'() {
         when:
         Affirmations.affirm(true)
 
@@ -63,15 +67,15 @@ class AffirmationsSpec extends Specification {
         notThrown(IllegalArgumentException)
     }
 
-    def 'affirm(positive): two-arg'(){
+    def 'affirm(positive): two-arg'() {
         when:
-        Affirmations.affirm(true, 'Should not see')
+        Affirmations.affirm(true, UNSEEN_MESSAGE)
 
         then:
         notThrown(IllegalArgumentException)
     }
 
-    def 'affirm(positive): two-arg (no message)'(){
+    def 'affirm(positive): two-arg (no message)'() {
         when:
         Affirmations.affirm(true, IllegalStateException)
 
@@ -79,15 +83,15 @@ class AffirmationsSpec extends Specification {
         notThrown(IllegalStateException)
     }
 
-    def 'affirm(positive): three-arg'(){
+    def 'affirm(positive): three-arg'() {
         when:
-        Affirmations.affirm(true, 'Should not see', IllegalStateException)
+        Affirmations.affirm(true, UNSEEN_MESSAGE, IllegalStateException)
 
         then:
         notThrown(IllegalStateException)
     }
 
-    def 'affirmNot(negative): one-arg'(){
+    def 'affirmNot(negative): one-arg'() {
         when:
         Affirmations.affirmNot(true)
 
@@ -96,16 +100,16 @@ class AffirmationsSpec extends Specification {
         !ex.message
     }
 
-    def 'affirmNot(negative): two-arg'(){
+    def 'affirmNot(negative): two-arg'() {
         when:
-        Affirmations.affirmNot(true, 'An exception')
+        Affirmations.affirmNot(true, EXCEPTION_MESSAGE)
 
         then:
         def ex = thrown(IllegalArgumentException)
-        ex.message == 'An exception'
+        ex.message == EXCEPTION_MESSAGE
     }
 
-    def 'affirmNot(negative): two-arg (no message)'(){
+    def 'affirmNot(negative): two-arg (no message)'() {
         when:
         Affirmations.affirmNot(true, IllegalStateException)
 
@@ -114,16 +118,16 @@ class AffirmationsSpec extends Specification {
         !ex.message
     }
 
-    def 'affirmNot(negative): three-arg'(){
+    def 'affirmNot(negative): three-arg'() {
         when:
-        Affirmations.affirmNot(true, 'Another exception', IllegalStateException)
+        Affirmations.affirmNot(true, EXCEPTION_MESSAGE_2, IllegalStateException)
 
         then:
         def ex = thrown(IllegalStateException)
-        ex.message == 'Another exception'
+        ex.message == EXCEPTION_MESSAGE_2
     }
 
-    def 'affirmNot(positive): one-arg'(){
+    def 'affirmNot(positive): one-arg'() {
         when:
         Affirmations.affirmNot(false)
 
@@ -131,15 +135,15 @@ class AffirmationsSpec extends Specification {
         notThrown(IllegalArgumentException)
     }
 
-    def 'affirmNot(positive): two-arg'(){
+    def 'affirmNot(positive): two-arg'() {
         when:
-        Affirmations.affirmNot(false, 'Should not see')
+        Affirmations.affirmNot(false, UNSEEN_MESSAGE)
 
         then:
         notThrown(IllegalArgumentException)
     }
 
-    def 'affirmNot(positive): two-arg (no message)'(){
+    def 'affirmNot(positive): two-arg (no message)'() {
         when:
         Affirmations.affirmNot(false, IllegalStateException)
 
@@ -147,9 +151,9 @@ class AffirmationsSpec extends Specification {
         notThrown(IllegalStateException)
     }
 
-    def 'affirmNot(positive): three-arg'(){
+    def 'affirmNot(positive): three-arg'() {
         when:
-        Affirmations.affirmNot(false, 'Should not see', IllegalStateException)
+        Affirmations.affirmNot(false, UNSEEN_MESSAGE, IllegalStateException)
 
         then:
         notThrown(IllegalStateException)

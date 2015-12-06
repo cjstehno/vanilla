@@ -19,9 +19,7 @@ import groovy.transform.Canonical
 import spock.lang.Shared
 import spock.lang.Specification
 
-import static com.stehno.vanilla.test.Assertions.assertMatches
-import static com.stehno.vanilla.test.Assertions.assertToday
-import static com.stehno.vanilla.test.Assertions.assertValidEqualsAndHashcode
+import static com.stehno.vanilla.test.Assertions.*
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 
 /**
@@ -30,10 +28,10 @@ import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 class AssertionsSpec extends Specification {
 
     @Shared
-    private PropertyRandomizer randomSomething = randomize(Something)
+    private final PropertyRandomizer randomSomething = randomize(Something)
 
     @Shared
-    private Fixture fixture = FixtureBuilder.define {
+    private final Fixture fixture = FixtureBuilder.define {
         fix 'A', [fieldA: 'A', fieldB: 42]
     }
 

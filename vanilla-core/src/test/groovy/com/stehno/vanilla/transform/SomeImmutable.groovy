@@ -30,6 +30,6 @@ class SomeImmutable {
     }
 
     int getValue() {
-        return value
+        value
     }
 }

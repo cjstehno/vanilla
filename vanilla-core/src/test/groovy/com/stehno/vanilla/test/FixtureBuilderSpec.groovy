@@ -25,7 +25,7 @@ import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 @SuppressWarnings('GroovyPointlessBoolean')
 class FixtureBuilderSpec extends Specification {
 
-    @Shared private Fixture fixture = define {
+    @Shared private final Fixture fixture = define {
         fix 'alpha', [name: 'Larry', stooge: true]
         fix 'bravo', [name: 'Joe', stooge: false]
     }

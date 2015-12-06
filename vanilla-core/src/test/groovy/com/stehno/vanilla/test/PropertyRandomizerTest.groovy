@@ -28,7 +28,6 @@ class PropertyRandomizerTest {
         def rando = randomize(Pet)
 
         def one = rando.one()
-        println one
         assert one instanceof Pet
         assertPopulated one
 

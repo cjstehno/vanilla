@@ -28,8 +28,8 @@ import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE
 
 class ObjectMapperSpec extends Specification {
 
-    private BarObject bar = new BarObject()
-    private PropertyRandomizer rando = randomize(FooObject) {
+    private final BarObject bar = new BarObject()
+    private final PropertyRandomizer rando = randomize(FooObject) {
         propertyRandomizer 'startDate', { new Date().format('MM/dd/yyyy') }
         propertyRandomizer 'birthDate', { LocalDate.now() }
         ignoringProperties 'child'
@@ -76,7 +76,7 @@ class ObjectMapperSpec extends Specification {
         then:
         bars.size() == 3
 
-        bars.eachWithIndex{ bar, idx ->
+        bars.eachWithIndex { bar, idx ->
             assert bar.name == foos[idx].name
             assert bar.years == foos[idx].age
             assert bar.startDate.format('MM/dd/yyyy') == foos[idx].startDate
@@ -234,9 +234,6 @@ class ObjectMapperSpec extends Specification {
         om.copy(src, dest)
 
         then:
-        println src
-        println dest
-
         src == dest
     }
 }

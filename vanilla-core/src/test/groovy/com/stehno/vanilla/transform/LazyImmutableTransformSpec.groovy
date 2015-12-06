@@ -15,12 +15,11 @@
  */
 package com.stehno.vanilla.transform
 
-import org.junit.Rule
 import spock.lang.Specification
 
 class LazyImmutableTransformSpec extends Specification {
 
-    @Rule GroovyShellEnvironment shell
+    private final GroovyShell shell = new GroovyShell()
 
     def 'simple original object usage'() {
         when:

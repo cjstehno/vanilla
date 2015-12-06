@@ -17,8 +17,6 @@ package com.stehno.vanilla.jdbc.mapper.transform
 
 import com.stehno.vanilla.jdbc.DummyObjectC
 import com.stehno.vanilla.test.Person
-import com.stehno.vanilla.transform.GroovyShellEnvironment
-import org.junit.Rule
 import spock.lang.Specification
 
 import static com.stehno.vanilla.test.Assertions.assertMatches
@@ -26,7 +24,7 @@ import static com.stehno.vanilla.test.jdbc.mock.ResultSetBuilder.resultSet
 
 class InjectResultSetMapperTransformSpec extends Specification {
 
-    @Rule GroovyShellEnvironment shell
+    private final GroovyShell shell = new GroovyShell()
 
     def 'implicit mapper'() {
         setup:

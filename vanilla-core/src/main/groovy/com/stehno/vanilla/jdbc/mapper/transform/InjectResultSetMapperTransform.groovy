@@ -164,7 +164,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
     }
 
     private static ClassNode createMapperClass(final String mapperName, final CompiledResultSetMapperBuilder config) {
-        ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(ClassHelper.make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
+        ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
 
         List<MapEntryExpression> mapEntryExpressions = []
 
@@ -250,5 +250,4 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         PropertyNode propertyNode = targetNode as PropertyNode
         propertyNode.field = createFieldNode(propertyNode.name, targetNode, mapperClassNode)
     }
-
 }

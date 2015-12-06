@@ -18,8 +18,6 @@ package com.stehno.vanilla.mapper.transform
 import com.stehno.vanilla.mapper.BarObject
 import com.stehno.vanilla.mapper.FooObject
 import com.stehno.vanilla.test.PropertyRandomizer
-import com.stehno.vanilla.transform.GroovyShellEnvironment
-import org.junit.Rule
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -29,10 +27,10 @@ import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE
 
 class MapperTransformSpec extends Specification {
 
-    @Rule GroovyShellEnvironment shell
+    private final GroovyShell shell = new GroovyShell()
 
-    private BarObject bar = new BarObject()
-    private PropertyRandomizer rando = randomize(FooObject) {
+    private final BarObject bar = new BarObject()
+    private final PropertyRandomizer rando = randomize(FooObject) {
         propertyRandomizer 'startDate', { new Date().format('MM/dd/yyyy') }
         propertyRandomizer 'birthDate', { LocalDate.now() }
         ignoringProperties 'child'
@@ -172,9 +170,6 @@ class MapperTransformSpec extends Specification {
         results.copy(foo, bar)
 
         then:
-        println foo
-        println bar
-
         bar.name == foo.name
         bar.years == foo.age
         bar.startDate.format('MM/dd/yyyy') == '12/21/2012'
@@ -263,9 +258,6 @@ class MapperTransformSpec extends Specification {
         results.copy(foo, bar)
 
         then:
-        println foo
-        println bar
-
         bar.name == foo.name
         bar.years == foo.age
         bar.startDate.format('MM/dd/yyyy') == foo.startDate
@@ -299,9 +291,6 @@ class MapperTransformSpec extends Specification {
         results.copy(foo, bar)
 
         then:
-        println foo
-        println bar
-
         bar.name == foo.name
         bar.years == foo.age
         bar.startDate.format('MM/dd/yyyy') == foo.startDate
