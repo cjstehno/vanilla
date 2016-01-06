@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
+ * Copyright (C) 2016 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * The JDBC Mock package contains a DSL to assist in creating mocked and stubbed versions of various JDBC-related objects using the
  * <a href="http://mockrunner.github.io/">MockRunner</a> API.

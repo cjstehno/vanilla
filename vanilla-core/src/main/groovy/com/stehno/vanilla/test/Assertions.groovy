@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Christopher J. Stehno <chris@stehno.com>
+ * Copyright (C) 2016 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@ import static java.util.Calendar.*
 final class Assertions {
 
     /**
-     * Tests the given set objects for proper equals(Object) and hashCode() behavior. The three objects being tested
-     * must be of the same class.
+     * Tests the given set objects for proper equals(Object) and hashCode() behavior.
      *
      * The instances used for A, B, and C should be instances of the same class, with equivalent data, but not being
      * references to the same instance of the object.
@@ -35,11 +34,10 @@ final class Assertions {
      * @param objB an equivalent instance
      * @param objC an equivalent instance
      * @param objD a non-equivalent instance
+     * @returns true if all the contract assertions pass
      */
     @SuppressWarnings(['ExplicitCallToEqualsMethod', 'ComparisonWithSelf'])
-    static void assertValidEqualsAndHashcode(final Object objA, final Object objB, final Object objC, final Object objD) {
-        assert [objA, objB, objC, objD].every { it.class == objA.class }
-
+    static boolean assertValidEqualsAndHashcode(final Object objA, final Object objB, final Object objC, final Object objD) {
         // Symmetry: For two references, a and b, a.equals(b) if and only if b.equals(a)
 
         assert objA.equals(objB), 'Object equality (A:B) is not symmetrical.'
@@ -72,6 +70,8 @@ final class Assertions {
         assert objA.hashCode() == objB.hashCode(), 'Object hashCode (A:B) is not consistent.'
         assert objA.hashCode() == objC.hashCode(), 'Object hashCode (A:C) is not consistent.'
         assert objB.hashCode() == objC.hashCode(), 'Object hashCode (B:C) is not consistent.'
+
+        true
     }
 
     /**

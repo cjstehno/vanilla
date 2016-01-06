@@ -25,7 +25,7 @@ buildscript {
 }
 
 subprojects {
-    version = '0.1.0'
+    version = '0.1.1'
     group = 'com.stehno.vanilla'
 
     apply plugin: 'groovy'
