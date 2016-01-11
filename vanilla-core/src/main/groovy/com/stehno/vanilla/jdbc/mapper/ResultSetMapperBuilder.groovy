@@ -77,9 +77,11 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      *
      * @return a Collection of the field mappings
      */
-    @SuppressWarnings('ConfusingMethodName')
+    @SuppressWarnings('ConfusingMethodName') // TODO: this is only used by the compiled version
     Collection<FieldMapping> mappings() {
-        mappings.values().asImmutable()
+        mappings.findAll { String fname, FieldMapping fm ->
+            !(fname in ignored())
+        }.values().asImmutable()
     }
 
     /**

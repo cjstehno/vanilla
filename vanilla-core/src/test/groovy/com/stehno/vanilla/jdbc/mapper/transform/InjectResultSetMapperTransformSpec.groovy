@@ -165,6 +165,117 @@ class InjectResultSetMapperTransformSpec extends Specification {
 
         then:
         obj == objectC
+        obj.name == 'Larry'
+    }
+
+    def 'explicit mapping in same object'() {
+        setup:
+        def rs = resultSet {
+            columns 'name', 'number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config={
+                    map 'name'
+                    map 'number'
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
+    def 'implicit mapping in same object'() {
+        setup:
+        def rs = resultSet {
+            columns 'name', 'number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import groovy.transform.CompileStatic
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(Foo)
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
+    def 'implicit mapping in external object'() {
+        setup:
+        def rs = resultSet {
+            columns 'name', 'number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            class Foo {
+                String name
+                int number
+            }
+
+            class FooMappers {
+                @InjectResultSetMapper(Foo)
+                static ResultSetMapper mapper(){}
+            }
+
+            FooMappers.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'something'
+        obj.number == 42
     }
 
     def 'explicit mapper'() {

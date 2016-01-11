@@ -29,6 +29,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 
 import java.sql.ResultSet
 
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 import static groovy.transform.TypeCheckingMode.SKIP
 import static java.lang.reflect.Modifier.*
 import static org.codehaus.groovy.ast.ClassHelper.OBJECT_TYPE
@@ -60,7 +61,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
                 PropertyExpression mappingStyle = annotationNode.getMember('style') as PropertyExpression
                 ConstantExpression nameX = annotationNode.getMember('name') as ConstantExpression
 
-                MappingStyle styleEnum = mappingStyle ? MappingStyle.valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT
+                MappingStyle styleEnum = mappingStyle ? MappingStyle.valueOf(mappingStyle.propertyAsString) : IMPLICIT
 
                 if (!dslClosureX && styleEnum == MappingStyle.EXPLICIT) {
                     throw new IllegalArgumentException('A configuration closure must be provided for EXPLICIT mappers.')
@@ -98,11 +99,36 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         return nameX ? "${mappedType.type.package.name}.${nameX.value}" : "${mappedType.type.name}RowMapper"
     }
 
+    private Set<String> findMappableProperties(final ClassNode classNode) {
+        Set<String> names = []
+
+        classNode.redirect().properties.findAll { PropertyNode n ->
+            n.public && !n.static && !(n.name in DEFAULT_IGNORED)
+        }.each { PropertyNode n ->
+            names << n.name
+        }
+
+        classNode.redirect().methods.findAll { MethodNode n ->
+            isAcceptedSetter(n, DEFAULT_IGNORED)
+        }.each { MethodNode n ->
+            names << propertyName(n.name)
+        }
+
+        names
+    }
+
     private CompiledResultSetMapperBuilder extractMapperConfig(ClassNode mappedType, ClosureExpression dslClosureX, MappingStyle mappingStyle) {
         CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType, mappingStyle)
 
-        BlockStatement block = dslClosureX?.code as BlockStatement
+        if (mappingStyle == IMPLICIT) {
+            // apply the implicit mappings
+            findMappableProperties(mappedType).each { String prop ->
+                mapperConfig.map(prop)
+            }
+        }
 
+        // apply any explicit configuration
+        BlockStatement block = dslClosureX?.code as BlockStatement
         if (block) {
             block.statements.findAll { st -> st instanceof ExpressionStatement }.each { es ->
                 Expression expression = (es as ExpressionStatement).expression
@@ -140,11 +166,6 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
                 }
             }
 
-        } else {
-            // implicit without DSL
-            mappedType.methods.findAll { MethodNode mn -> isAcceptedSetter(mn, DEFAULT_IGNORED) }.each { MethodNode mn ->
-                mapperConfig.map(propertyName(mn.name))
-            }
         }
 
         mapperConfig
@@ -168,17 +189,8 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
         List<MapEntryExpression> mapEntryExpressions = []
 
-        if (config.style == MappingStyle.IMPLICIT) {
-            def ignored = DEFAULT_IGNORED + config.ignored()
-
-            config.mappedTypeNode.methods.findAll { MethodNode mn -> isAcceptedSetter(mn, ignored) }.each { MethodNode mn ->
-                implementMapping mapEntryExpressions, config.findMapping(propertyName(mn.name))
-            }
-
-        } else {
-            config.mappings().each { fieldMapping ->
-                implementMapping mapEntryExpressions, fieldMapping
-            }
+        config.mappings().each { fieldMapping ->
+            implementMapping mapEntryExpressions, fieldMapping
         }
 
         mapperClass.addMethod(new MethodNode(

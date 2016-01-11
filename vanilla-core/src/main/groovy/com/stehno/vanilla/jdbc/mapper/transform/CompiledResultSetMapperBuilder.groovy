@@ -18,17 +18,19 @@ package com.stehno.vanilla.jdbc.mapper.transform
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import com.stehno.vanilla.jdbc.mapper.MappingStyle
 import com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder
+import groovy.transform.CompileStatic
 import org.codehaus.groovy.ast.ClassNode
 
 /**
  * Compile-time-based extension of the <code>ResultSetMapperBuilder</code> class. This class should not be used externally.
  */
+@CompileStatic
 class CompiledResultSetMapperBuilder extends ResultSetMapperBuilder {
 
     final ClassNode mappedTypeNode
 
     CompiledResultSetMapperBuilder(ClassNode mappedTypeNode, MappingStyle style) {
-        super(mappedTypeNode.typeClass, style)
+        super(null, style) // TODO: refactor out the super.type
         this.mappedTypeNode = mappedTypeNode
     }
 
