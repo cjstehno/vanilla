@@ -48,8 +48,17 @@ class RuntimeFieldMapping extends FieldMapping {
 
     @Override
     protected FieldMapping extract(final nameOrPosition, final String getterName) {
-        affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
-        extractor = { ResultSet rs -> rs."$getterName"(nameOrPosition) }
+        affirm nameOrPosition instanceof String || nameOrPosition instanceof GString || nameOrPosition instanceof Integer
+
+        def arg
+        if (nameOrPosition instanceof String || nameOrPosition instanceof GString) {
+            arg = nameOrPosition as String
+        } else {
+            arg = nameOrPosition as int
+        }
+
+        extractor = { ResultSet rs -> rs."$getterName"(arg) }
+
         this
     }
 }

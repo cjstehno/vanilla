@@ -298,6 +298,13 @@ abstract class FieldMapping {
         this.converter = converter
     }
 
+    /**
+     * Used to extract and apply the construct needed to map a specific field based on the underlying implementation.
+     *
+     * @param nameOrPosition the identifier for the name or position lookup
+     * @param getterName the full name of the getter method to be called on the ResultSet
+     * @return a reference to this FieldMapping
+     */
     protected abstract FieldMapping extract(nameOrPosition, String getterName)
 
     protected void setExtractor(Object extractor) {
