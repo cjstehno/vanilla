@@ -28,13 +28,10 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * An example usage, would be similar to the following:
  *
  * <pre><code>
- * def rando = randomize(Person){
- *     typeRandomizers(
+ * def rando = randomize(Person){*     typeRandomizers(
  *         (Date):{ new Date() },
- *         (Pet): { randomize(Pet).one() }
- *     )
- * }
- * def instance = rando.one()
+ *         (Pet): { randomize(Pet).one() }*     )
+ *}* def instance = rando.one()
  * </code></pre>
  *
  * More information may be found in my blog post,
@@ -87,7 +84,8 @@ class PropertyRandomizer {
      * @param closure the closure containing the DSL-style randomizer configuration
      * @return the configured PropertyRandomizer for use or further configuration.
      */
-    static PropertyRandomizer randomize(Class target, @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
+    static PropertyRandomizer randomize(Class target,
+                                        @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
         def rando = new PropertyRandomizer(target)
 
         if (closure) {
@@ -153,7 +151,7 @@ class PropertyRandomizer {
      * will override any configured type randomizers.
      *
      * The randomizer closure may accept zero, one, or two parameters - where the parameters are the random number generator (Random) as the first
-     * parameter, and the instance being populated as the second parameter.
+     * parameter, and the property map of the instance being populated as the second parameter.
      *
      * @param randomizers the property randomizers to be used
      * @return the PropertyRandomizer instance
@@ -185,35 +183,38 @@ class PropertyRandomizer {
             inst = callRandomizer(null, classRandomizers[target])
 
         } else {
-            inst = target.newInstance()
-
-            def props = [:]
+            def instMap = [:]
 
             target.metaClass.properties.each { p ->
-                if (p.setter && !(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
+                if ((isImmutable() || p.setter) && !(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
                     def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
 
                     if (!randomizer) {
                         throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")
                     }
 
-                    def value = callRandomizer(inst, randomizer)
-                    inst[p.name] = value
-                    props[p.name] = value
+                    def value = callRandomizer(instMap, randomizer)
+                    instMap[p.name] = value
                 }
             }
+
+            inst = target.newInstance(instMap)
 
             def originalAsType = target.metaClass.getMetaMethod('asType', [Class] as Class[])
 
             inst.metaClass.asType = { Class type ->
                 if (type.isAssignableFrom(Map)) {
-                    return props.asImmutable()
+                    return instMap.asImmutable()
                 }
                 return originalAsType.invoke(delegate, [type] as Object[])
             }
         }
 
         inst
+    }
+
+    private boolean isImmutable() {
+        target.metaClass.delegate.theClass.getAnnotation(groovy.transform.Immutable)
     }
 
     private callRandomizer(instance, Object randomizer) {
@@ -223,7 +224,7 @@ class PropertyRandomizer {
         } else if (randomizer instanceof Closure) {
             switch (randomizer.maximumNumberOfParameters) {
                 case 2:
-                    return randomizer.call(rng, instance ?: target.newInstance())
+                    return randomizer.call(rng, instance != null ? instance : [:])
                 case 1:
                     return randomizer.call(rng)
                 default:

@@ -171,6 +171,26 @@ class PropertyRandomizerTest {
         assert nothing.empty
     }
 
+    @Test void 'randomize immutable'(){
+        def rando = randomize(Rock)
+
+        Rock rock = rando.one()
+        assert rock
+        assert rock.description
+        assert rock.weight
+    }
+
+    @Test void 'randomize immutable (defined)'(){
+        def rando = randomize(Rock){
+            typeRandomizer Rock, { new Rock('adfasdfasdf', 100.234d)}
+        }
+
+        Rock rock = rando.one()
+        assert rock
+        assert rock.description
+        assert rock.weight
+    }
+
     static void assertPopulated(Object obj, List<String> ignoredProperties = [], List<Class> ignoredTypes = [Class]) {
         obj.metaClass.properties.each { p ->
             if (!(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
