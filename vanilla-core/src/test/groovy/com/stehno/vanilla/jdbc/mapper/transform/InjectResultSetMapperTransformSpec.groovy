@@ -208,6 +208,86 @@ class InjectResultSetMapperTransformSpec extends Specification {
         obj.number == 42
     }
 
+    def 'explicit mapping from multiple fields'() {
+        setup:
+        def rs = resultSet {
+            columns 'first_name', 'last_name', 'number'
+            data 'Inigo', 'Montoya', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config={
+                    map 'name' from 'first_name' using { fn, rs-> "$fn ${rs.getString('last_name')}"}
+                    map 'number'
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'Inigo Montoya'
+        obj.number == 42
+    }
+
+    def 'explicit mapping of generated property from multiple fields'() {
+        setup:
+        def rs = resultSet {
+            columns 'first_name', 'last_name', 'number'
+            data 'Inigo', 'Montoya', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config={
+                    map 'name' from 'first_name' using { fn, rs-> "$fn ${rs.getString('last_name')}"}
+                    map 'number'
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'Inigo Montoya'
+        obj.number == 42
+    }
+
     def 'implicit mapping in same object'() {
         setup:
         def rs = resultSet {

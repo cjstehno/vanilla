@@ -218,7 +218,19 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
             if (fieldMapping.converter instanceof ClosureExpression) {
                 ClosureExpression convertClosureX = fieldMapping.converter as ClosureExpression
 
-                convertX = new MethodCallExpression(convertClosureX, CALL, convertClosureX.parameters.size() ? args(extractorX) : args())
+                switch (convertClosureX.parameters.size()) {
+                    case 1:
+                        // 1-arg: <extracted-field-value>
+                        convertX = new MethodCallExpression(convertClosureX, CALL, args(extractorX))
+                        break
+                    case 2:
+                        // 2-arg: <extracted-field-value>, <result-set>
+                        convertX = new MethodCallExpression(convertClosureX, CALL, args(extractorX, varX(RS)))
+                        break
+                    default:
+                        // no-arg
+                        convertX = new MethodCallExpression(convertClosureX, CALL, args())
+                }
 
             } else {
                 throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')
