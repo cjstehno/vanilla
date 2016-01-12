@@ -13,7 +13,7 @@
 
 	<blockquote>"having no special or extra features; ordinary or standard."</blockquote>
 
-	<p>The Vanilla API is my attempt to bring together a bunch of my reusable and interesting code in a manner that allows simple reuse
+	<p>The Vanilla library is my attempt to bring together a bunch of my reusable and interesting code in a manner that allows simple reuse
 	without a lot of external dependencies.</p>
 
 	<h2>Usage</h2>

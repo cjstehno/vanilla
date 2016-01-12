@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.stehno.vanilla.jdbc.mapper
+
 /**
  * Defines the methods available to the ResultSetMapper DSL.
  */
