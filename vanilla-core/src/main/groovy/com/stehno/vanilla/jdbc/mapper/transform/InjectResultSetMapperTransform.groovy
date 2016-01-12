@@ -252,9 +252,6 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
         Expression codeX
         if (methodNode.parameters && methodNode.parameters[0].type == STRING_TYPE) {
-            // FIXME: implement this and compile static - may be able to remove the shared field
-//            methodNode.addAnnotation(new AnnotationNode(make(Memoized)))
-
             codeX = ctorX(newClass(mapperClassNode), new MapExpression([
                 new MapEntryExpression(constX('prefix'), varX(methodNode.parameters[0].name))
             ]))

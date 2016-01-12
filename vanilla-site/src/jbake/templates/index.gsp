@@ -22,7 +22,7 @@
 
 	<pre>
 // for Gradle builds
-compile 'com.stehno.vanilla:vanilla-core:0.1.0'
+compile 'com.stehno.vanilla:vanilla-core:0.2.0'
 	</pre>
 
 <%include "footer.gsp"%>

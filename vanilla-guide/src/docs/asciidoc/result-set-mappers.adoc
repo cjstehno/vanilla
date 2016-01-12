@@ -41,8 +41,12 @@ supported extractors are: `from`, `fromObject`, `fromString`, `fromBoolean`, `fr
 Each extractor takes either the database field name or position value as a required parameter and extracts the database value as you would expect from
 its name, though you may want to consult the `ResultSet` documentation for more details on the behavior of a specific getter method.
 
-The conversion closures configured by the `using` clause are standard Groovy closures that are passed in the extracted database value at runtime which
-allows the closure to do additional conversion of the database value. The closure should return the desired mapped value for the property.
+The conversion closures configured by the `using` clause are standard Groovy closures that are passed in one or two arguments:
+
+* 1-argument: the extracted database value at runtime which allows the closure to do additional conversion of the database value. 
+* 2-argument: the reference to the `ResultSet` being extracted.
+
+The closure should return the desired mapped value for the property.
 
 A sample of the DSL pulled from the unit tests is shown below:
 
@@ -197,3 +201,40 @@ List<Person> people = jdbcTemplate.query(
 ----
 
 The `ResultSetMapper` may be cast as a `RowMapper` and then used as one.
+
+=== Field Name Prefix
+
+Both implementations of the `ResultSetMapper` support an optional field name prefix, which will be applied to all field names on field lookup. So for example a property named "somethingInteresting" with a prefix of "foo_" would look for a database field named "foo_something_interesting". If no prefix is specified an empty string will be used.
+
+The prefix is _not_ overridden by the "fromXXX" mapping methods. This is intentional since the main goal of the prefix support is to allow the same mapper to be useful across different mapping scenarios such as in a join where each column name in the query result has been prefixed by some common known prefix.
+
+This does not remove the ability to use numerical from indices. If a number is detected in the "from" statement, the prefix will not be applied.
+
+=== Mapping Properties from Multiple Fields
+
+It is often necessary to map an object field that is not directly represented in the database fields or is made up of more than on field. This is can be done by using the 2-argument version of the "using" closure. Consider the example of a `GeoLocation` object being mapped:
+
+[source,groovy]
+----
+@Canonical
+class GeoLocation {
+    double latitude
+    double longitude
+}
+
+class Somewhere {
+    GeoLocation location
+}
+----
+
+The DSL code would look something like the following:
+
+....
+{
+    map 'location' fromDouble 'latitude' using { lat,rs-> 
+        new GeoLocation(lat, rs.getDouble('longitude'))
+    }
+}
+....
+
+This allows the flexibility to populate the target object from various database fields.
