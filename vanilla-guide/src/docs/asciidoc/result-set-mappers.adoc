@@ -178,6 +178,10 @@ the added "Mapper" suffix.
 The generated mapper class may be used directly; however, the method or field injection is required to create the mapper class and it is recommended
 to use the field or method as your access point to the generated class.
 
+INFO: When using a factory method to create the `ResultSetMapper` instances, note that the method is annotated with `@Memoized` so that multiple calls
+to the method will return the same instance. This is also true when a prefix is used (method parameter); calls to the method with the same prefix
+value will return the same instance of the mapper.
+
 === Usage
 
 Once you have created a `ResultSetMapper`, you can use it anywhere you have a `ResultSet` or with the `groovy.sql.Sql` class as follows:

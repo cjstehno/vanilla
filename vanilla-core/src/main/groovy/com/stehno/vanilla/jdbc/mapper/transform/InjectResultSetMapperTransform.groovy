@@ -18,6 +18,7 @@ package com.stehno.vanilla.jdbc.mapper.transform
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import com.stehno.vanilla.jdbc.mapper.MappingStyle
 import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+import groovy.transform.Memoized
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -26,6 +27,7 @@ import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+import org.codehaus.groovy.transform.MemoizedASTTransformation
 
 import java.sql.ResultSet
 
@@ -72,7 +74,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
                 source.AST.addClass(mapperClassNode)
 
                 if (targetNode instanceof MethodNode) {
-                    transformMethodNode targetNode, mapperClassNode
+                    transformMethodNode targetNode, mapperClassNode, source
 
                 } else if (targetNode instanceof FieldNode) {
                     transformFieldNode targetNode, mapperClassNode
@@ -242,11 +244,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         }
     }
 
-    private void transformMethodNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
-        String fieldName = "_mapper${mapperClassNode.nameWithoutPackage}"
-
-        targetNode.declaringClass.addField(createFieldNode(fieldName, targetNode, mapperClassNode))
-
+    private void transformMethodNode(AnnotatedNode targetNode, ClassNode mapperClassNode, SourceUnit sourceUnit) {
         MethodNode methodNode = targetNode as MethodNode
         methodNode.modifiers = PUBLIC | STATIC | FINAL
 
@@ -257,10 +255,12 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
             ]))
 
         } else {
-            codeX = varX(fieldName)
+            codeX = ctorX(newClass(mapperClassNode))
         }
 
         methodNode.code = returnS(codeX)
+
+        new MemoizedASTTransformation().visit([new AnnotationNode(make(Memoized)), methodNode] as ASTNode[], sourceUnit)
     }
 
     private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
