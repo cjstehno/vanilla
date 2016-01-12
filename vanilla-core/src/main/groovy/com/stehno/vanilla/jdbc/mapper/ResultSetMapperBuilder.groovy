@@ -27,7 +27,7 @@ import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
  * <code>ResultSetMapper</code>.
  */
 @TypeChecked @ToString(includeFields = true, includeNames = true)
-class ResultSetMapperBuilder implements ResultSetMapperDsl {
+class ResultSetMapperBuilder implements ResultSetMapperDslSupport {
 
     /**
      * The type of object being mapped.
@@ -39,9 +39,6 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      */
     final MappingStyle style
 
-    private final Collection<String> ignoredNames = []
-    private final Map<String, FieldMapping> mappings = [:]
-
     /**
      * Creates a new mapper builder for the given mapped type and mapping style.
      *
@@ -51,25 +48,6 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
     ResultSetMapperBuilder(final Class mappedType, final MappingStyle style = IMPLICIT) {
         this.mappedType = mappedType
         this.style = style
-    }
-
-    /**
-     * Used to find the field mapping for the specified object property.
-     *
-     * @param propertyName the name of the object property
-     * @return the FieldMapping for the specified property, or null
-     */
-    FieldMapping findMapping(String propertyName) {
-        mappings[propertyName]
-    }
-
-    /**
-     * Retrieves a collection containing the names of all ignored object properties.
-     *
-     * @return a Collection of ignored object property names
-     */
-    Collection<String> ignored() {
-        ignoredNames.asImmutable()
     }
 
     /**
@@ -85,26 +63,9 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
         new RuntimeResultSetMapper(mappedType, mappings, ignoredNames)
     }
 
-    /**
-     * Maps the specified object property name and encapsulates it in a <code>FieldMapping</code>. The <code>FieldMapping</code> object is stored
-     * internally and a reference is returned.
-     *
-     * @param propertyName the object property being mapped
-     * @return a reference to the created FieldMapping object
-     */
-    FieldMapping map(String propertyName) {
-        FieldMapping mapping = new RuntimeFieldMapping(propertyName)
-        mappings[propertyName] = mapping
-        mapping
-    }
-
-    /**
-     * Configures the specified object properties to be ignored by the mapping.
-     *
-     * @param propertyNames one or more object property names to be ignored
-     */
-    void ignore(String... propertyNames) {
-        this.ignoredNames.addAll(propertyNames)
+    @Override
+    FieldMapping createFieldMapping(final String propertyName) {
+        new RuntimeFieldMapping(propertyName)
     }
 
     private void applyImpliedMappings() {
