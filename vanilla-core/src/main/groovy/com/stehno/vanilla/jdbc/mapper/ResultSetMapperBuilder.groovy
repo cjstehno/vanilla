@@ -73,18 +73,6 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
     }
 
     /**
-     * Retrieves a collection containing all the configured mappings.
-     *
-     * @return a Collection of the field mappings
-     */
-    @SuppressWarnings('ConfusingMethodName') // TODO: this is only used by the compiled version
-    Collection<FieldMapping> mappings() {
-        mappings.findAll { String fname, FieldMapping fm ->
-            !(fname in ignored())
-        }.values().asImmutable()
-    }
-
-    /**
      * Creates a <code>RuntimeResultSetMapper</code> based on the configured mappings.
      *
      * @return a configured ResultSetMapper
@@ -105,13 +93,9 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
      * @return a reference to the created FieldMapping object
      */
     FieldMapping map(String propertyName) {
-        FieldMapping mapping = createMapping(propertyName)
+        FieldMapping mapping = new RuntimeFieldMapping(propertyName)
         mappings[propertyName] = mapping
         mapping
-    }
-
-    protected FieldMapping createMapping(final String propertyName) {
-        new RuntimeFieldMapping(propertyName)
     }
 
     /**
@@ -127,8 +111,7 @@ class ResultSetMapperBuilder implements ResultSetMapperDsl {
         MetaClass mappedMeta = mappedType.metaClass
         def ignoredProperties = ['class'] + ignoredNames
 
-        mappedMeta.properties
-            .findAll { MetaProperty mp -> isWritable(mappedMeta, mp.name, mp.type) }
+        mappedMeta.properties.findAll { MetaProperty mp -> isWritable(mappedMeta, mp.name, mp.type) }
             .findAll { MetaProperty mp -> !(mp.name in ignoredProperties) }
             .findAll { MetaProperty mp -> !mappings.containsKey(mp.name) }
             .each { MetaProperty mp -> map mp.name }

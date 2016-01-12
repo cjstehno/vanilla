@@ -118,7 +118,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
     }
 
     private CompiledResultSetMapperBuilder extractMapperConfig(ClassNode mappedType, ClosureExpression dslClosureX, MappingStyle mappingStyle) {
-        CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType, mappingStyle)
+        CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType)
 
         if (mappingStyle == IMPLICIT) {
             // apply the implicit mappings
