@@ -43,4 +43,12 @@ interface ResultSetMapper {
      * @return the mapped data extracted from the ResultSet row
      */
     def call(ResultSet rs)
+
+    /**
+     * Retrieves the string prefix to be applied to each field name during data extraction. Generally this should default
+     * to an empty string if not specified.
+     *
+     * @return the field name prefix.
+     */
+    String getPrefix()
 }

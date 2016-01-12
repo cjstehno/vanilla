@@ -27,6 +27,8 @@ import java.sql.ResultSet
 @SuppressWarnings(['AbstractClassWithoutAbstractMethod', 'JdbcResultSetReference'])
 abstract class CompiledResultSetMapper implements ResultSetMapper {
 
+    String prefix = ''
+
     @Override
     def mapRow(ResultSet rs, int row) {
         call(rs)

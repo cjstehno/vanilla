@@ -208,6 +208,85 @@ class InjectResultSetMapperTransformSpec extends Specification {
         obj.number == 42
     }
 
+    def 'implicit mapping with prefix'() {
+        setup:
+        def rs = resultSet {
+            columns 'blah_name', 'blah_number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo)
+                static ResultSetMapper mapper(String prefix='blah_'){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        mapper.prefix == 'blah_'
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
+    def 'explicit mapping with prefix'() {
+        setup:
+        def rs = resultSet {
+            columns 'blah_name', 'blah_number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config = {
+                    map 'name' from 'name'
+                    map 'number'
+                })
+                static ResultSetMapper mapper(String prefix=''){}
+            }
+
+            Foo.mapper('blah_')
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        mapper.prefix == 'blah_'
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
     def 'explicit mapping from multiple fields'() {
         setup:
         def rs = resultSet {

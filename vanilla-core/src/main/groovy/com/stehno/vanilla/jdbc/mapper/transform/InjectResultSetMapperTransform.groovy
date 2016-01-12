@@ -32,8 +32,7 @@ import java.sql.ResultSet
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 import static groovy.transform.TypeCheckingMode.SKIP
 import static java.lang.reflect.Modifier.*
-import static org.codehaus.groovy.ast.ClassHelper.OBJECT_TYPE
-import static org.codehaus.groovy.ast.ClassHelper.make
+import static org.codehaus.groovy.ast.ClassHelper.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
@@ -250,7 +249,21 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
         MethodNode methodNode = targetNode as MethodNode
         methodNode.modifiers = PUBLIC | STATIC | FINAL
-        methodNode.code = returnS(varX(fieldName))
+
+        Expression codeX
+        if (methodNode.parameters && methodNode.parameters[0].type == STRING_TYPE) {
+            // FIXME: implement this and compile static - may be able to remove the shared field
+//            methodNode.addAnnotation(new AnnotationNode(make(Memoized)))
+
+            codeX = ctorX(newClass(mapperClassNode), new MapExpression([
+                new MapEntryExpression(constX('prefix'), varX(methodNode.parameters[0].name))
+            ]))
+
+        } else {
+            codeX = varX(fieldName)
+        }
+
+        methodNode.code = returnS(codeX)
     }
 
     private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {

@@ -57,7 +57,13 @@ class RuntimeFieldMapping extends FieldMapping {
             arg = nameOrPosition as int
         }
 
-        extractor = { ResultSet rs -> rs."$getterName"(arg) }
+        extractor = { ResultSet rs, String prefix ->
+            if (nameOrPosition instanceof String) {
+                rs."$getterName"(prefix ? "${prefix}$arg" : arg)
+            } else {
+                rs."$getterName"(arg)
+            }
+        }
 
         this
     }

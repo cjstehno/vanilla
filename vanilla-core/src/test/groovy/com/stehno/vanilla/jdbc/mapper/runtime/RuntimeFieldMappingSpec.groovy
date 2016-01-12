@@ -34,7 +34,7 @@ class RuntimeFieldMappingSpec extends Specification {
 
         then:
         fieldMapping.extractor
-        fieldMapping.extractor.call(resultSet) == TEST_LONG
+        fieldMapping.extractor.call(resultSet,'') == TEST_LONG
     }
 
     def 'extract: string'(){
@@ -43,7 +43,7 @@ class RuntimeFieldMappingSpec extends Specification {
 
         then:
         fieldMapping.extractor
-        fieldMapping.extractor.call(resultSet) == TEST_LONG
+        fieldMapping.extractor.call(resultSet,'') == TEST_LONG
     }
 
     def 'extract: gstring'(){
@@ -55,6 +55,6 @@ class RuntimeFieldMappingSpec extends Specification {
 
         then:
         fieldMapping.extractor
-        fieldMapping.extractor.call(resultSet) == TEST_LONG
+        fieldMapping.extractor.call(resultSet,'') == TEST_LONG
     }
 }

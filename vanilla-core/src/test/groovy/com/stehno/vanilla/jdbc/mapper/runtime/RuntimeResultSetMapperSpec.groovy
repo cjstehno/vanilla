@@ -79,6 +79,50 @@ class RuntimeResultSetMapperSpec extends Specification {
         obj == dummy
     }
 
+    def 'mapper: Implicit (no config) with prefix'() {
+        setup:
+        def dummy = new DummyObjectA('one', 2, 3.14159f)
+
+        def rs = resultSet {
+            columns 'foo_alpha', 'foo_bravo', 'foo_charlie'
+            data dummy.alpha, dummy.bravo, dummy.charlie
+        }
+
+        def mapper = mapper(DummyObjectA)
+        mapper.prefix = 'foo_'
+
+        when:
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == dummy
+    }
+
+    def 'mapper: Explicit with prefix'() {
+        setup:
+        def dummy = new DummyObjectA('one', 2, 3.14159f)
+
+        def rs = resultSet {
+            columns 'foo_alpha', 'foo_xray', 'foo_charlie'
+            data dummy.alpha, dummy.bravo, dummy.charlie
+        }
+
+        def mapper = mapper(DummyObjectA, EXPLICIT){
+            map 'alpha'
+            map 'bravo' from 'xray'
+            map 'charlie' from 'charlie'
+        }
+        mapper.prefix = 'foo_'
+
+        when:
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == dummy
+    }
+
     def 'mapper: Implicit (some config)'() {
         setup:
         def dummy = new DummyObjectA('one', 2, 3.14159f)

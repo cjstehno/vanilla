@@ -16,7 +16,8 @@
 package com.stehno.vanilla.jdbc.mapper.transform
 
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
-import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.ClassHelper
+import org.codehaus.groovy.ast.expr.Expression
 
 import static com.stehno.vanilla.util.Strings.camelCaseToUnderscore
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
@@ -43,7 +44,14 @@ class CompiledFieldMapping extends FieldMapping {
 
     @Override
     protected FieldMapping extract(nameOrPosition, String getterName) {
-        extractor = callX(varX(RS), getterName, args(nameOrPosition as ConstantExpression))
+        Expression argEx = nameOrPosition as Expression
+
+        if (argEx.type == ClassHelper.STRING_TYPE) {
+            argEx = plusX(callThisX('getPrefix'), argEx)
+        }
+
+        extractor = callX(varX(RS), getterName, args(argEx))
+
         this
     }
 }
