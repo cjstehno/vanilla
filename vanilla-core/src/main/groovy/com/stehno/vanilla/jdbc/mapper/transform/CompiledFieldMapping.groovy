@@ -18,6 +18,7 @@ package com.stehno.vanilla.jdbc.mapper.transform
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.expr.Expression
+import org.codehaus.groovy.ast.expr.MethodCallExpression
 
 import static com.stehno.vanilla.util.Strings.camelCaseToUnderscore
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
@@ -52,6 +53,12 @@ class CompiledFieldMapping extends FieldMapping {
 
         extractor = callX(varX(RS), getterName, args(argEx))
 
+        this
+    }
+
+    @Override
+    protected FieldMapping extract(Object mapper) {
+        extractor = callX(mapper as MethodCallExpression, 'call', args(varX('rs')))
         this
     }
 }

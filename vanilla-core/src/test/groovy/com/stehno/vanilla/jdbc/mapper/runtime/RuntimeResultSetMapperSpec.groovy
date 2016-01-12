@@ -174,5 +174,55 @@ class RuntimeResultSetMapperSpec extends Specification {
             bankPin: person.bankPin
         )
     }
+
+    def 'nested mappers'() {
+        setup:
+        def rs = resultSet {
+            columns 'id', 'alp_id', 'alp_value'
+            data 100, 200, 'something'
+        }
+
+        when:
+        def mapper = new GroovyShell().evaluate('''
+            package testing
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import groovy.transform.ToString
+
+            class Alpha {
+                long id
+                String value
+
+                static ResultSetMapper mapper(String prefix=''){
+                    def m = RuntimeResultSetMapper.mapper(Alpha)
+                    m.prefix = prefix
+                    m
+                }
+            }
+
+            class Bravo {
+                long id
+                Alpha alpha
+
+                static ResultSetMapper mapper(){
+                    RuntimeResultSetMapper.mapper(Bravo){
+                        map 'alpha' fromMapper Alpha.mapper('alp_')
+                    }
+                }
+            }
+
+            Bravo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.id == 100
+        obj.alpha.id == 200
+        obj.alpha.value == 'something'
+    }
 }
 

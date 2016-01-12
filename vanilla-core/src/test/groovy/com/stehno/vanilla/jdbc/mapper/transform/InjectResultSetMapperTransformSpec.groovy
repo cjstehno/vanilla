@@ -541,5 +541,52 @@ class InjectResultSetMapperTransformSpec extends Specification {
         then:
         obj == dummy
     }
+
+    def 'nested mappers'() {
+        setup:
+        def rs = resultSet {
+            columns 'id', 'alp_id', 'alp_value'
+            data 100, 200, 'something'
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import groovy.transform.ToString
+
+            @ToString
+            class Alpha {
+                long id
+                String value
+
+                @InjectResultSetMapper(Alpha)
+                static ResultSetMapper mapper(String prefix=''){}
+            }
+
+            @ToString
+            class Bravo {
+                long id
+                Alpha alpha
+
+                @InjectResultSetMapper(value=Bravo, config={
+                    map 'alpha' fromMapper Alpha.mapper('alp_')
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Bravo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.id == 100
+        obj.alpha.id == 200
+        obj.alpha.value == 'something'
+    }
 }
 

@@ -174,7 +174,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
     private static void handleFroms(Map<String, Expression> methods, FieldMapping mapping) {
         def fromEntry = methods.find { k, v -> k.startsWith('from') }
         if (fromEntry) {
-            mapping."${fromEntry.key}"(fromEntry.value[0] as ConstantExpression)
+            mapping."${fromEntry.key}"(fromEntry.value[0] as Expression)
         }
     }
 

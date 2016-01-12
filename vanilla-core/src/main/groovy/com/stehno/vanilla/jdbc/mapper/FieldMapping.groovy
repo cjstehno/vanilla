@@ -289,6 +289,10 @@ abstract class FieldMapping {
         extract columnIdentifier, 'getURL'
     }
 
+    FieldMapping fromMapper(mapper){
+        extract mapper
+    }
+
     /**
      * DSL method used to apply a converter object to the field mapping.
      *
@@ -306,6 +310,8 @@ abstract class FieldMapping {
      * @return a reference to this FieldMapping
      */
     protected abstract FieldMapping extract(nameOrPosition, String getterName)
+
+    protected abstract FieldMapping extract(mapper)
 
     protected void setExtractor(Object extractor) {
         this.extractor = extractor

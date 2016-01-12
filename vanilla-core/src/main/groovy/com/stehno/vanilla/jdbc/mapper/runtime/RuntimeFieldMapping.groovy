@@ -16,6 +16,7 @@
 package com.stehno.vanilla.jdbc.mapper.runtime
 
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
+import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
 import groovy.transform.ToString
 
 import java.sql.ResultSet
@@ -63,6 +64,17 @@ class RuntimeFieldMapping extends FieldMapping {
             } else {
                 rs."$getterName"(arg)
             }
+        }
+
+        this
+    }
+
+    @Override
+    protected FieldMapping extract(mapper) {
+        affirm mapper instanceof ResultSetMapper
+
+        extractor = {ResultSet rs, String prefix->
+            mapper.call(rs)
         }
 
         this

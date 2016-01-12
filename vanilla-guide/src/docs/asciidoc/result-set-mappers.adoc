@@ -36,10 +36,17 @@ anotherPropertyName  --becomes--> another_property_name
 The extraction types are defined analogous to the getter methods provided in the `ResultSet` but with the "from" prefix in place of "get". The
 supported extractors are: `from`, `fromObject`, `fromString`, `fromBoolean`, `fromByte`, `fromShort`, `fromInt`, `fromLong`, `fromFloat`, `fromDouble`,
 `fromBytes`, `fromDate`, `fromTime`, `fromTimestamp`, `fromAsciiStream`, `fromUnicodeStream`, `fromBinaryStream`, `fromCharacterStream`,
-`fromBigDecimal`, `fromRef`, `fromBlob`, `fromClob`, `fromArray`, `fromURL`.
+`fromBigDecimal`, `fromRef`, `fromBlob`, `fromClob`, `fromArray`, `fromURL`, `fromMapper`.
 
-Each extractor takes either the database field name or position value as a required parameter and extracts the database value as you would expect from
-its name, though you may want to consult the `ResultSet` documentation for more details on the behavior of a specific getter method.
+Each extractor takes either the database field name or position value as a required parameter and extracts the database value as you would expect from its name, though you may want to consult the `ResultSet` documentation for more details on the behavior of a specific getter method.
+
+The exceptional extractor case is the `fromMapper` extractor. This extractor accepts a `ResultSetMapper` instance which will be used to extract the object for the specified target property. An example of such a mapping would be the following:
+
+....
+map 'foo' fromMapper Foo.mapper('foo_')
+....
+
+where `Foo.mapper(String)` is a mapper factory method.
 
 The conversion closures configured by the `using` clause are standard Groovy closures that are passed in one or two arguments:
 
