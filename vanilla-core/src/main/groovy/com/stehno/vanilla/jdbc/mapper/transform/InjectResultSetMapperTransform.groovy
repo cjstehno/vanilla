@@ -29,6 +29,7 @@ import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.codehaus.groovy.transform.MemoizedASTTransformation
 
+import java.lang.reflect.Modifier
 import java.sql.ResultSet
 
 import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
@@ -70,7 +71,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
                 CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(mappedType.type, dslClosureX, styleEnum)
 
-                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig)
+                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig, source)
                 source.AST.addClass(mapperClassNode)
 
                 if (targetNode instanceof MethodNode) {
@@ -185,7 +186,8 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         return "${x[0].toLowerCase()}${x[1..(-1)]}"
     }
 
-    private static ClassNode createMapperClass(final String mapperName, final CompiledResultSetMapperBuilder config) {
+    private
+    static ClassNode createMapperClass(String mapperName, CompiledResultSetMapperBuilder config, SourceUnit source) {
         ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
 
         List<MapEntryExpression> mapEntryExpressions = []
@@ -201,6 +203,13 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
             params(param(make(ResultSet), RS),),
             [] as ClassNode[],
             returnS(ctorX(newClass(config.mappedTypeNode), args(new MapExpression(mapEntryExpressions))))
+        ))
+
+        mapperClass.addConstructor(new ConstructorNode(
+            Modifier.PUBLIC,
+            params(param(STRING_TYPE, 'prefix', constX(''))),
+            [] as ClassNode[],
+            ctorSuperS(varX('prefix'))
         ))
 
         mapperClass
@@ -250,9 +259,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
         Expression codeX
         if (methodNode.parameters && methodNode.parameters[0].type == STRING_TYPE) {
-            codeX = ctorX(newClass(mapperClassNode), new MapExpression([
-                new MapEntryExpression(constX('prefix'), varX(methodNode.parameters[0].name))
-            ]))
+            codeX = ctorX(newClass(mapperClassNode), args(varX(methodNode.parameters[0].name)))
 
         } else {
             codeX = ctorX(newClass(mapperClassNode))

@@ -611,12 +611,36 @@ class InjectResultSetMapperTransformSpec extends Specification {
         ''')
 
         then:
-        println mappers[0]
-        println mappers[1]
-        println mappers[2]
         mappers[0] == mappers[1]
         mappers[0] != mappers[2]
         mappers[1] != mappers[2]
+    }
+
+    def 'mapper immutability'() {
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import java.time.format.*
+            import com.stehno.vanilla.jdbc.DummyObjectC
+
+            class Alpha {
+                String name
+                int age
+
+                @InjectResultSetMapper(Alpha)
+                static ResultSetMapper createMapper(String prefix=''){}
+            }
+
+            Alpha.createMapper()
+        ''')
+
+        mapper.prefix = 'something'
+
+        then:
+        thrown(ReadOnlyPropertyException)
     }
 }
 
