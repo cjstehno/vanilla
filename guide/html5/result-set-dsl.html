@@ -514,7 +514,7 @@ mocking of <code>ResultSet</code> interaction, which is often enough to get basi
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="groovy"><span class="predefined-type">ResultSet</span> rs = ResultSetBuilder.mapper {
+<pre class="CodeRay highlight"><code data-lang="groovy"><span class="predefined-type">ResultSet</span> rs = ResultSetBuilder.resultSet {
     columns <span class="string"><span class="delimiter">'</span><span class="content">first_name</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">last_name</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">phone_number</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">age</span><span class="delimiter">'</span></span>
     data <span class="string"><span class="delimiter">'</span><span class="content">Fred</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">Flintstone</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">555-123-9876</span><span class="delimiter">'</span></span>, <span class="integer">56</span>
     object phoneRecord
@@ -557,7 +557,7 @@ within the scope of the test mocking.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-12-06 11:06:08 CST
+Last updated 2016-01-11 08:30:12 CST
 </div>
 </div>
 </body>

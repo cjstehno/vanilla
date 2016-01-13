@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>InjectResultSetMapperTransform.groovy</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.jdbc.mapper.transform</a> &gt; <span class="el_source">InjectResultSetMapperTransform.groovy</span></div><h1>InjectResultSetMapperTransform.groovy</h1><pre class="source lang-java linenums">/*
- * Copyright (C) 2015 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ * Copyright (C) 2016 Christopher J. Stehno &lt;chris@stehno.com&gt;
  *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.stehno.vanilla.jdbc.mapper.transform
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import com.stehno.vanilla.jdbc.mapper.MappingStyle
 import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+import groovy.transform.Memoized
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -26,13 +27,15 @@ import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+import org.codehaus.groovy.transform.MemoizedASTTransformation
 
+import java.lang.reflect.Modifier
 import java.sql.ResultSet
 
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 import static groovy.transform.TypeCheckingMode.SKIP
 import static java.lang.reflect.Modifier.*
-import static org.codehaus.groovy.ast.ClassHelper.OBJECT_TYPE
-import static org.codehaus.groovy.ast.ClassHelper.make
+import static org.codehaus.groovy.ast.ClassHelper.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
@@ -43,212 +46,250 @@ import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
 @GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
 class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
-<span class="fc" id="L46">    private static final Collection&lt;String&gt; DEFAULT_IGNORED = ['metaClass', 'property'].asImmutable()</span>
+<span class="fc" id="L49">    private static final Collection&lt;String&gt; DEFAULT_IGNORED = ['metaClass', 'property'].asImmutable()</span>
 
     private static final String RS = 'rs'
     private static final String CALL = 'call'
 
     @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
     void visit(ASTNode[] nodes, SourceUnit source) {
-<span class="pc bpc" id="L53" title="3 of 6 branches missed.">        AnnotationNode annotationNode = nodes[0] as AnnotationNode</span>
-<span class="pc bpc" id="L54" title="3 of 6 branches missed.">        AnnotatedNode targetNode = nodes[1] as AnnotatedNode</span>
+<span class="pc bpc" id="L56" title="3 of 6 branches missed.">        AnnotationNode annotationNode = nodes[0] as AnnotationNode</span>
+<span class="pc bpc" id="L57" title="3 of 6 branches missed.">        AnnotatedNode targetNode = nodes[1] as AnnotatedNode</span>
 
-<span class="pc bpc" id="L56" title="5 of 10 branches missed.">        if (targetNode instanceof FieldNode || targetNode instanceof PropertyNode || targetNode instanceof MethodNode) {</span>
+<span class="pc bpc" id="L59" title="5 of 10 branches missed.">        if (targetNode instanceof FieldNode || targetNode instanceof PropertyNode || targetNode instanceof MethodNode) {</span>
             try {
-<span class="fc" id="L58">                ClassExpression mappedType = annotationNode.getMember('value') as ClassExpression</span>
-<span class="fc" id="L59">                ClosureExpression dslClosureX = annotationNode.getMember('config') as ClosureExpression</span>
-<span class="fc" id="L60">                PropertyExpression mappingStyle = annotationNode.getMember('style') as PropertyExpression</span>
-<span class="fc" id="L61">                ConstantExpression nameX = annotationNode.getMember('name') as ConstantExpression</span>
+<span class="fc" id="L61">                ClassExpression mappedType = annotationNode.getMember('value') as ClassExpression</span>
+<span class="fc" id="L62">                ClosureExpression dslClosureX = annotationNode.getMember('config') as ClosureExpression</span>
+<span class="fc" id="L63">                PropertyExpression mappingStyle = annotationNode.getMember('style') as PropertyExpression</span>
+<span class="fc" id="L64">                ConstantExpression nameX = annotationNode.getMember('name') as ConstantExpression</span>
 
-<span class="fc bfc" id="L63" title="All 2 branches covered.">                MappingStyle styleEnum = mappingStyle ? MappingStyle.valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">                MappingStyle styleEnum = mappingStyle ? MappingStyle.valueOf(mappingStyle.propertyAsString) : IMPLICIT</span>
 
-<span class="pc bpc" id="L65" title="2 of 8 branches missed.">                if (!dslClosureX &amp;&amp; styleEnum == MappingStyle.EXPLICIT) {</span>
-<span class="nc" id="L66">                    throw new IllegalArgumentException('A configuration closure must be provided for EXPLICIT mappers.')</span>
+<span class="pc bpc" id="L68" title="2 of 8 branches missed.">                if (!dslClosureX &amp;&amp; styleEnum == MappingStyle.EXPLICIT) {</span>
+<span class="nc" id="L69">                    throw new IllegalArgumentException('A configuration closure must be provided for EXPLICIT mappers.')</span>
                 }
 
-<span class="fc" id="L69">                CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(mappedType.type, dslClosureX, styleEnum)</span>
+<span class="fc" id="L72">                CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(mappedType.type, dslClosureX, styleEnum)</span>
 
-<span class="fc" id="L71">                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig)</span>
-<span class="fc" id="L72">                source.AST.addClass(mapperClassNode)</span>
+<span class="fc" id="L74">                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig, source)</span>
+<span class="fc" id="L75">                source.AST.addClass(mapperClassNode)</span>
 
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                if (targetNode instanceof MethodNode) {</span>
-<span class="fc" id="L75">                    transformMethodNode targetNode, mapperClassNode</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">                if (targetNode instanceof MethodNode) {</span>
+<span class="fc" id="L78">                    transformMethodNode targetNode, mapperClassNode, source</span>
 
-<span class="nc bnc" id="L77" title="All 2 branches missed.">                } else if (targetNode instanceof FieldNode) {</span>
-<span class="nc" id="L78">                    transformFieldNode targetNode, mapperClassNode</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                } else if (targetNode instanceof FieldNode) {</span>
+<span class="nc" id="L81">                    transformFieldNode targetNode, mapperClassNode</span>
 
-<span class="nc bnc" id="L80" title="All 2 branches missed.">                } else if (targetNode instanceof PropertyNode) {</span>
-<span class="nc" id="L81">                    transformPropertyNode targetNode, mapperClassNode</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                } else if (targetNode instanceof PropertyNode) {</span>
+<span class="nc" id="L84">                    transformPropertyNode targetNode, mapperClassNode</span>
 
                 } else {
-<span class="pc" id="L84">                    addError &quot;Unsupported application of JdbcMapper annotation for ${targetNode}&quot;, targetNode</span>
+<span class="pc" id="L87">                    addError &quot;Unsupported application of JdbcMapper annotation for ${targetNode}&quot;, targetNode</span>
                 }
 
             } catch (Exception ex) {
-<span class="nc" id="L88">                ex.printStackTrace()</span>
-<span class="pc" id="L89">                addError &quot;Problem creating mapper for ${targetNode}: ${ex.message}&quot;, targetNode</span>
+<span class="nc" id="L91">                ex.printStackTrace()</span>
+<span class="pc" id="L92">                addError &quot;Problem creating mapper for ${targetNode}: ${ex.message}&quot;, targetNode</span>
             }
 
         } else {
-<span class="pc" id="L93">            addError &quot;Invalid member type for mapper (${targetNode}) - only Fields, Properties and Methods are supported.&quot;, targetNode</span>
+<span class="pc" id="L96">            addError &quot;Invalid member type for mapper (${targetNode}) - only Fields, Properties and Methods are supported.&quot;, targetNode</span>
         }
     }
 
     private static String mapperName(ClassExpression mappedType, ConstantExpression nameX) {
-<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        return nameX ? &quot;${mappedType.type.package.name}.${nameX.value}&quot; : &quot;${mappedType.type.name}RowMapper&quot;</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        return nameX ? &quot;${mappedType.type.package.name}.${nameX.value}&quot; : &quot;${mappedType.type.name}RowMapper&quot;</span>
+    }
+
+    private Set&lt;String&gt; findMappableProperties(final ClassNode classNode) {
+<span class="fc" id="L105">        Set&lt;String&gt; names = []</span>
+
+<span class="fc" id="L107">        classNode.redirect().properties.findAll { PropertyNode n -&gt;</span>
+<span class="pc bpc" id="L108" title="21 of 30 branches missed.">            n.public &amp;&amp; !n.static &amp;&amp; !(n.name in DEFAULT_IGNORED)</span>
+        }.each { PropertyNode n -&gt;
+<span class="pc" id="L110">            names &lt;&lt; n.name</span>
+        }
+
+<span class="fc" id="L113">        classNode.redirect().methods.findAll { MethodNode n -&gt;</span>
+<span class="pc" id="L114">            isAcceptedSetter(n, DEFAULT_IGNORED)</span>
+        }.each { MethodNode n -&gt;
+<span class="pc" id="L116">            names &lt;&lt; propertyName(n.name)</span>
+        }
+
+<span class="pc" id="L119">        names</span>
     }
 
     private CompiledResultSetMapperBuilder extractMapperConfig(ClassNode mappedType, ClosureExpression dslClosureX, MappingStyle mappingStyle) {
-<span class="fc" id="L102">        CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType, mappingStyle)</span>
+<span class="fc" id="L123">        CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType)</span>
 
-<span class="fc" id="L104">        BlockStatement block = dslClosureX?.code as BlockStatement</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (mappingStyle == IMPLICIT) {</span>
+            // apply the implicit mappings
+<span class="fc" id="L127">            findMappableProperties(mappedType).each { String prop -&gt;</span>
+<span class="pc" id="L128">                mapperConfig.map(prop)</span>
+            }
+        }
 
-<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (block) {</span>
-<span class="pc" id="L107">            block.statements.findAll { st -&gt; st instanceof ExpressionStatement }.each { es -&gt;</span>
-<span class="fc" id="L108">                Expression expression = (es as ExpressionStatement).expression</span>
+        // apply any explicit configuration
+<span class="fc" id="L133">        BlockStatement block = dslClosureX?.code as BlockStatement</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (block) {</span>
+<span class="pc" id="L135">            block.statements.findAll { st -&gt; st instanceof ExpressionStatement }.each { es -&gt;</span>
+<span class="fc" id="L136">                Expression expression = (es as ExpressionStatement).expression</span>
 
-<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                if (expression instanceof MethodCallExpression) {</span>
-<span class="fc" id="L111">                    def methodXs = [:]</span>
-<span class="fc" id="L112">                    def node = expression</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">                if (expression instanceof MethodCallExpression) {</span>
+<span class="fc" id="L139">                    def methodXs = [:]</span>
+<span class="fc" id="L140">                    def node = expression</span>
 
-<span class="pc bpc" id="L114" title="1 of 6 branches missed.">                    while (node &amp;&amp; node instanceof MethodCallExpression) {</span>
-<span class="fc" id="L115">                        def mex = node as MethodCallExpression</span>
+<span class="pc bpc" id="L142" title="1 of 6 branches missed.">                    while (node &amp;&amp; node instanceof MethodCallExpression) {</span>
+<span class="fc" id="L143">                        def mex = node as MethodCallExpression</span>
 
-<span class="fc" id="L117">                        String methodName = (mex.method as ConstantExpression).text</span>
-<span class="fc" id="L118">                        methodXs[methodName] = (mex.arguments as ArgumentListExpression).expressions</span>
-<span class="fc" id="L119">                        node = (node as MethodCallExpression).objectExpression</span>
+<span class="fc" id="L145">                        String methodName = (mex.method as ConstantExpression).text</span>
+<span class="fc" id="L146">                        methodXs[methodName] = (mex.arguments as ArgumentListExpression).expressions</span>
+<span class="fc" id="L147">                        node = (node as MethodCallExpression).objectExpression</span>
                     }
 
-<span class="fc bfc" id="L122" title="All 2 branches covered.">                    if (methodXs.containsKey('ignore')) {</span>
-<span class="pc" id="L123">                        methodXs.ignore.each { mi -&gt;</span>
-<span class="pc" id="L124">                            mapperConfig.ignore((mi as ConstantExpression).text)</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">                    if (methodXs.containsKey('ignore')) {</span>
+<span class="pc" id="L151">                        methodXs.ignore.each { mi -&gt;</span>
+<span class="pc" id="L152">                            mapperConfig.ignore((mi as ConstantExpression).text)</span>
                         }
 
-<span class="pc bpc" id="L127" title="1 of 2 branches missed.">                    } else if (methodXs.containsKey('map')) {</span>
-<span class="fc" id="L128">                        def propertyNameX = (methodXs.map as List&lt;Expression&gt;)[0] as ConstantExpression</span>
-<span class="fc" id="L129">                        FieldMapping fieldMapping = mapperConfig.map(propertyNameX.value as String)</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">                    } else if (methodXs.containsKey('map')) {</span>
+<span class="fc" id="L156">                        def propertyNameX = (methodXs.map as List&lt;Expression&gt;)[0] as ConstantExpression</span>
+<span class="fc" id="L157">                        FieldMapping fieldMapping = mapperConfig.map(propertyNameX.value as String)</span>
 
-<span class="fc" id="L131">                        handleFroms methodXs, fieldMapping</span>
+<span class="fc" id="L159">                        handleFroms methodXs, fieldMapping</span>
 
-<span class="fc bfc" id="L133" title="All 2 branches covered.">                        if (methodXs.containsKey('using')) {</span>
-<span class="pc" id="L134">                            fieldMapping.using((methodXs.using as List&lt;Expression&gt;)[0] as ClosureExpression)</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                        if (methodXs.containsKey('using')) {</span>
+<span class="pc" id="L162">                            fieldMapping.using((methodXs.using as List&lt;Expression&gt;)[0] as ClosureExpression)</span>
                         }
 
                     } else {
-<span class="nc" id="L138">                        throw new IllegalArgumentException(/Mapper DSL commands must at least contain 'map' or 'ignore' calls./)</span>
+<span class="nc" id="L166">                        throw new IllegalArgumentException(/Mapper DSL commands must at least contain 'map' or 'ignore' calls./)</span>
                     }
                 }
             }
 
-        } else {
-            // implicit without DSL
-<span class="pc" id="L145">            mappedType.methods.findAll { MethodNode mn -&gt; isAcceptedSetter(mn, DEFAULT_IGNORED) }.each { MethodNode mn -&gt;</span>
-<span class="pc" id="L146">                mapperConfig.map(propertyName(mn.name))</span>
-            }
         }
 
-<span class="pc" id="L150">        mapperConfig</span>
+<span class="pc" id="L173">        mapperConfig</span>
     }
 
     @TypeChecked(SKIP)
     private static void handleFroms(Map&lt;String, Expression&gt; methods, FieldMapping mapping) {
-<span class="pc" id="L155">        def fromEntry = methods.find { k, v -&gt; k.startsWith('from') }</span>
-<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (fromEntry) {</span>
-<span class="fc" id="L157">            mapping.&quot;${fromEntry.key}&quot;(fromEntry.value[0] as ConstantExpression)</span>
+<span class="pc" id="L178">        def fromEntry = methods.find { k, v -&gt; k.startsWith('from') }</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (fromEntry) {</span>
+<span class="fc" id="L180">            mapping.&quot;${fromEntry.key}&quot;(fromEntry.value[0] as Expression)</span>
         }
     }
 
     private static String propertyName(String setterName) {
-<span class="fc" id="L162">        String x = setterName[3..(-1)]</span>
-<span class="pc" id="L163">        return &quot;${x[0].toLowerCase()}${x[1..(-1)]}&quot;</span>
+<span class="fc" id="L185">        String x = setterName[3..(-1)]</span>
+<span class="pc" id="L186">        return &quot;${x[0].toLowerCase()}${x[1..(-1)]}&quot;</span>
     }
 
-    private static ClassNode createMapperClass(final String mapperName, final CompiledResultSetMapperBuilder config) {
-<span class="fc" id="L167">        ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])</span>
+    private
+    static ClassNode createMapperClass(String mapperName, CompiledResultSetMapperBuilder config, SourceUnit source) {
+<span class="fc" id="L191">        ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])</span>
 
-<span class="fc" id="L169">        List&lt;MapEntryExpression&gt; mapEntryExpressions = []</span>
+<span class="fc" id="L193">        List&lt;MapEntryExpression&gt; mapEntryExpressions = []</span>
 
-<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (config.style == MappingStyle.IMPLICIT) {</span>
-<span class="fc" id="L172">            def ignored = DEFAULT_IGNORED + config.ignored()</span>
-
-<span class="pc" id="L174">            config.mappedTypeNode.methods.findAll { MethodNode mn -&gt; isAcceptedSetter(mn, ignored) }.each { MethodNode mn -&gt;</span>
-<span class="pc" id="L175">                implementMapping mapEntryExpressions, config.findMapping(propertyName(mn.name))</span>
-            }
-
-        } else {
-<span class="fc" id="L179">            config.mappings().each { fieldMapping -&gt;</span>
-<span class="pc" id="L180">                implementMapping mapEntryExpressions, fieldMapping</span>
-            }
+<span class="fc" id="L195">        config.mappings().each { fieldMapping -&gt;</span>
+<span class="pc" id="L196">            implementMapping mapEntryExpressions, fieldMapping</span>
         }
 
-<span class="fc" id="L184">        mapperClass.addMethod(new MethodNode(</span>
+<span class="fc" id="L199">        mapperClass.addMethod(new MethodNode(</span>
             CALL,
             PUBLIC,
             OBJECT_TYPE,
-<span class="fc" id="L188">            params(param(make(ResultSet), RS),),</span>
-<span class="fc" id="L189">            [] as ClassNode[],</span>
-<span class="fc" id="L190">            returnS(ctorX(newClass(config.mappedTypeNode), args(new MapExpression(mapEntryExpressions))))</span>
+<span class="fc" id="L203">            params(param(make(ResultSet), RS),),</span>
+<span class="fc" id="L204">            [] as ClassNode[],</span>
+<span class="fc" id="L205">            returnS(ctorX(newClass(config.mappedTypeNode), args(new MapExpression(mapEntryExpressions))))</span>
         ))
 
-<span class="pc" id="L193">        mapperClass</span>
+<span class="fc" id="L208">        mapperClass.addConstructor(new ConstructorNode(</span>
+            Modifier.PUBLIC,
+<span class="fc" id="L210">            params(param(STRING_TYPE, 'prefix', constX(''))),</span>
+<span class="fc" id="L211">            [] as ClassNode[],</span>
+<span class="fc" id="L212">            ctorSuperS(varX('prefix'))</span>
+        ))
+
+<span class="pc" id="L215">        mapperClass</span>
     }
 
     private static boolean isAcceptedSetter(final MethodNode mn, final Collection ignored) {
-<span class="pc bpc" id="L197" title="21 of 38 branches missed.">        mn.public &amp;&amp; !mn.static &amp;&amp; mn.name.startsWith('set') &amp;&amp; !(propertyName(mn.name) in ignored)</span>
+<span class="pc bpc" id="L219" title="19 of 38 branches missed.">        mn.public &amp;&amp; !mn.static &amp;&amp; mn.name.startsWith('set') &amp;&amp; !(propertyName(mn.name) in ignored)</span>
     }
 
     @TypeChecked(SKIP)
     private static void implementMapping(List&lt;MapEntryExpression&gt; mapEntryExpressions, FieldMapping fieldMapping) {
-<span class="fc" id="L202">        Expression extractorX = fieldMapping.extractor as Expression</span>
+<span class="fc" id="L224">        Expression extractorX = fieldMapping.extractor as Expression</span>
 
-<span class="fc bfc" id="L204" title="All 2 branches covered.">        if (fieldMapping.converter) {</span>
-<span class="fc" id="L205">            Expression convertX</span>
-<span class="pc bpc" id="L206" title="1 of 2 branches missed.">            if (fieldMapping.converter instanceof ClosureExpression) {</span>
-<span class="fc" id="L207">                ClosureExpression convertClosureX = fieldMapping.converter as ClosureExpression</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (fieldMapping.converter) {</span>
+<span class="fc" id="L227">            Expression convertX</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">            if (fieldMapping.converter instanceof ClosureExpression) {</span>
+<span class="fc" id="L229">                ClosureExpression convertClosureX = fieldMapping.converter as ClosureExpression</span>
 
-<span class="pc bpc" id="L209" title="1 of 2 branches missed.">                convertX = new MethodCallExpression(convertClosureX, CALL, convertClosureX.parameters.size() ? args(extractorX) : args())</span>
+<span class="fc" id="L231">                switch (convertClosureX.parameters.size()) {</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">                    case 1:</span>
+                        // 1-arg: &lt;extracted-field-value&gt;
+<span class="fc" id="L234">                        convertX = new MethodCallExpression(convertClosureX, CALL, args(extractorX))</span>
+<span class="pc" id="L235">                        break</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">                    case 2:</span>
+                        // 2-arg: &lt;extracted-field-value&gt;, &lt;result-set&gt;
+<span class="fc" id="L238">                        convertX = new MethodCallExpression(convertClosureX, CALL, args(extractorX, varX(RS)))</span>
+<span class="fc" id="L239">                        break</span>
+                    default:
+                        // no-arg
+<span class="pc" id="L242">                        convertX = new MethodCallExpression(convertClosureX, CALL, args())</span>
+                }
 
             } else {
-<span class="nc" id="L212">                throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')</span>
+<span class="nc" id="L246">                throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')</span>
             }
 
-<span class="fc" id="L215">            mapEntryExpressions &lt;&lt; new MapEntryExpression(constX(fieldMapping.propertyName), convertX)</span>
+<span class="fc" id="L249">            mapEntryExpressions &lt;&lt; new MapEntryExpression(constX(fieldMapping.propertyName), convertX)</span>
 
         } else {
-<span class="fc" id="L218">            mapEntryExpressions &lt;&lt; new MapEntryExpression(constX(fieldMapping.propertyName), extractorX)</span>
+<span class="fc" id="L252">            mapEntryExpressions &lt;&lt; new MapEntryExpression(constX(fieldMapping.propertyName), extractorX)</span>
         }
     }
 
-    private void transformMethodNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
-<span class="fc" id="L223">        String fieldName = &quot;_mapper${mapperClassNode.nameWithoutPackage}&quot;</span>
+    private void transformMethodNode(AnnotatedNode targetNode, ClassNode mapperClassNode, SourceUnit sourceUnit) {
+<span class="fc" id="L257">        MethodNode methodNode = targetNode as MethodNode</span>
+<span class="fc" id="L258">        methodNode.modifiers = PUBLIC | STATIC | FINAL</span>
 
-<span class="fc" id="L225">        targetNode.declaringClass.addField(createFieldNode(fieldName, targetNode, mapperClassNode))</span>
+<span class="fc" id="L260">        Expression codeX</span>
+<span class="pc bpc" id="L261" title="1 of 6 branches missed.">        if (methodNode.parameters &amp;&amp; methodNode.parameters[0].type == STRING_TYPE) {</span>
+<span class="fc" id="L262">            codeX = ctorX(newClass(mapperClassNode), args(varX(methodNode.parameters[0].name)))</span>
 
-<span class="fc" id="L227">        MethodNode methodNode = targetNode as MethodNode</span>
-<span class="fc" id="L228">        methodNode.modifiers = PUBLIC | STATIC | FINAL</span>
-<span class="fc" id="L229">        methodNode.code = returnS(varX(fieldName))</span>
+        } else {
+<span class="fc" id="L265">            codeX = ctorX(newClass(mapperClassNode))</span>
+        }
+
+<span class="fc" id="L268">        methodNode.code = returnS(codeX)</span>
+
+<span class="fc" id="L270">        new MemoizedASTTransformation().visit([new AnnotationNode(make(Memoized)), methodNode] as ASTNode[], sourceUnit)</span>
     }
 
     private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
-<span class="fc" id="L233">        return new FieldNode(</span>
+<span class="nc" id="L274">        return new FieldNode(</span>
             fieldName,
-<span class="fc" id="L235">            STATIC | FINAL | PRIVATE,</span>
-<span class="fc" id="L236">            ClassHelper.make(ResultSetMapper),</span>
+<span class="nc" id="L276">            STATIC | FINAL | PRIVATE,</span>
+<span class="nc" id="L277">            ClassHelper.make(ResultSetMapper),</span>
             targetNode.declaringClass,
-<span class="pc" id="L238">            ctorX(newClass(mapperClassNode))</span>
+<span class="nc" id="L279">            ctorX(newClass(mapperClassNode))</span>
         )
     }
 
     private void transformFieldNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
-<span class="nc" id="L243">        FieldNode fieldNode = targetNode as FieldNode</span>
-<span class="nc" id="L244">        fieldNode.modifiers = STATIC | FINAL | PUBLIC</span>
-<span class="nc" id="L245">        fieldNode.initialValueExpression = ctorX(newClass(mapperClassNode))</span>
-<span class="nc" id="L246">        fieldNode.type = make(ResultSetMapper)</span>
+<span class="nc" id="L284">        FieldNode fieldNode = targetNode as FieldNode</span>
+<span class="nc" id="L285">        fieldNode.modifiers = STATIC | FINAL | PUBLIC</span>
+<span class="nc" id="L286">        fieldNode.initialValueExpression = ctorX(newClass(mapperClassNode))</span>
+<span class="nc" id="L287">        fieldNode.type = make(ResultSetMapper)</span>
     }
 
     private void transformPropertyNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
-<span class="nc" id="L250">        PropertyNode propertyNode = targetNode as PropertyNode</span>
-<span class="nc" id="L251">        propertyNode.field = createFieldNode(propertyNode.name, targetNode, mapperClassNode)</span>
+<span class="nc" id="L291">        PropertyNode propertyNode = targetNode as PropertyNode</span>
+<span class="nc" id="L292">        propertyNode.field = createFieldNode(propertyNode.name, targetNode, mapperClassNode)</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
