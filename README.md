@@ -4,6 +4,8 @@
 
 The Vanilla library is my attempt to bring together a bunch of my reusable and interesting code in a manner that allows simple reuse without a lot of external dependencies. 
 
+[![Build Status](https://drone.io/github.com/cjstehno/vanilla/status.png)](https://drone.io/github.com/cjstehno/vanilla/latest)
+
 ## Artifacts
 
 They are available via the JCenter repository:

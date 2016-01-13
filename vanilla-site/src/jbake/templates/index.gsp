@@ -25,4 +25,8 @@
 compile 'com.stehno.vanilla:vanilla-core:0.2.0'
 	</pre>
 
+    <h2>Status</h2>
+
+    Current Build Status: <a href="https://drone.io/github.com/cjstehno/vanilla/latest"><img src="https://drone.io/github.com/cjstehno/vanilla/status.png"/></a>
+
 <%include "footer.gsp"%>
