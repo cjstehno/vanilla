@@ -15,8 +15,6 @@
  */
 package com.stehno.vanilla.test
 
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
 import org.junit.Test
 
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
@@ -159,6 +157,40 @@ class PropertyRandomizerTest {
         }
     }
 
+    @Test void '(randomizer * 0) should return []'(){
+        def rando = randomize(Pet)
+
+        def nothing = rando * 0
+        assert nothing != null
+        assert nothing instanceof Collection
+        assert nothing.empty
+
+        nothing = rando.times(0)
+        assert nothing != null
+        assert nothing instanceof Collection
+        assert nothing.empty
+    }
+
+    @Test void 'randomize immutable'(){
+        def rando = randomize(Rock)
+
+        Rock rock = rando.one()
+        assert rock
+        assert rock.description
+        assert rock.weight
+    }
+
+    @Test void 'randomize immutable (defined)'(){
+        def rando = randomize(Rock){
+            typeRandomizer Rock, { new Rock('adfasdfasdf', 100.234d)}
+        }
+
+        Rock rock = rando.one()
+        assert rock
+        assert rock.description
+        assert rock.weight
+    }
+
     static void assertPopulated(Object obj, List<String> ignoredProperties = [], List<Class> ignoredTypes = [Class]) {
         obj.metaClass.properties.each { p ->
             if (!(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
@@ -168,23 +200,4 @@ class PropertyRandomizerTest {
     }
 }
 
-@ToString(includeNames = true) @EqualsAndHashCode
-class Person {
-    String name
-    int age
-    Date birthDate
-    Pet pet
-    String bankPin
 
-    String[] children
-
-    int getChildCount(){
-        children?.size() ?: 0
-    }
-}
-
-@ToString
-class Pet {
-    String name
-    int age
-}

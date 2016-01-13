@@ -16,23 +16,24 @@
 package com.stehno.vanilla.jdbc.mapper.transform
 
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
-import com.stehno.vanilla.jdbc.mapper.MappingStyle
-import com.stehno.vanilla.jdbc.mapper.ResultSetMapperBuilder
+import com.stehno.vanilla.jdbc.mapper.ResultSetMapperDslSupport
+import groovy.transform.CompileStatic
 import org.codehaus.groovy.ast.ClassNode
 
 /**
  * Compile-time-based extension of the <code>ResultSetMapperBuilder</code> class. This class should not be used externally.
  */
-class CompiledResultSetMapperBuilder extends ResultSetMapperBuilder {
+@CompileStatic
+class CompiledResultSetMapperBuilder implements ResultSetMapperDslSupport {
 
     final ClassNode mappedTypeNode
 
-    CompiledResultSetMapperBuilder(ClassNode mappedTypeNode, MappingStyle style) {
-        super(mappedTypeNode.typeClass, style)
+    CompiledResultSetMapperBuilder(ClassNode mappedTypeNode) {
         this.mappedTypeNode = mappedTypeNode
     }
 
-    protected FieldMapping createMapping(final String propertyName) {
+    @Override
+    FieldMapping createFieldMapping(String propertyName) {
         new CompiledFieldMapping(propertyName)
     }
 }

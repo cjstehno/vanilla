@@ -79,6 +79,50 @@ class RuntimeResultSetMapperSpec extends Specification {
         obj == dummy
     }
 
+    def 'mapper: Implicit (no config) with prefix'() {
+        setup:
+        def dummy = new DummyObjectA('one', 2, 3.14159f)
+
+        def rs = resultSet {
+            columns 'foo_alpha', 'foo_bravo', 'foo_charlie'
+            data dummy.alpha, dummy.bravo, dummy.charlie
+        }
+
+        def mapper = mapper(DummyObjectA)
+        mapper.prefix = 'foo_'
+
+        when:
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == dummy
+    }
+
+    def 'mapper: Explicit with prefix'() {
+        setup:
+        def dummy = new DummyObjectA('one', 2, 3.14159f)
+
+        def rs = resultSet {
+            columns 'foo_alpha', 'foo_xray', 'foo_charlie'
+            data dummy.alpha, dummy.bravo, dummy.charlie
+        }
+
+        def mapper = mapper(DummyObjectA, EXPLICIT){
+            map 'alpha'
+            map 'bravo' from 'xray'
+            map 'charlie' from 'charlie'
+        }
+        mapper.prefix = 'foo_'
+
+        when:
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj == dummy
+    }
+
     def 'mapper: Implicit (some config)'() {
         setup:
         def dummy = new DummyObjectA('one', 2, 3.14159f)
@@ -129,6 +173,56 @@ class RuntimeResultSetMapperSpec extends Specification {
             birthDate: { act -> person.birthDate.format('yyyy-MM-dd') == act.format('yyyy-MM-dd') },
             bankPin: person.bankPin
         )
+    }
+
+    def 'nested mappers'() {
+        setup:
+        def rs = resultSet {
+            columns 'id', 'alp_id', 'alp_value'
+            data 100, 200, 'something'
+        }
+
+        when:
+        def mapper = new GroovyShell().evaluate('''
+            package testing
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import groovy.transform.ToString
+
+            class Alpha {
+                long id
+                String value
+
+                static ResultSetMapper mapper(String prefix=''){
+                    def m = RuntimeResultSetMapper.mapper(Alpha)
+                    m.prefix = prefix
+                    m
+                }
+            }
+
+            class Bravo {
+                long id
+                Alpha alpha
+
+                static ResultSetMapper mapper(){
+                    RuntimeResultSetMapper.mapper(Bravo){
+                        map 'alpha' fromMapper Alpha.mapper('alp_')
+                    }
+                }
+            }
+
+            Bravo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.id == 100
+        obj.alpha.id == 200
+        obj.alpha.value == 'something'
     }
 }
 

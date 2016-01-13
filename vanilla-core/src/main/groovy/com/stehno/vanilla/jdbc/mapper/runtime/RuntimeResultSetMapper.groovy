@@ -31,6 +31,8 @@ import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 @TypeChecked
 class RuntimeResultSetMapper implements ResultSetMapper {
 
+    String prefix = ''
+
     private final Class mappedType
     private final Map<String, FieldMapping> mappings
     private final Collection<String> ignored = []
@@ -60,7 +62,8 @@ class RuntimeResultSetMapper implements ResultSetMapper {
      * @param closure the DSL closure
      * @return the configured ResultSetMapper
      */
-    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT, @DelegatesTo(ResultSetMapperDsl) Closure closure) {
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT,
+                                  @DelegatesTo(ResultSetMapperDsl) Closure closure) {
         ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)
 
         if (closure) {
@@ -91,8 +94,9 @@ class RuntimeResultSetMapper implements ResultSetMapper {
         mappedType.newInstance(instanceProps)
     }
 
-    private static void applyMapping(final ResultSet rs, final FieldMapping mapping, final Map<String, Object> instanceProps) {
-        def mappedValue = (mapping.extractor as Closure).call(rs)
+    private void applyMapping(final ResultSet rs, final FieldMapping mapping, final Map<String, Object> instanceProps) {
+        def mappedValue = (mapping.extractor as Closure).call(rs, prefix)
+
         Closure converter = mapping.converter as Closure
         if (converter) {
             int argCount = converter.maximumNumberOfParameters

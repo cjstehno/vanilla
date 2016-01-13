@@ -165,6 +165,276 @@ class InjectResultSetMapperTransformSpec extends Specification {
 
         then:
         obj == objectC
+        obj.name == 'Larry'
+    }
+
+    def 'explicit mapping in same object'() {
+        setup:
+        def rs = resultSet {
+            columns 'name', 'number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config={
+                    map 'name'
+                    map 'number'
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
+    def 'implicit mapping with prefix'() {
+        setup:
+        def rs = resultSet {
+            columns 'blah_name', 'blah_number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo)
+                static ResultSetMapper mapper(String prefix='blah_'){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        mapper.prefix == 'blah_'
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
+    def 'explicit mapping with prefix'() {
+        setup:
+        def rs = resultSet {
+            columns 'blah_name', 'blah_number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config = {
+                    map 'name' from 'name'
+                    map 'number'
+                })
+                static ResultSetMapper mapper(String prefix=''){}
+            }
+
+            Foo.mapper('blah_')
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        mapper.prefix == 'blah_'
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
+    def 'explicit mapping from multiple fields'() {
+        setup:
+        def rs = resultSet {
+            columns 'first_name', 'last_name', 'number'
+            data 'Inigo', 'Montoya', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config={
+                    map 'name' from 'first_name' using { fn, rs-> "$fn ${rs.getString('last_name')}"}
+                    map 'number'
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'Inigo Montoya'
+        obj.number == 42
+    }
+
+    def 'explicit mapping of generated property from multiple fields'() {
+        setup:
+        def rs = resultSet {
+            columns 'first_name', 'last_name', 'number'
+            data 'Inigo', 'Montoya', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.MappingStyle
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            import static com.stehno.vanilla.jdbc.mapper.MappingStyle.EXPLICIT
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(value=Foo, style=EXPLICIT, config={
+                    map 'name' from 'first_name' using { fn, rs-> "$fn ${rs.getString('last_name')}"}
+                    map 'number'
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'Inigo Montoya'
+        obj.number == 42
+    }
+
+    def 'implicit mapping in same object'() {
+        setup:
+        def rs = resultSet {
+            columns 'name', 'number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import groovy.transform.CompileStatic
+
+            class Foo {
+                String name
+                int number
+
+                @InjectResultSetMapper(Foo)
+                static ResultSetMapper mapper(){}
+            }
+
+            Foo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'something'
+        obj.number == 42
+    }
+
+    def 'implicit mapping in external object'() {
+        setup:
+        def rs = resultSet {
+            columns 'name', 'number'
+            data 'something', 42
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+
+            class Foo {
+                String name
+                int number
+            }
+
+            class FooMappers {
+                @InjectResultSetMapper(Foo)
+                static ResultSetMapper mapper(){}
+            }
+
+            FooMappers.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.name == 'something'
+        obj.number == 42
     }
 
     def 'explicit mapper'() {
@@ -270,6 +540,107 @@ class InjectResultSetMapperTransformSpec extends Specification {
 
         then:
         obj == dummy
+    }
+
+    def 'nested mappers'() {
+        setup:
+        def rs = resultSet {
+            columns 'id', 'alp_id', 'alp_value'
+            data 100, 200, 'something'
+        }
+
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import groovy.transform.ToString
+
+            @ToString
+            class Alpha {
+                long id
+                String value
+
+                @InjectResultSetMapper(Alpha)
+                static ResultSetMapper mapper(String prefix=''){}
+            }
+
+            @ToString
+            class Bravo {
+                long id
+                Alpha alpha
+
+                @InjectResultSetMapper(value=Bravo, config={
+                    map 'alpha' fromMapper Alpha.mapper('alp_')
+                })
+                static ResultSetMapper mapper(){}
+            }
+
+            Bravo.mapper()
+        ''')
+
+        rs.next()
+        def obj = mapper(rs)
+
+        then:
+        obj
+        obj.id == 100
+        obj.alpha.id == 200
+        obj.alpha.value == 'something'
+    }
+
+    def 'memoized mappers'() {
+        when:
+        def mappers = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import java.time.format.*
+            import com.stehno.vanilla.jdbc.DummyObjectC
+
+            class Alpha {
+                String name
+                int age
+
+                @InjectResultSetMapper(Alpha)
+                static ResultSetMapper createMapper(String prefix=''){}
+            }
+
+            [Alpha.createMapper(), Alpha.createMapper(), Alpha.createMapper('a_')]
+        ''')
+
+        then:
+        mappers[0] == mappers[1]
+        mappers[0] != mappers[2]
+        mappers[1] != mappers[2]
+    }
+
+    def 'mapper immutability'() {
+        when:
+        def mapper = shell.evaluate('''
+            package testing
+
+            import com.stehno.vanilla.jdbc.mapper.annotation.InjectResultSetMapper
+            import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+            import java.time.format.*
+            import com.stehno.vanilla.jdbc.DummyObjectC
+
+            class Alpha {
+                String name
+                int age
+
+                @InjectResultSetMapper(Alpha)
+                static ResultSetMapper createMapper(String prefix=''){}
+            }
+
+            Alpha.createMapper()
+        ''')
+
+        mapper.prefix = 'something'
+
+        then:
+        thrown(ReadOnlyPropertyException)
     }
 }
 

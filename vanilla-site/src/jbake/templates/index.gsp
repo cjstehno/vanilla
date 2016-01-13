@@ -13,7 +13,7 @@
 
 	<blockquote>"having no special or extra features; ordinary or standard."</blockquote>
 
-	<p>The Vanilla API is my attempt to bring together a bunch of my reusable and interesting code in a manner that allows simple reuse
+	<p>The Vanilla library is my attempt to bring together a bunch of my reusable and interesting code in a manner that allows simple reuse
 	without a lot of external dependencies.</p>
 
 	<h2>Usage</h2>
@@ -22,7 +22,11 @@
 
 	<pre>
 // for Gradle builds
-compile 'com.stehno.vanilla:vanilla-core:0.1.0'
+compile 'com.stehno.vanilla:vanilla-core:0.2.0'
 	</pre>
+
+    <h2>Status</h2>
+
+    Current Build Status: <a href="https://drone.io/github.com/cjstehno/vanilla/latest"><img src="https://drone.io/github.com/cjstehno/vanilla/status.png"/></a>
 
 <%include "footer.gsp"%>

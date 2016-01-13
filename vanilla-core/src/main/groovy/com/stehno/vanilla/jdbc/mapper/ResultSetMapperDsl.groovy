@@ -36,3 +36,4 @@ interface ResultSetMapperDsl {
      */
     void ignore(String... propertyNames)
 }
+

@@ -16,6 +16,7 @@
 package com.stehno.vanilla.jdbc.mapper.runtime
 
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
+import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
 import groovy.transform.ToString
 
 import java.sql.ResultSet
@@ -48,8 +49,34 @@ class RuntimeFieldMapping extends FieldMapping {
 
     @Override
     protected FieldMapping extract(final nameOrPosition, final String getterName) {
-        affirm nameOrPosition instanceof String || nameOrPosition instanceof Integer
-        extractor = { ResultSet rs -> rs."$getterName"(nameOrPosition) }
+        affirm nameOrPosition instanceof String || nameOrPosition instanceof GString || nameOrPosition instanceof Integer
+
+        def arg
+        if (nameOrPosition instanceof String || nameOrPosition instanceof GString) {
+            arg = nameOrPosition as String
+        } else {
+            arg = nameOrPosition as int
+        }
+
+        extractor = { ResultSet rs, String prefix ->
+            if (nameOrPosition instanceof String) {
+                rs."$getterName"(prefix ? "${prefix}$arg" : arg)
+            } else {
+                rs."$getterName"(arg)
+            }
+        }
+
+        this
+    }
+
+    @Override
+    protected FieldMapping extract(mapper) {
+        affirm mapper instanceof ResultSetMapper
+
+        extractor = {ResultSet rs, String prefix->
+            mapper.call(rs)
+        }
+
         this
     }
 }

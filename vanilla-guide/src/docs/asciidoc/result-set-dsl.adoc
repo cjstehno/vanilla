@@ -6,7 +6,7 @@ mocking of `ResultSet` interaction, which is often enough to get basic unit test
 
 [source,groovy]
 ----
-ResultSet rs = ResultSetBuilder.mapper {
+ResultSet rs = ResultSetBuilder.resultSet {
     columns 'first_name', 'last_name', 'phone_number', 'age'
     data 'Fred', 'Flintstone', '555-123-9876', 56
     object phoneRecord

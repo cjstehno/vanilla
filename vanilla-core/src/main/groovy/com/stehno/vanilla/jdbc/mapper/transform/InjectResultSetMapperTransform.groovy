@@ -18,6 +18,7 @@ package com.stehno.vanilla.jdbc.mapper.transform
 import com.stehno.vanilla.jdbc.mapper.FieldMapping
 import com.stehno.vanilla.jdbc.mapper.MappingStyle
 import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+import groovy.transform.Memoized
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -26,13 +27,15 @@ import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.AbstractASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+import org.codehaus.groovy.transform.MemoizedASTTransformation
 
+import java.lang.reflect.Modifier
 import java.sql.ResultSet
 
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
 import static groovy.transform.TypeCheckingMode.SKIP
 import static java.lang.reflect.Modifier.*
-import static org.codehaus.groovy.ast.ClassHelper.OBJECT_TYPE
-import static org.codehaus.groovy.ast.ClassHelper.make
+import static org.codehaus.groovy.ast.ClassHelper.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
 import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
@@ -60,7 +63,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
                 PropertyExpression mappingStyle = annotationNode.getMember('style') as PropertyExpression
                 ConstantExpression nameX = annotationNode.getMember('name') as ConstantExpression
 
-                MappingStyle styleEnum = mappingStyle ? MappingStyle.valueOf(mappingStyle.propertyAsString) : MappingStyle.IMPLICIT
+                MappingStyle styleEnum = mappingStyle ? MappingStyle.valueOf(mappingStyle.propertyAsString) : IMPLICIT
 
                 if (!dslClosureX && styleEnum == MappingStyle.EXPLICIT) {
                     throw new IllegalArgumentException('A configuration closure must be provided for EXPLICIT mappers.')
@@ -68,11 +71,11 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
                 CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(mappedType.type, dslClosureX, styleEnum)
 
-                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig)
+                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig, source)
                 source.AST.addClass(mapperClassNode)
 
                 if (targetNode instanceof MethodNode) {
-                    transformMethodNode targetNode, mapperClassNode
+                    transformMethodNode targetNode, mapperClassNode, source
 
                 } else if (targetNode instanceof FieldNode) {
                     transformFieldNode targetNode, mapperClassNode
@@ -98,11 +101,36 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         return nameX ? "${mappedType.type.package.name}.${nameX.value}" : "${mappedType.type.name}RowMapper"
     }
 
+    private Set<String> findMappableProperties(final ClassNode classNode) {
+        Set<String> names = []
+
+        classNode.redirect().properties.findAll { PropertyNode n ->
+            n.public && !n.static && !(n.name in DEFAULT_IGNORED)
+        }.each { PropertyNode n ->
+            names << n.name
+        }
+
+        classNode.redirect().methods.findAll { MethodNode n ->
+            isAcceptedSetter(n, DEFAULT_IGNORED)
+        }.each { MethodNode n ->
+            names << propertyName(n.name)
+        }
+
+        names
+    }
+
     private CompiledResultSetMapperBuilder extractMapperConfig(ClassNode mappedType, ClosureExpression dslClosureX, MappingStyle mappingStyle) {
-        CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType, mappingStyle)
+        CompiledResultSetMapperBuilder mapperConfig = new CompiledResultSetMapperBuilder(mappedType)
 
+        if (mappingStyle == IMPLICIT) {
+            // apply the implicit mappings
+            findMappableProperties(mappedType).each { String prop ->
+                mapperConfig.map(prop)
+            }
+        }
+
+        // apply any explicit configuration
         BlockStatement block = dslClosureX?.code as BlockStatement
-
         if (block) {
             block.statements.findAll { st -> st instanceof ExpressionStatement }.each { es ->
                 Expression expression = (es as ExpressionStatement).expression
@@ -140,11 +168,6 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
                 }
             }
 
-        } else {
-            // implicit without DSL
-            mappedType.methods.findAll { MethodNode mn -> isAcceptedSetter(mn, DEFAULT_IGNORED) }.each { MethodNode mn ->
-                mapperConfig.map(propertyName(mn.name))
-            }
         }
 
         mapperConfig
@@ -154,7 +177,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
     private static void handleFroms(Map<String, Expression> methods, FieldMapping mapping) {
         def fromEntry = methods.find { k, v -> k.startsWith('from') }
         if (fromEntry) {
-            mapping."${fromEntry.key}"(fromEntry.value[0] as ConstantExpression)
+            mapping."${fromEntry.key}"(fromEntry.value[0] as Expression)
         }
     }
 
@@ -163,22 +186,14 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         return "${x[0].toLowerCase()}${x[1..(-1)]}"
     }
 
-    private static ClassNode createMapperClass(final String mapperName, final CompiledResultSetMapperBuilder config) {
+    private
+    static ClassNode createMapperClass(String mapperName, CompiledResultSetMapperBuilder config, SourceUnit source) {
         ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
 
         List<MapEntryExpression> mapEntryExpressions = []
 
-        if (config.style == MappingStyle.IMPLICIT) {
-            def ignored = DEFAULT_IGNORED + config.ignored()
-
-            config.mappedTypeNode.methods.findAll { MethodNode mn -> isAcceptedSetter(mn, ignored) }.each { MethodNode mn ->
-                implementMapping mapEntryExpressions, config.findMapping(propertyName(mn.name))
-            }
-
-        } else {
-            config.mappings().each { fieldMapping ->
-                implementMapping mapEntryExpressions, fieldMapping
-            }
+        config.mappings().each { fieldMapping ->
+            implementMapping mapEntryExpressions, fieldMapping
         }
 
         mapperClass.addMethod(new MethodNode(
@@ -188,6 +203,13 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
             params(param(make(ResultSet), RS),),
             [] as ClassNode[],
             returnS(ctorX(newClass(config.mappedTypeNode), args(new MapExpression(mapEntryExpressions))))
+        ))
+
+        mapperClass.addConstructor(new ConstructorNode(
+            Modifier.PUBLIC,
+            params(param(STRING_TYPE, 'prefix', constX(''))),
+            [] as ClassNode[],
+            ctorSuperS(varX('prefix'))
         ))
 
         mapperClass
@@ -206,7 +228,19 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
             if (fieldMapping.converter instanceof ClosureExpression) {
                 ClosureExpression convertClosureX = fieldMapping.converter as ClosureExpression
 
-                convertX = new MethodCallExpression(convertClosureX, CALL, convertClosureX.parameters.size() ? args(extractorX) : args())
+                switch (convertClosureX.parameters.size()) {
+                    case 1:
+                        // 1-arg: <extracted-field-value>
+                        convertX = new MethodCallExpression(convertClosureX, CALL, args(extractorX))
+                        break
+                    case 2:
+                        // 2-arg: <extracted-field-value>, <result-set>
+                        convertX = new MethodCallExpression(convertClosureX, CALL, args(extractorX, varX(RS)))
+                        break
+                    default:
+                        // no-arg
+                        convertX = new MethodCallExpression(convertClosureX, CALL, args())
+                }
 
             } else {
                 throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')
@@ -219,14 +253,21 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         }
     }
 
-    private void transformMethodNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
-        String fieldName = "_mapper${mapperClassNode.nameWithoutPackage}"
-
-        targetNode.declaringClass.addField(createFieldNode(fieldName, targetNode, mapperClassNode))
-
+    private void transformMethodNode(AnnotatedNode targetNode, ClassNode mapperClassNode, SourceUnit sourceUnit) {
         MethodNode methodNode = targetNode as MethodNode
         methodNode.modifiers = PUBLIC | STATIC | FINAL
-        methodNode.code = returnS(varX(fieldName))
+
+        Expression codeX
+        if (methodNode.parameters && methodNode.parameters[0].type == STRING_TYPE) {
+            codeX = ctorX(newClass(mapperClassNode), args(varX(methodNode.parameters[0].name)))
+
+        } else {
+            codeX = ctorX(newClass(mapperClassNode))
+        }
+
+        methodNode.code = returnS(codeX)
+
+        new MemoizedASTTransformation().visit([new AnnotationNode(make(Memoized)), methodNode] as ASTNode[], sourceUnit)
     }
 
     private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {

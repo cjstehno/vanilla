@@ -16,14 +16,25 @@
 package com.stehno.vanilla.jdbc.mapper.transform
 
 import com.stehno.vanilla.jdbc.mapper.ResultSetMapper
+import groovy.transform.CompileStatic
 
 import java.sql.ResultSet
 
 /**
  * Abstract base class for ResultSetMapper implementations created using the compiled (AST) version of the DSL.
  */
+@CompileStatic
 @SuppressWarnings(['AbstractClassWithoutAbstractMethod', 'JdbcResultSetReference'])
 abstract class CompiledResultSetMapper implements ResultSetMapper {
+
+    private final String prefix
+
+    protected CompiledResultSetMapper(final String prefix = '') {
+        this.prefix = prefix
+    }
+
+    @Override
+    String getPrefix() { prefix }
 
     @Override
     def mapRow(ResultSet rs, int row) {

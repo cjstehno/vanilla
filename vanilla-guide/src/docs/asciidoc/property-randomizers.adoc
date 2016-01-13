@@ -22,7 +22,7 @@ two arguments to the `Closure`:
 
 * If no arguments are specified, the returned value must be built using external code
 * If one argument is specified, it will be the `Random` instance used by the randomizer for generating random data.
-* If two arguments are passed in, the first will be the `Random` as above, and the second will be the instance of the target object being populated.
+* If two arguments are passed in, the first will be the `Random` as above, and the second will be the map of properties which will be used to populate the target object.
 
 The allowed builder methods are:
 
