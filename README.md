@@ -42,4 +42,4 @@ To publish the web site (after full build with documentation - see above):
 
 To publish the built artifacts:
 
-    ./gradle bintrayUpload -Pbintray-user=USERNAME -Pbintray-key=USER_KEY
+    ./gradle bintrayUpload -PbintrayUser=USERNAME -PbintrayKey=USER_KEY
