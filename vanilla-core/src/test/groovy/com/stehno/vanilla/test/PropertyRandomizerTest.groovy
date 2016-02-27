@@ -18,8 +18,7 @@ package com.stehno.vanilla.test
 import org.junit.Test
 
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
-import static com.stehno.vanilla.test.Randomizers.forArray
-import static com.stehno.vanilla.test.Randomizers.forString
+import static com.stehno.vanilla.test.Randomizers.*
 
 class PropertyRandomizerTest {
 
@@ -47,10 +46,10 @@ class PropertyRandomizerTest {
         def rando = randomize(Person)
             .ignoringProperties('bankPin')
             .typeRandomizers(
-                (Date): { new Date() },
-                (Pet): { randomize(Pet).one() },
-                (String[]): forArray(forString())
-            )
+            (Date): { new Date() },
+            (Pet): { randomize(Pet).one() },
+            (String[]): forArray(forString())
+        )
             .propertyRandomizers(name: { 'FixedValue' })
 
         def one = rando.one()
@@ -100,17 +99,17 @@ class PropertyRandomizerTest {
         }
     }
 
-    @Test void 'randomize: simple type'(){
+    @Test void 'randomize: simple type'() {
         def rando = randomize(String)
 
         def one = rando.one()
-        assert one
+        assert one != null
 
         def three = rando * 3
         assert three.size() == 3
     }
 
-    @Test void 'conversion to Map'(){
+    @Test void 'conversion to Map'() {
         def rando = randomize(Person) {
             ignoringProperties 'bankPin'
             typeRandomizers(
@@ -124,12 +123,12 @@ class PropertyRandomizerTest {
         def one = rando.one()
         def map = one as Map
 
-        map.each {k,v->
+        map.each { k, v ->
             assert one[k] == v
         }
     }
 
-    @Test void 'randomizer: using PropertyRandomizer as typeRandomizer'(){
+    @Test void 'randomizer: using PropertyRandomizer as typeRandomizer'() {
         def rando = randomize(Person) {
             ignoringProperties 'bankPin'
             typeRandomizers(
@@ -158,7 +157,7 @@ class PropertyRandomizerTest {
         }
     }
 
-    @Test void '(randomizer * 0) should return []'(){
+    @Test void '(randomizer * 0) should return []'() {
         def rando = randomize(Pet)
 
         def nothing = rando * 0
@@ -172,8 +171,13 @@ class PropertyRandomizerTest {
         assert nothing.empty
     }
 
-    @Test void 'randomize immutable'(){
-        def rando = randomize(Rock)
+    @Test void 'randomize immutable'() {
+        def rando = randomize(Rock) {
+            propertyRandomizers([
+                description: forString(1..10),
+                weight     : forDouble(1d..100d)
+            ])
+        }
 
         Rock rock = rando.one()
         assert rock
@@ -181,9 +185,9 @@ class PropertyRandomizerTest {
         assert rock.weight
     }
 
-    @Test void 'randomize immutable (defined)'(){
-        def rando = randomize(Rock){
-            typeRandomizer Rock, { new Rock('adfasdfasdf', 100.234d)}
+    @Test void 'randomize immutable (defined)'() {
+        def rando = randomize(Rock) {
+            typeRandomizer Rock, { new Rock('adfasdfasdf', 100.234d) }
         }
 
         Rock rock = rando.one()

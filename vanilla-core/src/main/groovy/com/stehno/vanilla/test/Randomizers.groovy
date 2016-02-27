@@ -15,14 +15,19 @@
  */
 package com.stehno.vanilla.test
 
+import groovy.transform.TypeChecked
+
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+
+import static groovy.transform.TypeCheckingMode.SKIP
 
 /**
  * A collection of useful randomizers for use with the PropertyRandomizer. All of the methods return Closures which will generate random values
  * when called.
  */
+@TypeChecked
 class Randomizers {
 
     private static final String CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -47,7 +52,7 @@ class Randomizers {
     static <T> Closure<List<T>> forList(IntRange size = 0..10, Closure<T> valueRandomizer) {
         return { Random r, inst ->
             List<T> list = []
-            nextInt(r, size.from, size.to).times {
+            nextInt(r, size.from as int, size.to as int).times {
                 if (valueRandomizer.maximumNumberOfParameters > 1) {
                     list << valueRandomizer.call(r, inst)
                 } else {
@@ -68,7 +73,7 @@ class Randomizers {
     static <T> Closure<Set<T>> forSet(IntRange size = 0..10, Closure<T> valueRandomizer) {
         return { Random r, inst ->
             Set<T> coll = [] as Set<T>
-            nextInt(r, size.from, size.to).times {
+            nextInt(r, size.from as int, size.to as int).times {
                 if (valueRandomizer.maximumNumberOfParameters > 1) {
                     coll << valueRandomizer.call(r, inst)
                 } else {
@@ -89,14 +94,14 @@ class Randomizers {
     static <T> Closure<T[]> forArray(IntRange size = 0..10, Closure<T> valueRandomizer) {
         return { Random r, inst ->
             List<T> coll = []
-            nextInt(r, size.from, size.to).times {
+            nextInt(r, size.from as int, size.to as int).times {
                 if (valueRandomizer.maximumNumberOfParameters > 1) {
                     coll << valueRandomizer.call(r, inst)
                 } else {
                     coll << valueRandomizer.call(r)
                 }
             }
-            coll.toArray()
+            coll.toArray() as T[]
         }
     }
 
@@ -109,7 +114,7 @@ class Randomizers {
     static Closure<String> forString(IntRange size = (0..10)) {
         return { Random rng ->
             def chars = []
-            nextInt(rng, size.from, size.to).times {
+            nextInt(rng, size.from as int, size.to as int).times {
                 chars << CHARS[rng.nextInt(CHARS.size())]
             }
             chars.join('')
@@ -124,7 +129,7 @@ class Randomizers {
      */
     static Closure<Integer> forInteger(IntRange range = (Integer.MIN_VALUE..Integer.MAX_VALUE)) {
         return { Random rng ->
-            range ? nextInt(rng, range.from, range.to) : rng.nextInt()
+            range ? nextInt(rng, range.from as int, range.to as int) : rng.nextInt()
         }
     }
 
@@ -172,7 +177,7 @@ class Randomizers {
      */
     static Closure<byte[]> forByteArray(IntRange count = 0..10) {
         return { Random r ->
-            byte[] bytes = new byte[nextInt(r, count.from, count.to)]
+            byte[] bytes = new byte[nextInt(r, count.from as int, count.to as int)]
             r.nextBytes(bytes)
             bytes
         }
@@ -243,6 +248,7 @@ class Randomizers {
      * @param e the enum
      * @return the enum-generating closure
      */
+    @TypeChecked(SKIP)
     static <T> Closure<T> forEnum(T e) {
         return { Random rng ->
             def vals = e.values()
@@ -313,7 +319,7 @@ class Randomizers {
         }
     }
 
-    private static int nextShort(Random r, short min, short max) {
+    private static short nextShort(Random r, short min, short max) {
         nextDouble(r, min, max) as short
     }
 
@@ -321,7 +327,7 @@ class Randomizers {
         nextDouble(r, min, max) as float
     }
 
-    private static int nextInt(Random r, int min, int max) {
+    private static Integer nextInt(Random r, int min, int max) {
         nextDouble(r, min, max) as int
     }
 

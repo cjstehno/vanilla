@@ -28,14 +28,11 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * An example usage, would be similar to the following:
  *
  * <pre><code>
- * def rando = randomize(Person){
- *     typeRandomizers(
+ * def rando = randomize(Person){*     typeRandomizers(
  *         (Date):{ new Date() },
- *         (Pet): { randomize(Pet).one() }
- *     )
+ *         (Pet): { randomize(Pet).one() }*     )
  *
- * }
- *
+ *}*
  * def instance = rando.one()
  * </code></pre>
  *
