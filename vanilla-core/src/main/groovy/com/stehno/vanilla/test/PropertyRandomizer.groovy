@@ -28,11 +28,14 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * An example usage, would be similar to the following:
  *
  * <pre><code>
- * def rando = randomize(Person){*     typeRandomizers(
+ * def rando = randomize(Person){
+ *     typeRandomizers(
  *         (Date):{ new Date() },
- *         (Pet): { randomize(Pet).one() }*     )
+ *         (Pet): { randomize(Pet).one() }
+ *     )
  *
- *}*
+ * }
+ *
  * def instance = rando.one()
  * </code></pre>
  *
@@ -172,9 +175,13 @@ class PropertyRandomizer {
      * "as Map" operation. This map will be immutable and only contain the randomized properties. Simple types whose class
      * randomizers are found directly in the configured randomizers will not have this added functionality.
      *
+     * The configured property randomizers may be overridden within the scope of one call by supplying an overrides map with the property and its
+     * randomizer override.
+     *
+     * @param overrides an optional map of property randomizer overrides (property name to randomizer)
      * @return a single randomized instance of the target class
      */
-    def one() {
+    def one(Map<String, Object> overrides = [:]) {
         def inst
 
         if (classRandomizers.containsKey(target)) {
@@ -183,9 +190,12 @@ class PropertyRandomizer {
         } else {
             def instMap = [:]
 
+            // apply any call-based property overrides
+            def activePropertyRandomizers = nameRandomizers + overrides
+
             target.metaClass.properties.each { p ->
                 if ((isImmutable() || p.setter) && !(p.type in ignoredTypes) && !(p.name in ignoredProperties)) {
-                    def randomizer = nameRandomizers[p.name] ?: classRandomizers[p.type]
+                    def randomizer = activePropertyRandomizers[p.name] ?: classRandomizers[p.type]
 
                     if (!randomizer) {
                         throw new IllegalStateException("No randomizer configured for property (${p.type.simpleName} ${p.name}).")

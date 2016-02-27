@@ -182,7 +182,26 @@ class PropertyRandomizerTest {
         Rock rock = rando.one()
         assert rock
         assert rock.description
+        assert (1..10).containsWithinBounds(rock.description.size())
         assert rock.weight
+        assert (1d..100d).containsWithinBounds(rock.weight)
+    }
+
+    @Test void 'randomize immutable overridden property randomizer'() {
+        def rando = randomize(Rock) {
+            propertyRandomizers([
+                description: forString(1..10),
+                weight     : forDouble(1d..100d)
+            ])
+        }
+
+        Rock rock = rando.one(description: forString(20..30))
+
+        assert rock
+        assert rock.description
+        assert (20..30).containsWithinBounds(rock.description.size())
+        assert rock.weight
+        assert (1d..100d).containsWithinBounds(rock.weight)
     }
 
     @Test void 'randomize immutable (defined)'() {

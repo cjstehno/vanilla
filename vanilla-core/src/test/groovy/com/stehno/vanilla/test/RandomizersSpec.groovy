@@ -114,7 +114,7 @@ class RandomizersSpec extends Specification {
 
     def 'forByteArray'() {
         when:
-        byte[] bytes = forByteArray().call(random)
+        byte[] bytes = forByteArray(1..10).call(random)
 
         then:
         bytes.size()
