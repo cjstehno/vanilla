@@ -28,22 +28,24 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * An example usage, would be similar to the following:
  *
  * <pre><code>
- * def rando = randomize(Person){*     typeRandomizers(
+ * def rando = randomize(Person){
+ *     typeRandomizers(
  *         (Date):{ new Date() },
- *         (Pet): { randomize(Pet).one() }*     )
- *}* def instance = rando.one()
+ *         (Pet): { randomize(Pet).one() }
+ *     )
+ *
+ * }
+ *
+ * def instance = rando.one()
  * </code></pre>
  *
  * More information may be found in my blog post,
  * "<a href="http://coffeaelectronica.com/blog/2015/property-randomization.html">Property Randomization for Testing</a>"
- *
  */
 class PropertyRandomizer {
 
     private final List<Class> ignoredTypes = [Class]
     private final List<String> ignoredProperties = []
-
-    private static final INT_BOUNDS = 80
 
     @SuppressWarnings('InsecureRandom')
     private final Random rng = new Random()
@@ -51,8 +53,8 @@ class PropertyRandomizer {
 
     private final Map<Class, Object> classRandomizers = [
         (String)   : forString(),
-        (int)      : forInteger(INT_BOUNDS),
-        (Integer)  : forInteger(INT_BOUNDS),
+        (int)      : forInteger(),
+        (Integer)  : forInteger(),
         (byte)     : forByte(),
         (Byte)     : forByte(),
         (short)    : forShort(),
@@ -84,8 +86,7 @@ class PropertyRandomizer {
      * @param closure the closure containing the DSL-style randomizer configuration
      * @return the configured PropertyRandomizer for use or further configuration.
      */
-    static PropertyRandomizer randomize(Class target,
-                                        @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
+    static PropertyRandomizer randomize(Class target, @DelegatesTo(value = PropertyRandomizer, strategy = DELEGATE_FIRST) Closure closure = null) {
         def rando = new PropertyRandomizer(target)
 
         if (closure) {

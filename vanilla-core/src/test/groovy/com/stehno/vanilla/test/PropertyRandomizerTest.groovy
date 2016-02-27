@@ -18,7 +18,8 @@ package com.stehno.vanilla.test
 import org.junit.Test
 
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
-import static com.stehno.vanilla.test.Randomizers.forStringArray
+import static com.stehno.vanilla.test.Randomizers.forArray
+import static com.stehno.vanilla.test.Randomizers.forString
 
 class PropertyRandomizerTest {
 
@@ -48,7 +49,7 @@ class PropertyRandomizerTest {
             .typeRandomizers(
                 (Date): { new Date() },
                 (Pet): { randomize(Pet).one() },
-                (String[]): forStringArray()
+                (String[]): forArray(forString())
             )
             .propertyRandomizers(name: { 'FixedValue' })
 
@@ -77,7 +78,7 @@ class PropertyRandomizerTest {
                 (Date): { new Date() },
                 (Pet): { randomize(Pet).one() }
             )
-            typeRandomizer String[], forStringArray()
+            typeRandomizer String[], forArray(forString())
             propertyRandomizer 'name', { 'FixedValue' }
         }
 
@@ -116,7 +117,7 @@ class PropertyRandomizerTest {
                 (Date): { new Date() },
                 (Pet): { randomize(Pet).one() }
             )
-            typeRandomizer String[], forStringArray()
+            typeRandomizer String[], forArray(forString())
             propertyRandomizer 'name', { 'FixedValue' }
         }
 
@@ -135,7 +136,7 @@ class PropertyRandomizerTest {
                 (Date): { new Date() },
                 (Pet): randomize(Pet)
             )
-            typeRandomizer String[], forStringArray()
+            typeRandomizer String[], forArray(forString())
             propertyRandomizer 'name', { 'FixedValue' }
         }
 

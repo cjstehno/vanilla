@@ -73,7 +73,7 @@ class RuntimeFieldMapping extends FieldMapping {
     protected FieldMapping extract(mapper) {
         affirm mapper instanceof ResultSetMapper
 
-        extractor = {ResultSet rs, String prefix->
+        extractor = { ResultSet rs, String prefix ->
             mapper.call(rs)
         }
 

@@ -16,7 +16,6 @@
 package com.stehno.vanilla.mapper
 
 import com.stehno.vanilla.test.PropertyRandomizer
-import groovy.transform.ToString
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -238,22 +237,4 @@ class ObjectMapperSpec extends Specification {
     }
 }
 
-@ToString(includeNames = true)
-class FooObject {
-    String name
-    int age
-    String startDate
-    LocalDate birthDate
-    float percentage
-    FooObject child
-}
 
-@ToString(includeNames = true)
-class BarObject {
-    String name
-    int years
-    Date startDate
-    String birthday
-    Float rate
-    BarObject descendent
-}
