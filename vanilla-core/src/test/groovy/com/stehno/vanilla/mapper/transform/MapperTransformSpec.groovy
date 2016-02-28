@@ -70,6 +70,42 @@ class MapperTransformSpec extends Specification {
         bar.birthday
     }
 
+    def 'simple usage as method (to Map)'() {
+        setup:
+        FooObject foo = rando.one()
+
+        Map<String,Object> map = [:]
+
+        when:
+        def results = shell.evaluate("""
+            package testing
+
+            import com.stehno.vanilla.mapper.annotation.InjectObjectMapper
+            import com.stehno.vanilla.mapper.ObjectMapper
+            import java.time.format.*
+
+            class Foo {
+                @InjectObjectMapper({
+                    map 'name'
+                    map 'age' into 'years'
+                    map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
+                    map 'birthDate' into 'birthday' using { d -> d.format(DateTimeFormatter.BASIC_ISO_DATE) }
+                })
+                static ObjectMapper createMapper(){}
+            }
+
+            Foo.createMapper()
+        """)
+
+        results.copy(foo, map)
+
+        then:
+        map.name == foo.name
+        map.years == foo.age
+        map.startDate.format('MM/dd/yyyy') == foo.startDate
+        map.birthday
+    }
+
     def 'simple collector usage as method'() {
         setup:
         Collection<FooObject> foos = rando * 3
