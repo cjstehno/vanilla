@@ -23,15 +23,78 @@ import java.time.LocalDate
 import static com.stehno.vanilla.mapper.runtime.RuntimeObjectMapper.mapper
 import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 import static com.stehno.vanilla.test.Randomizers.forDate
+import static com.stehno.vanilla.test.Randomizers.forInteger
 import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE
 
 class ObjectMapperSpec extends Specification {
 
     private final BarObject bar = new BarObject()
     private final PropertyRandomizer rando = randomize(FooObject) {
-        propertyRandomizer 'startDate', { new Date().format('MM/dd/yyyy') }
-        propertyRandomizer 'birthDate', { LocalDate.now() }
+        propertyRandomizers([
+            age      : forInteger(1..100),
+            startDate: { new Date().format('MM/dd/yyyy') },
+            birthDate: { LocalDate.now() }
+        ])
         ignoringProperties 'child'
+    }
+
+    def 'simple usage Object to Map'() {
+        setup:
+        def om = mapper {
+            map 'name'
+            map 'age' into 'years'
+            map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
+            map 'birthDate' into 'birthday' using { LocalDate d -> d.format(BASIC_ISO_DATE) }
+        }
+
+        FooObject foo = rando.one()
+        Map<String, Object> map = [:]
+
+        when:
+        om.copy(foo, map)
+
+        then:
+        map.name == foo.name
+        map.years == foo.age
+        map.startDate.format('MM/dd/yyyy') == foo.startDate
+        map.birthday == foo.birthDate.format(BASIC_ISO_DATE)
+
+        foo.percentage
+        !map.rate
+    }
+
+    def 'simple usage Map to Map'() {
+        setup:
+        def om = mapper {
+            map 'name'
+            map 'age' into 'years'
+            map 'startDate' using { Date.parse('MM/dd/yyyy', it) }
+            map 'birthDate' into 'birthday' using { LocalDate d -> d.format(BASIC_ISO_DATE) }
+        }
+
+        FooObject foo = rando.one()
+
+        Map<String, Object> mapA = [
+            name      : foo.name,
+            age       : foo.age,
+            startDate : foo.startDate,
+            birthDate : foo.birthDate,
+            percentage: foo.percentage
+        ]
+
+        Map<String, Object> mapB = [:]
+
+        when:
+        om.copy(mapA, mapB)
+
+        then:
+        mapB.name == mapA.name
+        mapB.years == mapA.age
+        mapB.startDate.format('MM/dd/yyyy') == mapA.startDate
+        mapB.birthday == mapA.birthDate.format(BASIC_ISO_DATE)
+
+        mapA.percentage
+        !mapB.rate
     }
 
     def 'simple usage'() {
