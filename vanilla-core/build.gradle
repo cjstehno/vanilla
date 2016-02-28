@@ -33,6 +33,8 @@ license {
     ext.name = 'Christopher J. Stehno'
     ext.email = 'chris@stehno.com'
     ext.year = Calendar.instance.get(Calendar.YEAR)
+
+    excludes(['**/*.txt'])
 }
 
 // NOTE: run bintrayUpload and then go to web and publish.
