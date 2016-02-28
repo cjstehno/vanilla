@@ -323,7 +323,7 @@ class Randomizers {
         nextDouble(r, min, max) as short
     }
 
-    private static int nextFloat(Random r, float min, float max) {
+    private static float nextFloat(Random r, float min, float max) {
         nextDouble(r, min, max) as float
     }
 

@@ -173,7 +173,7 @@ class InjectObjectMapperTransform extends AbstractASTTransformation {
                 if (pm.converter instanceof ClosureExpression) {
                     ClosureExpression convertClosureX = pm.converter as ClosureExpression
 
-                    def closureArgs = args()
+                    def closureArgs = new ArgumentListExpression()
 
                     int paramCount = convertClosureX.parameters.size()
 
