@@ -15,8 +15,6 @@
  */
 package com.stehno.vanilla.text
 
-import groovy.transform.TypeChecked
-
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -31,7 +29,6 @@ import static java.nio.file.Files.isReadable
  *
  * This is useful for quick formatted data loading.
  */
-@TypeChecked
 class TextFileReader {
 
     /**
