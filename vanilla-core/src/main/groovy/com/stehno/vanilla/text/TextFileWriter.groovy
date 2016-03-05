@@ -104,7 +104,3 @@ class TextFileWriter {
         filePath.append('\n')
     }
 }
-
-
-
-
