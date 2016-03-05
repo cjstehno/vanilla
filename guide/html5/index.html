@@ -507,8 +507,8 @@ table.CodeRay td.code>pre{padding:0}
 <div class="details">
 <span id="author" class="author">Christopher J. Stehno</span><br>
 <span id="email" class="email"><a href="mailto:chris@stehno.com">chris@stehno.com</a></span><br>
-<span id="revnumber">version 0.1.0,</span>
-<span id="revdate">December 2015</span>
+<span id="revnumber">version 0.3.0,</span>
+<span id="revdate">March 2016</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1260,10 +1260,17 @@ the added "Mapper" suffix.</p>
 <p>The generated mapper class may be used directly; however, the method or field injection is required to create the mapper class and it is recommended
 to use the field or method as your access point to the generated class.</p>
 </div>
-<div class="paragraph">
-<p>INFO: When using a factory method to create the <code>ResultSetMapper</code> instances, note that the method is annotated with <code>@Memoized</code> so that multiple calls
-to the method will return the same instance. This is also true when a prefix is used (method parameter); calls to the method with the same prefix
-value will return the same instance of the mapper.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+When using a factory method to create the <code>ResultSetMapper</code> instances, note that the method is annotated with <code>@Memoized</code> so that multiple calls to the method will return the same instance. This is also true when a prefix is used (method parameter); calls to the method with the same prefix value will return the same instance of the mapper.
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -1709,8 +1716,8 @@ then it will be available unchanged during the testing.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.1.0<br>
-Last updated 2016-01-06 10:11:41 CST
+Version 0.3.0<br>
+Last updated 2016-03-05 08:35:42 CST
 </div>
 </div>
 </body>

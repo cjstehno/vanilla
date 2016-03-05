@@ -20,7 +20,7 @@ import groovy.transform.ToString
 /**
  * ResultSet mapper DSL model class representation of an object property mapping to a field in the database.
  */
-@ToString(includeNames = true, includeFields = true)
+@ToString(includeNames = true, includeFields = true) @SuppressWarnings('MethodCount')
 abstract class FieldMapping {
 
     /**
@@ -289,7 +289,7 @@ abstract class FieldMapping {
 <span class="nc" id="L289">        extract columnIdentifier, 'getURL'</span>
     }
 
-    FieldMapping fromMapper(mapper){
+    FieldMapping fromMapper(mapper) {
 <span class="pc" id="L293">        extract mapper</span>
     }
 

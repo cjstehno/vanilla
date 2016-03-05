@@ -15,117 +15,328 @@
  */
 package com.stehno.vanilla.test
 
+import groovy.transform.TypeChecked
+
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+
+import static groovy.transform.TypeCheckingMode.SKIP
+
 /**
- * A collection of useful randomizers for use with the PropertyRandomizer.
+ * A collection of useful randomizers for use with the PropertyRandomizer. All of the methods return Closures which will generate random values
+ * when called.
  */
+@TypeChecked
 class Randomizers {
 
     private static final String CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789'
 
-    static Closure&lt;String&gt; forString(IntRange sizeRange = (10..20)) {
-<span class="pc" id="L26">        return { Random rng -&gt;</span>
-<span class="pc" id="L27">            randomString rng, sizeRange</span>
+    /**
+     * Produces a Closure which will always return the specified value when called.
+     *
+     * @param value the value to be returned
+     * @return the specified value
+     */
+    static &lt;T&gt; Closure&lt;T&gt; constant(final T value) {
+<span class="nc" id="L42">        return { r -&gt; value }</span>
+    }
+
+    /**
+     * Produces a Closure which will generate a random list of random values provided by the supplied randomizer.
+     *
+     * @param size the randomized size range of the list
+     * @param valueRandomizer the Closure used to randomize the generated list values
+     * @return the list-generating closure
+     */
+    static &lt;T&gt; Closure&lt;List&lt;T&gt;&gt; forList(IntRange size = 0..10, Closure&lt;T&gt; valueRandomizer) {
+<span class="pc" id="L53">        return { Random r, inst -&gt;</span>
+<span class="fc" id="L54">            List&lt;T&gt; list = []</span>
+<span class="fc" id="L55">            nextInt(r, size.from as int, size.to as int).times {</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">                if (valueRandomizer.maximumNumberOfParameters &gt; 1) {</span>
+<span class="nc" id="L57">                    list &lt;&lt; valueRandomizer.call(r, inst)</span>
+                } else {
+<span class="pc" id="L59">                    list &lt;&lt; valueRandomizer.call(r)</span>
+                }
+            }
+<span class="pc" id="L62">            list</span>
         }
     }
 
-    private static String randomString(Random rng, IntRange sizeRange) {
-<span class="fc" id="L32">        int size = sizeRange[rng.nextInt(sizeRange.size())]</span>
-<span class="fc" id="L33">        def chars = []</span>
-<span class="fc" id="L34">        size.times {</span>
-<span class="pc" id="L35">            chars &lt;&lt; CHARS[rng.nextInt(CHARS.size())]</span>
-        }
-<span class="pc" id="L37">        chars.join('')</span>
-    }
-
-    static Closure&lt;String[]&gt; forStringArray(Integer size = null, IntRange sizeRange = (10..20)) {
-<span class="pc" id="L41">        return { Random rng -&gt;</span>
-<span class="pc" id="L42">            randomCollection(rng, size) { randomString(rng, sizeRange) }.toArray()</span>
-        }
-    }
-
-    static Closure&lt;Long[]&gt; forLongArray(Integer size = null) {
-<span class="nc" id="L47">        return { Random rng -&gt;</span>
-<span class="nc" id="L48">            randomCollection(rng, size) { rng.nextLong() }.toArray()</span>
-        }
-    }
-
-    static List randomCollection(Random rng, Integer size = null, Closure generator) {
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        int length = size ?: (rng.nextInt(4) + 1)</span>
-<span class="fc" id="L54">        def items = []</span>
-<span class="fc" id="L55">        length.times {</span>
-<span class="pc" id="L56">            items &lt;&lt; generator()</span>
-        }
-<span class="pc" id="L58">        items</span>
-    }
-
-    static Closure&lt;Integer&gt; forInteger(Integer bounds = null) {
-<span class="pc" id="L62">        return { Random rng -&gt;</span>
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">            bounds ? rng.nextInt(bounds) : rng.nextInt()</span>
+    /**
+     * Produces a Closure which will generate a random set of random values provided by the supplied randomizer.
+     *
+     * @param size the randomized size range of the set
+     * @param valueRandomizer the Closure used to randomize the generated set values
+     * @return the set-generating closure
+     */
+    static &lt;T&gt; Closure&lt;Set&lt;T&gt;&gt; forSet(IntRange size = 0..10, Closure&lt;T&gt; valueRandomizer) {
+<span class="pc" id="L74">        return { Random r, inst -&gt;</span>
+<span class="fc" id="L75">            Set&lt;T&gt; coll = [] as Set&lt;T&gt;</span>
+<span class="fc" id="L76">            nextInt(r, size.from as int, size.to as int).times {</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">                if (valueRandomizer.maximumNumberOfParameters &gt; 1) {</span>
+<span class="nc" id="L78">                    coll &lt;&lt; valueRandomizer.call(r, inst)</span>
+                } else {
+<span class="pc" id="L80">                    coll &lt;&lt; valueRandomizer.call(r)</span>
+                }
+            }
+<span class="pc" id="L83">            coll</span>
         }
     }
 
-    static Closure&lt;BigDecimal&gt; forBigDecimal(Integer scale = null) {
-<span class="nc" id="L68">        return { Random rng -&gt;</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">            scale ? new BigDecimal(rng.nextLong(), scale) : new BigDecimal(rng.nextLong())</span>
+    /**
+     * Produces a Closure which will generate a random array of random values provided by the supplied randomizer.
+     *
+     * @param size the randomized size range of the array
+     * @param valueRandomizer the Closure used to randomize the generated array values
+     * @return the array-generating closure
+     */
+    static &lt;T&gt; Closure&lt;T[]&gt; forArray(IntRange size = 0..10, Closure&lt;T&gt; valueRandomizer) {
+<span class="pc" id="L95">        return { Random r, inst -&gt;</span>
+<span class="fc" id="L96">            List&lt;T&gt; coll = []</span>
+<span class="fc" id="L97">            nextInt(r, size.from as int, size.to as int).times {</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                if (valueRandomizer.maximumNumberOfParameters &gt; 1) {</span>
+<span class="nc" id="L99">                    coll &lt;&lt; valueRandomizer.call(r, inst)</span>
+                } else {
+<span class="pc" id="L101">                    coll &lt;&lt; valueRandomizer.call(r)</span>
+                }
+            }
+<span class="pc" id="L104">            coll.toArray() as T[]</span>
         }
     }
 
-    static Closure&lt;Long&gt; forLong() {
-<span class="pc" id="L74">        return { Random rng -&gt;</span>
-<span class="nc" id="L75">            rng.nextLong()</span>
+    /**
+     * Produces a Closure which will generate a random string.
+     *
+     * @param size the size range of the string
+     * @return the string-generating closure
+     */
+    static Closure&lt;String&gt; forString(IntRange size = (0..10)) {
+<span class="pc" id="L115">        return { Random rng -&gt;</span>
+<span class="fc" id="L116">            def chars = []</span>
+<span class="fc" id="L117">            nextInt(rng, size.from as int, size.to as int).times {</span>
+<span class="pc" id="L118">                chars &lt;&lt; CHARS[rng.nextInt(CHARS.size())]</span>
+            }
+<span class="pc" id="L120">            chars.join('')</span>
         }
     }
 
+    /**
+     * Produces a Closure which will generate a random integer.
+     *
+     * @param size the size range of the integer
+     * @return the integer-generating closure
+     */
+    static Closure&lt;Integer&gt; forInteger(IntRange range = (Integer.MIN_VALUE..Integer.MAX_VALUE)) {
+<span class="pc" id="L131">        return { Random rng -&gt;</span>
+<span class="pc bfc" id="L132" title="All 2 branches covered.">            range ? nextInt(rng, range.from as int, range.to as int) : rng.nextInt()</span>
+        }
+    }
+
+    /**
+     * Produces a Closure which will generate a random long.
+     *
+     * @param size the size range of the long
+     * @return the long-generating closure
+     */
+    static Closure&lt;Long&gt; forLong(Range&lt;Long&gt; range = (Long.MIN_VALUE..Long.MAX_VALUE)) {
+<span class="pc" id="L143">        return { Random rng -&gt;</span>
+<span class="pc" id="L144">            nextLong(rng, range.from, range.to)</span>
+        }
+    }
+
+    /**
+     * Produces a Closure which will generate a random boolean.
+     *
+     * @return the boolean-generating closure
+     */
     static Closure&lt;Boolean&gt; forBoolean() {
-<span class="pc" id="L80">        return { Random rng -&gt;</span>
-<span class="pc" id="L81">            rng.nextBoolean()</span>
+<span class="pc" id="L154">        return { Random rng -&gt;</span>
+<span class="pc" id="L155">            rng.nextBoolean()</span>
         }
     }
 
+    /**
+     * Produces a Closure which will generate a random byte.
+     *
+     * @return the byte-generating closure
+     */
     static Closure&lt;Byte&gt; forByte() {
-<span class="pc" id="L86">        return { Random rng -&gt;</span>
-<span class="nc" id="L87">            byte[] bytes = new byte[1]</span>
-<span class="nc" id="L88">            rng.nextBytes(bytes)</span>
-<span class="nc bnc" id="L89" title="All 8 branches missed.">            bytes[0]</span>
+<span class="pc" id="L165">        return { Random rng -&gt;</span>
+<span class="fc" id="L166">            byte[] bytes = new byte[1]</span>
+<span class="fc" id="L167">            rng.nextBytes(bytes)</span>
+<span class="pc bpc" id="L168" title="4 of 8 branches missed.">            bytes[0]</span>
         }
     }
 
-    static Closure&lt;Byte[]&gt; forByteArray(Integer size = null) {
-<span class="nc" id="L94">        return { Random rng -&gt;</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">            def bytes = new byte[size ?: rng.nextInt(25) + 1]</span>
-<span class="nc" id="L96">            rng.nextBytes(bytes)</span>
-<span class="nc" id="L97">            bytes</span>
+    /**
+     * Produces a Closure which will generate a random byte array.
+     *
+     * @param count the size range of the array
+     * @return the byte array-generating closure
+     */
+    static Closure&lt;byte[]&gt; forByteArray(IntRange count = 0..10) {
+<span class="pc" id="L179">        return { Random r -&gt;</span>
+<span class="fc" id="L180">            byte[] bytes = new byte[nextInt(r, count.from as int, count.to as int)]</span>
+<span class="fc" id="L181">            r.nextBytes(bytes)</span>
+<span class="pc" id="L182">            bytes</span>
         }
     }
 
-    static Closure&lt;Short&gt; forShort() {
-<span class="pc" id="L102">        return { Random rng -&gt;</span>
-<span class="nc" id="L103">            rng.nextInt() as short</span>
+    /**
+     * Produces a Closure which will generate a random short.
+     *
+     * @param range the allowed value range of the random short
+     * @return the short-generating closure
+     */
+    static Closure&lt;Short&gt; forShort(Range&lt;Short&gt; range = Short.MIN_VALUE..Short.MAX_VALUE) {
+<span class="pc" id="L193">        return { Random rng -&gt;</span>
+<span class="pc" id="L194">            nextShort(rng, range.from as short, range.to as short)</span>
         }
     }
 
-    static Closure&lt;Float&gt; forFloat() {
-<span class="pc" id="L108">        return { Random rng -&gt;</span>
-<span class="pc" id="L109">            rng.nextFloat()</span>
+    /**
+     * Produces a Closure which will generate a random float.
+     *
+     * @param range the allowed value range of the random float
+     * @return the float-generating closure
+     */
+    static Closure&lt;Float&gt; forFloat(Range&lt;Float&gt; range = Float.MIN_VALUE..Float.MAX_VALUE) {
+<span class="pc" id="L205">        return { Random rng -&gt;</span>
+<span class="pc" id="L206">            nextFloat(rng, range.from as float, range.to as float)</span>
         }
     }
 
-    static Closure&lt;Double&gt; forDouble() {
-<span class="pc" id="L114">        return { Random rng -&gt;</span>
-<span class="pc" id="L115">            rng.nextDouble()</span>
+    /**
+     * Produces a Closure which will generate a random double.
+     *
+     * @param range the allowed value range of the random double
+     * @return the double-generating closure
+     */
+    static Closure&lt;Double&gt; forDouble(Range&lt;Double&gt; range = Double.MIN_VALUE..Double.MAX_VALUE) {
+<span class="pc" id="L217">        return { Random rng -&gt;</span>
+<span class="pc" id="L218">            nextDouble(rng, range.from, range.to)</span>
         }
     }
 
-    static Closure&lt;Date&gt; forDate() {
-<span class="pc" id="L120">        return { Random rng -&gt;</span>
-<span class="pc" id="L121">            new Date(rng.nextLong())</span>
+    /**
+     * Produces a Closure which will generate a random Date.
+     *
+     * @param range the allowed value range of the random Date
+     * @return the Date-generating closure
+     */
+<span class="pc" id="L228">    static Closure&lt;Date&gt; forDate(Range&lt;Date&gt; range = (new Date(0)..new Date(Long.MAX_VALUE))) {</span>
+<span class="pc" id="L229">        return { Random rng -&gt;</span>
+<span class="pc bpc" id="L230" title="1 of 4 branches missed.">            new Date(nextLong(rng, range?.from?.time ?: 0, range?.to?.time ?: Long.MAX_VALUE))</span>
         }
     }
 
+    /**
+     * Produces a Closure which will generate a random char.
+     *
+     * @return the char-generating closure
+     */
     static Closure&lt;Character&gt; forChar() {
-<span class="pc" id="L126">        return { Random rng -&gt;</span>
-<span class="nc" id="L127">            CHARS[rng.nextInt(CHARS.size())] as char</span>
+<span class="pc" id="L240">        return { Random rng -&gt;</span>
+<span class="pc" id="L241">            CHARS[rng.nextInt(CHARS.size())] as char</span>
         }
+    }
+
+    /**
+     * Produces a Closure which will generate a random enum value selected from all the values of the provided enum.
+     *
+     * @param e the enum
+     * @return the enum-generating closure
+     */
+    @TypeChecked(SKIP)
+    static &lt;T&gt; Closure&lt;T&gt; forEnum(T e) {
+<span class="pc" id="L253">        return { Random rng -&gt;</span>
+<span class="fc" id="L254">            def vals = e.values()</span>
+<span class="pc" id="L255">            vals[rng.nextInt(vals.size())]</span>
+        }
+    }
+
+    /**
+     * Produces a Closure which will generate a random LocalDateTime.
+     *
+     * @param range the allowed value range of the random LocalDateTime
+     * @return the LocalDateTime-generating closure
+     */
+    static Closure&lt;LocalDateTime&gt; forLocalDateTime(Range&lt;LocalDateTime&gt; range = null, ZoneOffset offset = ZoneOffset.UTC) {
+<span class="pc" id="L266">        return { Random rng -&gt;</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">            long lower = range?.from ? range.from.toInstant(offset).toEpochMilli() : 0</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">            long upper = range?.to ? range.to.toInstant(offset).toEpochMilli() : Long.MAX_VALUE</span>
+
+<span class="pc" id="L270">            return LocalDateTime.ofInstant(Instant.ofEpochMilli(nextLong(rng, lower, upper)), offset)</span>
+        }
+    }
+
+    /**
+     * Produces a Closure which will select a random value from the provided collection.
+     *
+     * @param collection the value collection
+     * @return the value-selecting closure
+     */
+    static &lt;X&gt; Closure&lt;X&gt; forCollection(Collection&lt;X&gt; collection) {
+<span class="pc" id="L281">        return { Random rng -&gt;</span>
+<span class="pc" id="L282">            collection[rng.nextInt(collection.size())]</span>
+        }
+    }
+
+    /**
+     * Produces a Closure which will select a random value from the provided array.
+     *
+     * @param collection the value array
+     * @return the value-selecting closure
+     */
+    static &lt;X&gt; Closure&lt;X&gt; forCollection(X[] collection) {
+<span class="pc" id="L293">        return { Random rng -&gt;</span>
+<span class="pc bpc" id="L294" title="2 of 4 branches missed.">            collection[rng.nextInt(collection.length)]</span>
+        }
+    }
+
+    /**
+     * Produces a Closure which will select a random value from the provided argument list.
+     *
+     * @param items the available items
+     * @return the value-selecting closure
+     */
+    static &lt;X&gt; Closure&lt;X&gt; forItems(X... items) {
+<span class="pc" id="L305">        return { Random rng -&gt;</span>
+<span class="pc bpc" id="L306" title="2 of 4 branches missed.">            items[rng.nextInt(items.length)]</span>
+        }
+    }
+
+    /**
+     * Provides a Closure for selecting a random value from the provided range.
+     *
+     * @param range the range of allowed values
+     * @return the randomizer closure (accepts Random as argument)
+     */
+    static Closure&lt;Object&gt; forRange(Range range) {
+<span class="pc" id="L317">        return { Random rng -&gt;</span>
+<span class="pc" id="L318">            range[rng.nextInt(range.size())]</span>
+        }
+    }
+
+    private static short nextShort(Random r, short min, short max) {
+<span class="pc" id="L323">        nextDouble(r, min, max) as short</span>
+    }
+
+    private static float nextFloat(Random r, float min, float max) {
+<span class="pc" id="L327">        nextDouble(r, min, max) as float</span>
+    }
+
+    private static Integer nextInt(Random r, int min, int max) {
+<span class="pc" id="L331">        nextDouble(r, min, max) as int</span>
+    }
+
+    private static long nextLong(Random r, long min, long max) {
+<span class="pc" id="L335">        nextDouble(r, min, max) as long</span>
+    }
+
+    private static double nextDouble(Random r, double min, double max) {
+<span class="pc bpc" id="L339" title="3 of 6 branches missed.">        (min + ((max - min) * r.nextDouble()))</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

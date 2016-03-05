@@ -757,10 +757,17 @@ the added "Mapper" suffix.</p>
 <p>The generated mapper class may be used directly; however, the method or field injection is required to create the mapper class and it is recommended
 to use the field or method as your access point to the generated class.</p>
 </div>
-<div class="paragraph">
-<p>INFO: When using a factory method to create the <code>ResultSetMapper</code> instances, note that the method is annotated with <code>@Memoized</code> so that multiple calls
-to the method will return the same instance. This is also true when a prefix is used (method parameter); calls to the method with the same prefix
-value will return the same instance of the mapper.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+When using a factory method to create the <code>ResultSetMapper</code> instances, note that the method is annotated with <code>@Memoized</code> so that multiple calls to the method will return the same instance. This is also true when a prefix is used (method parameter); calls to the method with the same prefix value will return the same instance of the mapper.
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -850,7 +857,7 @@ of the current <code>ResultSet</code> data into a <code>Person</code> object.</p
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-01-12 14:34:25 CST
+Last updated 2016-01-14 14:54:25 CST
 </div>
 </div>
 </body>

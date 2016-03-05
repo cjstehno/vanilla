@@ -22,7 +22,7 @@
 <html>
 <head>
 <title>All Classes</title>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link href="groovy.ico" type="image/x-icon" rel="shortcut icon">
 <link href="groovy.ico" type="image/x-icon" rel="icon">
 <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
@@ -35,6 +35,8 @@
         <li><a href="com/stehno/vanilla/mapper/AbstractObjectMapper.html" title="class in com.stehno.vanilla.mapper" target="classFrame">AbstractObjectMapper</a></li>
 <li><a href="com/stehno/vanilla/Affirmations.html" title="class in com.stehno.vanilla" target="classFrame">Affirmations</a></li>
 <li><a href="com/stehno/vanilla/test/Assertions.html" title="class in com.stehno.vanilla.test" target="classFrame">Assertions</a></li>
+<li><a href="com/stehno/vanilla/text/CommaSeparatedLineFormatter.html" title="class in com.stehno.vanilla.text" target="classFrame">CommaSeparatedLineFormatter</a></li>
+<li><a href="com/stehno/vanilla/text/CommaSeparatedLineParser.html" title="class in com.stehno.vanilla.text" target="classFrame">CommaSeparatedLineParser</a></li>
 <li><a href="com/stehno/vanilla/overlap/ComparableLobe.html" title="class in com.stehno.vanilla.overlap" target="classFrame">ComparableLobe</a></li>
 <li><a href="com/stehno/vanilla/jdbc/mapper/transform/CompiledFieldMapping.html" title="class in com.stehno.vanilla.jdbc.mapper.transform" target="classFrame">CompiledFieldMapping</a></li>
 <li><a href="com/stehno/vanilla/jdbc/mapper/transform/CompiledResultSetMapper.html" title="class in com.stehno.vanilla.jdbc.mapper.transform" target="classFrame">CompiledResultSetMapper</a></li>
@@ -52,16 +54,22 @@
 <li><a href="com/stehno/vanilla/jdbc/mapper/transform/InjectResultSetMapperTransform.html" title="class in com.stehno.vanilla.jdbc.mapper.transform" target="classFrame">InjectResultSetMapperTransform</a></li>
 <li><a href="com/stehno/vanilla/annotation/LazyImmutable.html" title="annotation type in com.stehno.vanilla.annotation" target="classFrame">LazyImmutable</a></li>
 <li><a href="com/stehno/vanilla/transform/LazyImmutableTransform.html" title="class in com.stehno.vanilla.transform" target="classFrame">LazyImmutableTransform</a></li>
+<li><a href="com/stehno/vanilla/text/LineFormatter.html" title="interface in com.stehno.vanilla.text" target="classFrame"><I>LineFormatter</I></a></li>
+<li><a href="com/stehno/vanilla/text/LineParser.html" title="interface in com.stehno.vanilla.text" target="classFrame"><I>LineParser</I></a></li>
 <li><a href="com/stehno/vanilla/overlap/Lobe.html" title="interface in com.stehno.vanilla.overlap" target="classFrame"><I>Lobe</I></a></li>
 <li><a href="com/stehno/vanilla/jdbc/mapper/MappingStyle.html" title="enum in com.stehno.vanilla.jdbc.mapper" target="classFrame">MappingStyle</a></li>
 <li><a href="com/stehno/vanilla/mapper/ObjectMapper.html" title="interface in com.stehno.vanilla.mapper" target="classFrame"><I>ObjectMapper</I></a></li>
 <li><a href="com/stehno/vanilla/mapper/ObjectMapperConfig.html" title="class in com.stehno.vanilla.mapper" target="classFrame">ObjectMapperConfig</a></li>
 <li><a href="com/stehno/vanilla/mapper/ObjectMapperDsl.html" title="interface in com.stehno.vanilla.mapper" target="classFrame"><I>ObjectMapperDsl</I></a></li>
+<li><a href="com/stehno/vanilla/matcher/ObjectMatcher.html" title="class in com.stehno.vanilla.matcher" target="classFrame">ObjectMatcher</a></li>
+<li><a href="com/stehno/vanilla/matcher/ObjectMatcherDsl.html" title="interface in com.stehno.vanilla.matcher" target="classFrame"><I>ObjectMatcherDsl</I></a></li>
 <li><a href="com/stehno/vanilla/overlap/OverlapBuilder.html" title="class in com.stehno.vanilla.overlap" target="classFrame">OverlapBuilder</a></li>
 <li><a href="com/stehno/vanilla/overlap/Overlappable.html" title="trait in com.stehno.vanilla.overlap" target="classFrame"><I>Overlappable</I></a></li>
+<li><a href="com/stehno/vanilla/util/Pagination.html" title="class in com.stehno.vanilla.util" target="classFrame">Pagination</a></li>
 <li><a href="com/stehno/vanilla/mapper/PropertyMapping.html" title="interface in com.stehno.vanilla.mapper" target="classFrame"><I>PropertyMapping</I></a></li>
 <li><a href="com/stehno/vanilla/mapper/PropertyMappingConfig.html" title="class in com.stehno.vanilla.mapper" target="classFrame">PropertyMappingConfig</a></li>
 <li><a href="com/stehno/vanilla/test/PropertyRandomizer.html" title="class in com.stehno.vanilla.test" target="classFrame">PropertyRandomizer</a></li>
+<li><a href="com/stehno/vanilla/test/RandomizerDsl.html" title="interface in com.stehno.vanilla.test" target="classFrame"><I>RandomizerDsl</I></a></li>
 <li><a href="com/stehno/vanilla/test/Randomizers.html" title="class in com.stehno.vanilla.test" target="classFrame">Randomizers</a></li>
 <li><a href="com/stehno/vanilla/test/jdbc/mock/ResultSetBuilder.html" title="class in com.stehno.vanilla.test.jdbc.mock" target="classFrame">ResultSetBuilder</a></li>
 <li><a href="com/stehno/vanilla/test/jdbc/mock/ResultSetDsl.html" title="interface in com.stehno.vanilla.test.jdbc.mock" target="classFrame"><I>ResultSetDsl</I></a></li>
@@ -73,6 +81,10 @@
 <li><a href="com/stehno/vanilla/mapper/runtime/RuntimeObjectMapper.html" title="class in com.stehno.vanilla.mapper.runtime" target="classFrame">RuntimeObjectMapper</a></li>
 <li><a href="com/stehno/vanilla/jdbc/mapper/runtime/RuntimeResultSetMapper.html" title="class in com.stehno.vanilla.jdbc.mapper.runtime" target="classFrame">RuntimeResultSetMapper</a></li>
 <li><a href="com/stehno/vanilla/util/Strings.html" title="class in com.stehno.vanilla.util" target="classFrame">Strings</a></li>
+<li><a href="com/stehno/vanilla/text/TableColumn.html" title="class in com.stehno.vanilla.text" target="classFrame">TableColumn</a></li>
+<li><a href="com/stehno/vanilla/text/TextFileReader.html" title="class in com.stehno.vanilla.text" target="classFrame">TextFileReader</a></li>
+<li><a href="com/stehno/vanilla/text/TextFileWriter.html" title="class in com.stehno.vanilla.text" target="classFrame">TextFileWriter</a></li>
+<li><a href="com/stehno/vanilla/text/TextTable.html" title="class in com.stehno.vanilla.text" target="classFrame">TextTable</a></li>
 <li><a href="com/stehno/vanilla/io/ZipBuilder.html" title="class in com.stehno.vanilla.io" target="classFrame">ZipBuilder</a></li>
 
         </ul>

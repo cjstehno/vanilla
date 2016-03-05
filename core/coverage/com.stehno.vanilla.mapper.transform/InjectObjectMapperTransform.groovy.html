@@ -173,7 +173,7 @@ class InjectObjectMapperTransform extends AbstractASTTransformation {
 <span class="pc bpc" id="L173" title="1 of 2 branches missed.">                if (pm.converter instanceof ClosureExpression) {</span>
 <span class="fc" id="L174">                    ClosureExpression convertClosureX = pm.converter as ClosureExpression</span>
 
-<span class="fc" id="L176">                    def closureArgs = args()</span>
+<span class="fc" id="L176">                    def closureArgs = new ArgumentListExpression()</span>
 
 <span class="fc" id="L178">                    int paramCount = convertClosureX.parameters.size()</span>
 
