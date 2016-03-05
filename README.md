@@ -10,7 +10,7 @@ The Vanilla library is my attempt to bring together a bunch of my reusable and i
 
 They are available via the JCenter repository:
 
-    compile 'com.stehno.vanilla:vanilla-core:0.2.0'
+    compile 'com.stehno.vanilla:vanilla-core:0.3.0'
 
 ## Build
 
@@ -42,4 +42,4 @@ To publish the web site (after full build with documentation - see above):
 
 To publish the built artifacts:
 
-    ./gradle bintrayUpload -Pbintray-user=USERNAME -Pbintray-key=USER_KEY
+    ./gradle bintrayUpload -PbintrayUser=USERNAME -PbintrayKey=USER_KEY

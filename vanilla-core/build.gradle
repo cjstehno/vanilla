@@ -1,5 +1,5 @@
 plugins {
-    id 'com.jfrog.bintray' version '1.5'
+    id 'com.jfrog.bintray' version '1.6'
     id 'com.github.hierynomus.license' version '0.12.1'
 }
 
@@ -33,12 +33,14 @@ license {
     ext.name = 'Christopher J. Stehno'
     ext.email = 'chris@stehno.com'
     ext.year = Calendar.instance.get(Calendar.YEAR)
+
+    excludes(['**/*.txt'])
 }
 
 // NOTE: run bintrayUpload and then go to web and publish.
 bintray {
-    user = project.hasProperty('bintray-user') ? property('bintray-user') : null
-    key = project.hasProperty('bintray-key') ? property('bintray-key') : null
+    user = bintrayUser
+    key = bintrayKey
 
     publications = ['mavenJava']
 

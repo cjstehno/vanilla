@@ -34,6 +34,8 @@ import java.lang.annotation.*
  *
  * When used to annotate a property: the property will be based on a private, static and final field instance of the mapper.
  *
+ * The compiled version of the ObjectMapper does not support the Map to Map style of mapping - as the runtime object mapper does.
+ *
  * Note: the static version of the ObjectMapper DSL only supports Closure-style converters. Another mapper may be wrapped
  * inside a closure call; however, they are not directly supported as converters as they are in the runtime mapper.
  */

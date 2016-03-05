@@ -20,6 +20,8 @@ import groovy.transform.TypeChecked
 
 /**
  * Runtime implementation of ObjectMapper used by the runtime ObjectMapper DSL to contain the configuration and execute the mappings.
+ *
+ * The Runtime implementation supports mapping to and from Map instances as well as standard POJO and POGO objects.
  */
 @TypeChecked
 class RuntimeObjectMapper extends AbstractObjectMapper {

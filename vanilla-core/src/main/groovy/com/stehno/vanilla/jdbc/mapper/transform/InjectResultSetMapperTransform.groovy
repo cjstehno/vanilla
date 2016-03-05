@@ -50,6 +50,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
     private static final String RS = 'rs'
     private static final String CALL = 'call'
+    private static final String PREFIX = 'prefix'
 
     @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
     void visit(ASTNode[] nodes, SourceUnit source) {
@@ -71,7 +72,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
                 CompiledResultSetMapperBuilder mapperConfig = extractMapperConfig(mappedType.type, dslClosureX, styleEnum)
 
-                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig, source)
+                ClassNode mapperClassNode = createMapperClass(mapperName(mappedType, nameX), mapperConfig)
                 source.AST.addClass(mapperClassNode)
 
                 if (targetNode instanceof MethodNode) {
@@ -186,8 +187,7 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
         return "${x[0].toLowerCase()}${x[1..(-1)]}"
     }
 
-    private
-    static ClassNode createMapperClass(String mapperName, CompiledResultSetMapperBuilder config, SourceUnit source) {
+    private static ClassNode createMapperClass(String mapperName, CompiledResultSetMapperBuilder config) {
         ClassNode mapperClass = new ClassNode(mapperName, PUBLIC, newClass(make(CompiledResultSetMapper)), [] as ClassNode[], [] as MixinNode[])
 
         List<MapEntryExpression> mapEntryExpressions = []
@@ -207,9 +207,9 @@ class InjectResultSetMapperTransform extends AbstractASTTransformation {
 
         mapperClass.addConstructor(new ConstructorNode(
             Modifier.PUBLIC,
-            params(param(STRING_TYPE, 'prefix', constX(''))),
+            params(param(STRING_TYPE, PREFIX, constX(''))),
             [] as ClassNode[],
-            ctorSuperS(varX('prefix'))
+            ctorSuperS(varX(PREFIX))
         ))
 
         mapperClass

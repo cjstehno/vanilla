@@ -58,7 +58,7 @@ class CompiledFieldMapping extends FieldMapping {
 
     @Override
     protected FieldMapping extract(Object mapper) {
-        extractor = callX(mapper as MethodCallExpression, 'call', args(varX('rs')))
+        extractor = callX(mapper as MethodCallExpression, 'call', args(varX(RS)))
         this
     }
 }
