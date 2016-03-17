@@ -54,10 +54,6 @@ subprojects {
         )
     }
 
-    test {
-        jvmArgs '-Xverify:none'
-    }
-
     groovydoc {
         groovyClasspath = configurations.groovyDoc
     }

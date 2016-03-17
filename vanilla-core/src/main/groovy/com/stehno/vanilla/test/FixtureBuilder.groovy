@@ -16,6 +16,7 @@
 package com.stehno.vanilla.test
 
 import groovy.transform.Immutable
+import groovy.transform.TypeChecked
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
@@ -23,15 +24,14 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * Builder used to simplify the reuse of testing fixtures based on maps of data.
  *
  * <pre><code>
- *     Fixture fixture = define {
- *         fix 'MyFixture', [ name:'Alpha', number: 42]
+ *     Fixture fixture = define {*         fix 'MyFixture', [ name:'Alpha', number: 42]
  *         fix 'OtherFixture', [name:'Bravo', number:56]
- *     }
- * </code></pre>
+ *}* </code></pre>
  */
+@TypeChecked
 class FixtureBuilder {
 
-    private final fixtures = [:]
+    private final Map<Object, Object> fixtures = [:]
 
     /**
      * Used to define the fixture maps.

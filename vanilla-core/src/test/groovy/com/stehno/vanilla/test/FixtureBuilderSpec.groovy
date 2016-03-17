@@ -15,8 +15,6 @@
  */
 package com.stehno.vanilla.test
 
-import groovy.transform.Canonical
-import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.stehno.vanilla.test.FixtureBuilder.define
@@ -25,7 +23,7 @@ import static com.stehno.vanilla.test.PropertyRandomizer.randomize
 @SuppressWarnings('GroovyPointlessBoolean')
 class FixtureBuilderSpec extends Specification {
 
-    @Shared private final Fixture fixture = define {
+    private final Fixture fixture = define {
         fix 'alpha', [name: 'Larry', stooge: true]
         fix 'bravo', [name: 'Joe', stooge: false]
     }
@@ -143,10 +141,4 @@ class FixtureBuilderSpec extends Specification {
         b.size() == 2
         b.every { k, v -> v != null }
     }
-}
-
-@Canonical
-class Comedian {
-    String name
-    boolean stooge
 }

@@ -15,8 +15,6 @@
  */
 package com.stehno.vanilla.test
 
-import groovy.transform.Canonical
-import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.stehno.vanilla.test.Assertions.*
@@ -27,11 +25,7 @@ import static com.stehno.vanilla.test.PropertyRandomizer.randomize
  */
 class AssertionsSpec extends Specification {
 
-    @Shared
-    private final PropertyRandomizer randomSomething = randomize(Something)
-
-    @Shared
-    private final Fixture fixture = FixtureBuilder.define {
+    private static final Fixture fixture = FixtureBuilder.define {
         fix 'A', [fieldA: 'A', fieldB: 42]
     }
 
@@ -48,7 +42,7 @@ class AssertionsSpec extends Specification {
 
     def 'equals & hashCode: failing'() {
         when:
-        def (a, b, c, d) = randomSomething * 4
+        def (a, b, c, d) = randomize(Something) * 4
         assertValidEqualsAndHashcode(a, b, c, d)
 
         then:
@@ -94,10 +88,4 @@ class AssertionsSpec extends Specification {
         then:
         thrown(AssertionError)
     }
-}
-
-@Canonical
-class Something {
-    String fieldA
-    int fieldB
 }
