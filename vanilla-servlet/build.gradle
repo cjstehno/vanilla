@@ -1,0 +1,63 @@
+// FIXME: see what can be pulled up into the all-projects block
+// FIXME: should these be versioned separately?
+
+plugins {
+    id 'com.jfrog.bintray' version '1.6'
+    id 'com.github.hierynomus.license' version '0.12.1'
+}
+
+task sourcesJar(type: Jar) {
+    description = 'Creates sources JAR.'
+    classifier = 'sources'
+
+    from project.sourceSets.main.allSource
+}
+
+dependencies {
+    compile project(':vanilla-core')
+
+    compile 'org.slf4j:slf4j-api:1.7.19'
+    compile 'javax.servlet:javax.servlet-api:3.1.0'
+
+    testCompile 'com.mockrunner:mockrunner-servlet:1.1.1'
+    testCompile 'ch.qos.logback:logback-classic:1.1.6'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+            artifact sourcesJar
+        }
+    }
+}
+
+license {
+    header rootProject.file('license_header.txt')
+    ext.name = 'Christopher J. Stehno'
+    ext.email = 'chris@stehno.com'
+    ext.year = Calendar.instance.get(Calendar.YEAR)
+
+    excludes(['**/*.txt'])
+}
+
+// NOTE: run bintrayUpload and then go to web and publish.
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'stehno'
+        name = 'vanilla-servlet'
+        desc = 'Reusable Groovy servlet libraries.'
+        licenses = ['Apache-2.0']
+        labels = ['groovy', 'servlet']
+    }
+}
