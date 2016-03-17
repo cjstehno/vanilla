@@ -20,6 +20,7 @@ import groovy.transform.TypeChecked
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.concurrent.ThreadLocalRandom
 
 import static groovy.transform.TypeCheckingMode.SKIP
 
@@ -40,6 +41,17 @@ class Randomizers {
      */
     static <T> Closure<T> constant(final T value) {
         return { r -> value }
+    }
+
+    /**
+     * Generates the random value produced by the given randomizer. This method is generally for simple single-case random uses, provided as a
+     * convenience.
+     *
+     * @param randomizer the randomizer closure to be called
+     * @return the generated random value
+     */
+    static <T> T random(Closure<T> randomizer) {
+        randomizer.call(ThreadLocalRandom.current())
     }
 
     /**

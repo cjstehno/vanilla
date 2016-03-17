@@ -15,6 +15,8 @@
  */
 package com.stehno.vanilla.test
 
+import java.util.concurrent.ThreadLocalRandom
+
 import static com.stehno.vanilla.test.Randomizers.*
 import static groovy.lang.Closure.DELEGATE_FIRST
 
@@ -49,7 +51,7 @@ class PropertyRandomizer implements RandomizerDsl {
     private final List<String> ignoredProperties = []
 
     @SuppressWarnings('InsecureRandom')
-    private final Random rng = new Random()
+    private final Random rng = ThreadLocalRandom.current()
     private final Class target
 
     private final Map<Class, Object> classRandomizers = [

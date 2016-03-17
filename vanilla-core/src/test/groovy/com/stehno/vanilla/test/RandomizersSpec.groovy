@@ -31,6 +31,18 @@ class RandomizersSpec extends Specification {
 
     private final Random random = new Random()
 
+    def 'constant'() {
+        Randomizers.constant(42) == 42
+    }
+
+    def 'random'() {
+        when:
+        String value = Randomizers.random(forString(10..15))
+
+        then:
+        (10..15).containsWithinBounds value.length()
+    }
+
     def 'forList()'() {
         when:
         List<String> items = forList(forString(1..25)).call(random, null)
