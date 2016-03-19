@@ -15,6 +15,9 @@
  */
 package com.stehno.vanilla.test
 
+import groovy.text.GStringTemplateEngine
+import groovy.text.Template
+import groovy.text.TemplateEngine
 import groovy.transform.TypeChecked
 
 import java.time.Instant
@@ -31,7 +34,10 @@ import static groovy.transform.TypeCheckingMode.SKIP
 @TypeChecked
 class Randomizers {
 
-    private static final String CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    private static final String CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    private static final String NUMBERS = '0123456789'
+    private static TemplateEngine templateEngine = new GStringTemplateEngine()
+    private static final Map<String, Template> templateCache = [:]
 
     /**
      * Produces a Closure which will always return the specified value when called.
@@ -121,15 +127,33 @@ class Randomizers {
      * Produces a Closure which will generate a random string.
      *
      * @param size the size range of the string
+     * @param characters the set of allowed characters (as a string)
      * @return the string-generating closure
      */
-    static Closure<String> forString(IntRange size = (0..10)) {
+    static Closure<String> forString(IntRange size = (0..10), final String characters = CHARS) {
         return { Random rng ->
             def chars = []
             nextInt(rng, size.from as int, size.to as int).times {
-                chars << CHARS[rng.nextInt(CHARS.size())]
+                chars << characters[rng.nextInt(characters.size())]
             }
             chars.join('')
+        }
+    }
+
+    /**
+     * Produces a Closure which will generate a random string of numbers with or without a decimal.
+     *
+     * @param digits the range in the number of digits
+     * @return the string-generating closure
+     */
+    @TypeChecked(SKIP)
+    static Closure<String> forNumberString(IntRange digits = (0..10), boolean decimal = false) {
+        return { Random r ->
+            char[] string = forString(digits, NUMBERS).call(r).toCharArray()
+            if (decimal) {
+                string[r.nextInt(string.length)] = '.'
+            }
+            return string as String
         }
     }
 
@@ -328,6 +352,28 @@ class Randomizers {
     static Closure<Object> forRange(Range range) {
         return { Random rng ->
             range[rng.nextInt(range.size())]
+        }
+    }
+
+    /**
+     * Allows for a randomizers based on a <code>GStringTemplate</code> with randomized replacement variables.
+     *
+     * For a phone number, we could have <code>'($area) ${prefix}-${number}'</code> where the replacement variables are defined as
+     * randomizer closures.
+     *
+     * @param randomizers the replacement variable randomizers
+     * @param pattern the string pattern
+     * @return the randomizer closure
+     */
+    static Closure<String> forTemplate(Map<String, Closure> randomizers = [:], String pattern) {
+        Template template = templateCache[pattern]
+        if (!template) {
+            template = templateEngine.createTemplate(pattern)
+            templateCache[pattern] = template
+        }
+
+        return { Random r ->
+            template.make(randomizers.collectEntries { k, v -> [k, randomizers[k].call(r)] }) as String
         }
     }
 
