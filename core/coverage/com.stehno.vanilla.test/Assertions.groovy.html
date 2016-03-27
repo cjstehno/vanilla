@@ -15,11 +15,15 @@
  */
 package com.stehno.vanilla.test
 
+import groovy.transform.CompileStatic
+
+import static groovy.transform.TypeCheckingMode.SKIP
 import static java.util.Calendar.*
 
 /**
  *  Reusable assertions for testing common coding constructs.
  */
+@CompileStatic
 final class Assertions {
 
     /**
@@ -40,38 +44,38 @@ final class Assertions {
     static boolean assertValidEqualsAndHashcode(final Object objA, final Object objB, final Object objC, final Object objD) {
         // Symmetry: For two references, a and b, a.equals(b) if and only if b.equals(a)
 
-<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        assert objA.equals(objB), 'Object equality (A:B) is not symmetrical.'</span>
-<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        assert objB.equals(objA), 'Object equality (B:A) is not symmetrical.'</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        assert objA.equals(objB), 'Object equality (A:B) is not symmetrical.'</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        assert objB.equals(objA), 'Object equality (B:A) is not symmetrical.'</span>
 
-<span class="pc bpc" id="L46" title="2 of 4 branches missed.">        assert !objA.equals(objD), 'Object equality (A:D) is not symmetrical.'</span>
-<span class="pc bpc" id="L47" title="2 of 4 branches missed.">        assert !objB.equals(objD), 'Object equality (B:D) is not symmetrical.'</span>
-<span class="pc bpc" id="L48" title="2 of 4 branches missed.">        assert !objC.equals(objD), 'Object equality (C:D) is not symmetrical.'</span>
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">        assert !objA.equals(objD), 'Object equality (A:D) is not symmetrical.'</span>
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">        assert !objB.equals(objD), 'Object equality (B:D) is not symmetrical.'</span>
+<span class="pc bpc" id="L52" title="2 of 4 branches missed.">        assert !objC.equals(objD), 'Object equality (C:D) is not symmetrical.'</span>
 
-<span class="pc bpc" id="L50" title="2 of 4 branches missed.">        assert !objD.equals(objA), 'Object equality (D:A) is not symmetrical.'</span>
-<span class="pc bpc" id="L51" title="2 of 4 branches missed.">        assert !objD.equals(objB), 'Object equality (D:B) is not symmetrical.'</span>
-<span class="pc bpc" id="L52" title="2 of 4 branches missed.">        assert !objD.equals(objC), 'Object equality (D:C) is not symmetrical.'</span>
+<span class="pc bpc" id="L54" title="2 of 4 branches missed.">        assert !objD.equals(objA), 'Object equality (D:A) is not symmetrical.'</span>
+<span class="pc bpc" id="L55" title="2 of 4 branches missed.">        assert !objD.equals(objB), 'Object equality (D:B) is not symmetrical.'</span>
+<span class="pc bpc" id="L56" title="2 of 4 branches missed.">        assert !objD.equals(objC), 'Object equality (D:C) is not symmetrical.'</span>
 
         // Reflexivity: For all non-null references, a.equals(a)
 
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        assert objA.equals(objA), 'Object equality (A) is not reflexive.'</span>
-<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        assert objB.equals(objB), 'Object equality (B) is not reflexive.'</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        assert objC.equals(objC), 'Object equality (D) is not reflexive.'</span>
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        assert objD.equals(objD), 'Object equality (D) is not reflexive.'</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        assert objA.equals(objA), 'Object equality (A) is not reflexive.'</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        assert objB.equals(objB), 'Object equality (B) is not reflexive.'</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        assert objC.equals(objC), 'Object equality (D) is not reflexive.'</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        assert objD.equals(objD), 'Object equality (D) is not reflexive.'</span>
 
         // Transitivity: If a.equals(b) and b.equals(c), then a.equals(c)
 
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        assert objA.equals(objC), 'Object equality (A:C) is not transitive.'</span>
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        assert objB.equals(objC), 'Object equality (B:C) is not transitive.'</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        assert objA.equals(objC), 'Object equality (A:C) is not transitive.'</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        assert objB.equals(objC), 'Object equality (B:C) is not transitive.'</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        assert objC.equals(objA), 'Object equality (C:A) is not transitive.'</span>
 
         // Consistency with hashCode(): Two equal objects must have the same hashCode() value
 
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        assert objA.hashCode() == objB.hashCode(), 'Object hashCode (A:B) is not consistent.'</span>
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        assert objA.hashCode() == objC.hashCode(), 'Object hashCode (A:C) is not consistent.'</span>
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        assert objB.hashCode() == objC.hashCode(), 'Object hashCode (B:C) is not consistent.'</span>
+<span class="pc bpc" id="L74" title="2 of 4 branches missed.">        assert objA.hashCode() == objB.hashCode(), 'Object hashCode (A:B) is not consistent.'</span>
+<span class="pc bpc" id="L75" title="2 of 4 branches missed.">        assert objA.hashCode() == objC.hashCode(), 'Object hashCode (A:C) is not consistent.'</span>
+<span class="pc bpc" id="L76" title="2 of 4 branches missed.">        assert objB.hashCode() == objC.hashCode(), 'Object hashCode (B:C) is not consistent.'</span>
 
-<span class="pc" id="L74">        true</span>
+<span class="pc" id="L78">        true</span>
     }
 
     /**
@@ -85,13 +89,14 @@ final class Assertions {
      * @param expected map of expected values or closures to match
      * @param actual the actual data object being tested
      */
+    @CompileStatic(SKIP)
     static void assertMatches(Map expected, actual) {
-<span class="fc" id="L89">        expected.each { k, v -&gt;</span>
-<span class="fc" id="L90">            def actualVal = actual[k]</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (v instanceof Closure) {</span>
-<span class="pc bpc" id="L92" title="1 of 2 branches missed.">                assert v(actualVal)</span>
+<span class="fc" id="L94">        expected.each { k, v -&gt;</span>
+<span class="fc" id="L95">            def actualVal = actual[k]</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            if (v instanceof Closure) {</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                assert v(actualVal)</span>
             } else {
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                assert v == actualVal, &quot;$k: expected $v but was $actualVal&quot;</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                assert v == actualVal, &quot;$k: expected $v but was $actualVal&quot;</span>
             }
         }
     }
@@ -103,10 +108,10 @@ final class Assertions {
      * @param date the date to be tested
      */
     static void assertToday(final Date date) {
-<span class="fc" id="L106">        def cal = date.toCalendar()</span>
-<span class="fc" id="L107">        def now = new Date().toCalendar()</span>
+<span class="fc" id="L111">        def cal = date.toCalendar()</span>
+<span class="fc" id="L112">        def now = new Date().toCalendar()</span>
 
-<span class="pc bpc" id="L109" title="4 of 10 branches missed.">        assert (cal.get(YEAR) == now.get(YEAR)) &amp;&amp; (cal.get(WEEK_OF_YEAR) == now.get(WEEK_OF_YEAR)) &amp;&amp; (cal.get(DAY_OF_WEEK) == now.get(DAY_OF_WEEK))</span>
+<span class="pc bpc" id="L114" title="5 of 16 branches missed.">        assert (cal.get(YEAR) == now.get(YEAR)) &amp;&amp; (cal.get(WEEK_OF_YEAR) == now.get(WEEK_OF_YEAR)) &amp;&amp; (cal.get(DAY_OF_WEEK) == now.get(DAY_OF_WEEK))</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
