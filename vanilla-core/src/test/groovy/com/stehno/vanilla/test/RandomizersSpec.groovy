@@ -31,6 +31,48 @@ class RandomizersSpec extends Specification {
 
     private final Random random = new Random()
 
+    def 'constant'() {
+        Randomizers.constant(42) == 42
+    }
+
+    def 'random'() {
+        when:
+        String value = Randomizers.random(forString(10..15))
+
+        then:
+        (10..15).containsWithinBounds value.length()
+    }
+
+    def 'forString'() {
+        when:
+        String value = forString(3..10).call(random)
+
+        then:
+        (3..10).containsWithinBounds(value.length())
+        value.each { c -> Randomizers.CHARS.contains(c) }
+    }
+
+    def 'forString(alt chars)'() {
+        when:
+        String value = forString(3..10, 'qwerty').call(random)
+
+        then:
+        (3..10).containsWithinBounds(value.length())
+        value.each { c -> 'qwerty'.contains(c) }
+    }
+
+    def 'forNumberString'() {
+        when:
+        String value = forNumberString(3..10, true).call(random)
+
+        then:
+        (3..10).containsWithinBounds(value.length())
+        value.count('.') == 1
+        value.each { c ->
+            (c as char).isDigit() || c == '.'
+        }
+    }
+
     def 'forList()'() {
         when:
         List<String> items = forList(forString(1..25)).call(random, null)
@@ -203,5 +245,19 @@ class RandomizersSpec extends Specification {
             'm'..'s',
             100L..200L
         ]
+    }
+
+    def 'forTemplate'() {
+        when:
+        String result = forTemplate(
+            '($area) ${prefix}-${number}',
+            area: forNumberString(3..3),
+            prefix: forNumberString(3..3),
+            number: forNumberString(4..4)
+        ).call(random)
+
+        then:
+        result.size() == 14
+        result.contains('(') && result.contains(')') && result.contains('-')
     }
 }

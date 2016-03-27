@@ -15,11 +15,15 @@
  */
 package com.stehno.vanilla.test
 
+import groovy.transform.CompileStatic
+
+import static groovy.transform.TypeCheckingMode.SKIP
 import static java.util.Calendar.*
 
 /**
  *  Reusable assertions for testing common coding constructs.
  */
+@CompileStatic
 final class Assertions {
 
     /**
@@ -85,6 +89,7 @@ final class Assertions {
      * @param expected map of expected values or closures to match
      * @param actual the actual data object being tested
      */
+    @CompileStatic(SKIP)
     static void assertMatches(Map expected, actual) {
         expected.each { k, v ->
             def actualVal = actual[k]

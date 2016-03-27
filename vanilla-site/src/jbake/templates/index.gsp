@@ -22,7 +22,7 @@
 
 	<pre>
 // for Gradle builds
-compile 'com.stehno.vanilla:vanilla-core:0.3.0'
+compile 'com.stehno.vanilla:vanilla-core:0.4.0'
 	</pre>
 
     <h2>Status</h2>

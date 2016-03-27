@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'org.kordamp.gradle:stats-gradle-plugin:0.1.5'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
-    }
+plugins {
+    id "com.stehno.gradle.dependency-checker" version "0.1.3"
+    id "com.github.ben-manes.versions" version "0.12.0"
 }
 
 subprojects {
-    version = '0.3.0'
+    version = '0.4.0'
     group = 'com.stehno.vanilla'
 
     apply plugin: 'groovy'
     apply plugin: 'maven-publish'
     apply plugin: 'codenarc'
     apply plugin: 'jacoco'
-    apply plugin: 'org.kordamp.gradle.stats'
-    apply plugin: 'com.github.ben-manes.versions'
 
-    sourceCompatibility = 8
-    targetCompatibility = 8
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     repositories {
         jcenter()
@@ -61,13 +54,11 @@ subprojects {
         )
     }
 
-    test {
-        jvmArgs '-Xverify:none'
-    }
-
     groovydoc {
         groovyClasspath = configurations.groovyDoc
     }
+
+    tasks.check.dependsOn checkDependencies
 
     codenarc {
         toolVersion = codeNarcVersion
@@ -97,7 +88,7 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.11'
+    gradleVersion = '2.12'
 }
 
 //
