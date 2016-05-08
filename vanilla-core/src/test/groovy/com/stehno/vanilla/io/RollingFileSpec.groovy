@@ -38,6 +38,7 @@ class RollingFileSpec extends Specification {
         }
 
         then:
+        // FIXME: More testing here!
         targetFile.exists()
     }
 }
