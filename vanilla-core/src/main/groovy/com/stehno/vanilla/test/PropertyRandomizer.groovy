@@ -45,8 +45,6 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  */
 class PropertyRandomizer implements RandomizerDsl {
 
-    // TODO: consider renaming this to ObjectRandomizer
-
     private final List<Class> ignoredTypes = [Class]
     private final List<String> ignoredProperties = []
 
