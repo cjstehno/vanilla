@@ -10,7 +10,7 @@ The Vanilla library is my attempt to bring together a bunch of my reusable and i
 
 They are available via the JCenter repository:
 
-    compile 'com.stehno.vanilla:vanilla-core:0.4.0'
+    compile 'com.stehno.vanilla:vanilla-core:0.5.0'
 
 ## Build
 

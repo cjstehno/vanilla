@@ -1,6 +1,6 @@
 = Vanilla Users Guide
 Christopher J. Stehno <chris@stehno.com>
-v0.3.0, March 2016
+v0.5.0, March 2016
 :toc: left
 :toclevels: 3
 

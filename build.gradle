@@ -58,9 +58,33 @@ task site(group: 'Documentation', description: 'Builds the documentation web sit
     }
 }
 
-task publish(type: GradleBuild) {
+task publishSite(type: GradleBuild, group: 'Publishing', description: 'Publishes the documentation web site.', dependsOn: ['site']) {
     buildFile = 'publish.gradle'
     tasks = ['publishGhPages']
+}
+
+task updateVersion(group: 'Documentation', description: 'Updates the version in documentation based on the project version') << {
+    String newVersion = project.subprojects[0].version
+    String oldVersion = project.property('from')
+
+    logger.lifecycle "Updating documentation versions from ${oldVersion} to ${newVersion}..."
+
+    ant.replace(file: 'README.md', token: oldVersion, value: newVersion)
+    ant.replace(dir: 'src/docs/asciidoc', token: oldVersion, value: newVersion)
+}
+
+task checkVersion(group: 'Verification', description: 'Verify that the project version is reflected in the documentation.') << {
+    logger.lifecycle "Verifying that the documentation references version ${project.subprojects[0].version}..."
+
+    // Not the most efficient way to do this but should be ok for now
+    boolean documented = ['README.md', 'src/docs/asciidoc/index.adoc'].every { f ->
+        boolean ok = project.file(f).text.contains(project.subprojects[0].version)
+
+        logger.info " - Checking: $f: $ok"
+        ok
+    }
+
+    assert documented, 'The documented project version does not match the project version: Run "./gradlew updateVersion -Pfrom=OLD_VERSION" and try again.'
 }
 
 webPreview {
