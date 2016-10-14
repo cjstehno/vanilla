@@ -65,4 +65,24 @@ class TimeSpanSpec extends Specification {
         parse(' 2h ')++                || new TimeSpan(3, HOURS)
         parse(' 2h ')--                || new TimeSpan(1, HOURS)
     }
+
+    def 'millis'() {
+        expect:
+        span.toMillis() == millis
+
+        where:
+        span                             || millis
+        new TimeSpan(1, HOURS)           || 3600000
+        new TimeSpan(2, HOURS)           || 7200000
+        new TimeSpan(3, HOURS)           || 10800000
+        new TimeSpan(3.1415, HOURS)      || 10800000
+        new TimeSpan(45, MINUTES)        || 2700000
+        new TimeSpan(56, SECONDS)        || 56000
+        new TimeSpan(1256, MILLISECONDS) || 1256
+        new TimeSpan(0.24, MILLISECONDS) || 0
+        new TimeSpan(7, DAYS)            || 604800000
+        new TimeSpan(52, WEEKS)          || 31449600000
+        new TimeSpan(1, MONTHS)          || 2592000000
+        new TimeSpan(42, YEARS)          || 1324512000000
+    }
 }

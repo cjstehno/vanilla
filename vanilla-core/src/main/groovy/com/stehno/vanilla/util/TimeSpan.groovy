@@ -17,6 +17,17 @@ package com.stehno.vanilla.util
 
 import groovy.transform.Immutable
 
+import java.util.concurrent.TimeUnit
+
+import static com.stehno.vanilla.util.TimeSpanUnit.DAYS
+import static com.stehno.vanilla.util.TimeSpanUnit.HOURS
+import static com.stehno.vanilla.util.TimeSpanUnit.MILLISECONDS
+import static com.stehno.vanilla.util.TimeSpanUnit.MINUTES
+import static com.stehno.vanilla.util.TimeSpanUnit.MONTHS
+import static com.stehno.vanilla.util.TimeSpanUnit.NANOSECONDS
+import static com.stehno.vanilla.util.TimeSpanUnit.SECONDS
+import static com.stehno.vanilla.util.TimeSpanUnit.WEEKS
+import static com.stehno.vanilla.util.TimeSpanUnit.YEARS
 import static com.stehno.vanilla.util.TimeSpanUnit.fromAbbreviation
 
 /**
@@ -58,6 +69,37 @@ class TimeSpan {
      */
     String format(){
         "${value} ${unit.abbreviate(value > 1 || value < 1)}"
+    }
+
+    /**
+     * Converts the time span value to milliseconds. At spans of more than DAYS, the conversion is approximate and based on a pure 7-day week,
+     * 30-day month, and 365-day year. Generally it is not advisable to convert a span of larger scope than DAYS. Also note that span values
+     * are converted to "long" values during the conversion so some precision may be lost.
+     *
+     * @return the time span converted to milliseconds.
+     */
+    long toMillis(){
+        switch (unit){
+            case NANOSECONDS:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.NANOSECONDS)
+            case MILLISECONDS:
+                return value
+            case SECONDS:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.SECONDS)
+            case MINUTES:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.MINUTES)
+            case HOURS:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.HOURS)
+            case DAYS:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.DAYS)
+            case WEEKS:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.DAYS) * 7
+            case MONTHS:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.DAYS) * 30
+            case YEARS:
+                return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.DAYS) * 365
+        }
+
     }
 
     TimeSpan plus(TimeSpan ts){

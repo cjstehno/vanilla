@@ -15,21 +15,29 @@
  */
 package com.stehno.vanilla.io
 
+import com.stehno.vanilla.util.TimeSpan
 import groovy.transform.TypeChecked
 
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+
+import static java.lang.System.currentTimeMillis
+
 /**
- * Created by cjstehno on 4/23/16.
+ * Rollover strategy which will cause the file to roll on the next write after the expiration time. This is not a out-of-process
+ * rolling; if the file is never written to again, it will never roll.
  */
 @TypeChecked
 class TimeBasedRolloverTriggerStrategy implements RolloverTriggerStrategy {
-    /*
-        checked on write, not on cron job - next write after roll time will roll
-     */
 
-    // FIXME: implement me!
+    /**
+     * The maximum time a file will be allowed to exist before being rolled (note that the file will not roll before that time, but
+     * is not guaranteed to roll at all unless the file is written to).
+     */
+    TimeSpan maxLifespan
 
     @Override
-    boolean shouldRoll(File file) {
-        return false
+    boolean shouldRoll(final File file) {
+        currentTimeMillis() - Files.readAttributes(file.toPath(), BasicFileAttributes).creationTime().toMillis() >= maxLifespan.toMillis()
     }
 }
