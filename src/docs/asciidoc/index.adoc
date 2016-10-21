@@ -1,6 +1,6 @@
 = Vanilla Users Guide
 Christopher J. Stehno <chris@stehno.com>
-v0.5.0, March 2016
+v0.5.0, October 2016
 :toc: left
 :toclevels: 3
 
@@ -28,3 +28,7 @@ include::result-set-dsl.adoc[]
 include::overlap.adoc[]
 
 include::test-fixture.adoc[]
+
+include::rolling-file.adoc[]
+
+

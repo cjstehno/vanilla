@@ -1,0 +1,29 @@
+== Rolling File
+
+We often run into rolling log files that cutoff and rollover to a new file according to some configured rules; however, this is
+also a useful feature outside of logging. A `RollingFile` is based on a standard `File` but will "roll" the file based on a
+`RolloverTriggerStrategy` implementation - the default is based on file size. Once the conditions of the strategy are met, the file
+will rollover using a `RolloverFileProvider` implementation to determine the name and path of the rolled file (the default is to
+create a file in the same directory with a name suffixed with the timestamp at the time the file was cut. Being that both of these
+strategies are interfaces, the functionality is pluggable and extensible.
+
+Optionally, the rolled files may be compressed.
+
+An example of using a `RolledFile` is as follows:
+
+[source,groovy]
+----
+RollingFile rollingFile = new RollingFile(
+    file: new File('/some/file.json'),
+    rolloverStrategy: new FileSizeRolloverTriggerStrategy(1, StorageUnit.MEGABYTES),
+    compression: true
+)
+rollingFile.append '{ "id:"12345", "label":"item-01", "value:":8675309 }'
+----
+
+which will use `/some/file.json` as the initial target file, which will be rolled when a file write would cause the file size to
+exceed 1 MB.
+
+If for some reason you want the ability to optionally make a file rolling or not, you can use the `NoopRolloverTriggerStrategy` as
+the `rolloverStrategy` so that the file will never roll. The strategy may be changed at runtime to cause the file to begin rolling
+behavior.

@@ -23,8 +23,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = '3.1'
 }
 
-
-task site(group: 'Documentation', description: 'Builds the documentation web site.', dependsOn: ['build', 'vanilla-core:groovydoc', 'vanilla-core:jacocoTestReport', 'asciidoctor']) << {
+task site(group: 'Documentation', description: 'Builds the documentation web site.', dependsOn: ['build', 'vanilla-core:build', 'vanilla-core:groovydoc', 'vanilla-core:jacocoTestReport', 'asciidoctor']) << {
     logger.info 'Building documentation web site...'
 
     // copy the templates

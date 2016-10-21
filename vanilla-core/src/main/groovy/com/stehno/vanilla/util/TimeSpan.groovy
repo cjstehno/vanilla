@@ -19,21 +19,12 @@ import groovy.transform.Immutable
 
 import java.util.concurrent.TimeUnit
 
-import static com.stehno.vanilla.util.TimeSpanUnit.DAYS
-import static com.stehno.vanilla.util.TimeSpanUnit.HOURS
-import static com.stehno.vanilla.util.TimeSpanUnit.MILLISECONDS
-import static com.stehno.vanilla.util.TimeSpanUnit.MINUTES
-import static com.stehno.vanilla.util.TimeSpanUnit.MONTHS
-import static com.stehno.vanilla.util.TimeSpanUnit.NANOSECONDS
-import static com.stehno.vanilla.util.TimeSpanUnit.SECONDS
-import static com.stehno.vanilla.util.TimeSpanUnit.WEEKS
-import static com.stehno.vanilla.util.TimeSpanUnit.YEARS
-import static com.stehno.vanilla.util.TimeSpanUnit.fromAbbreviation
+import static com.stehno.vanilla.util.TimeSpanUnit.*
 
 /**
  * Immutable representation of a time span, parsable from a string (e.g. "1 hour").
  */
-@Immutable(knownImmutableClasses=[Number])
+@Immutable(knownImmutableClasses = [Number])
 class TimeSpan {
 
     // TODO: this might make an interesting extension to Number (e.g. 12.hours)
@@ -47,12 +38,12 @@ class TimeSpan {
      * @param value the string value to be parsed
      * @return the parsed TimeSpan
      */
-    static TimeSpan parse(String value){
+    static TimeSpan parse(String value) {
         def digits = []
         def unit = []
 
-        value.trim().toCharArray().each { c->
-            if(c.isDigit() || c== '.'){
+        value.trim().toCharArray().each { c ->
+            if (c.isDigit() || c == '.') {
                 digits << c
             } else {
                 unit << c
@@ -67,7 +58,7 @@ class TimeSpan {
      *
      * @return a formatted string representation of the TimeSpan
      */
-    String format(){
+    String format() {
         "${value} ${unit.abbreviate(value > 1 || value < 1)}"
     }
 
@@ -78,8 +69,8 @@ class TimeSpan {
      *
      * @return the time span converted to milliseconds.
      */
-    long toMillis(){
-        switch (unit){
+    long toMillis() {
+        switch (unit) {
             case NANOSECONDS:
                 return TimeUnit.MILLISECONDS.convert(value as long, TimeUnit.NANOSECONDS)
             case MILLISECONDS:
@@ -102,29 +93,29 @@ class TimeSpan {
 
     }
 
-    TimeSpan plus(TimeSpan ts){
+    TimeSpan plus(TimeSpan ts) {
         assert unit == ts.unit // no conversion at this point
         new TimeSpan(value + ts.value, unit)
     }
 
-    TimeSpan minus(TimeSpan ts){
+    TimeSpan minus(TimeSpan ts) {
         assert unit == ts.unit // no conversion at this point
         new TimeSpan(value - ts.value, unit)
     }
 
-    TimeSpan multiply(Number num){
-        new TimeSpan(value*num, unit)
+    TimeSpan multiply(Number num) {
+        new TimeSpan(value * num, unit)
     }
 
-    TimeSpan div(Number num){
-        new TimeSpan(value/num, unit)
+    TimeSpan div(Number num) {
+        new TimeSpan(value / num, unit)
     }
 
-    TimeSpan next(){
+    TimeSpan next() {
         new TimeSpan(++value, unit)
     }
 
-    TimeSpan previous(){
+    TimeSpan previous() {
         new TimeSpan(--value, unit)
     }
 }

@@ -31,6 +31,8 @@ class DefaultRolloverFileProvider implements RolloverFileProvider {
      */
     File directory
 
+    private static final String PERIOD = '.'
+
     @Override
     File provide(final File file, final boolean compression) {
         new File(getParentPath(file), "${getNameWithoutExtension(file)}-${System.currentTimeMillis()}${getExtension(file, compression)}")
@@ -41,10 +43,10 @@ class DefaultRolloverFileProvider implements RolloverFileProvider {
     }
 
     protected String getNameWithoutExtension(final File file) {
-        file.name[0..(file.name.lastIndexOf('.') - 1)]
+        file.name[0..(file.name.lastIndexOf(PERIOD) - 1)]
     }
 
     protected String getExtension(final File file, final boolean compression) {
-        file.name[(file.name.lastIndexOf('.') - 1)..-1] + (compression ? '.gz' : '')
+        file.name[(file.name.lastIndexOf(PERIOD) - 1)..-1] + (compression ? '.gz' : '')
     }
 }

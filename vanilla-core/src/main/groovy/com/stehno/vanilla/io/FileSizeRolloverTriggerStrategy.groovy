@@ -25,7 +25,7 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class FileSizeRolloverTriggerStrategy implements RolloverTriggerStrategy {
 
-    private long triggerSize
+    private final long triggerSize
 
     FileSizeRolloverTriggerStrategy(long fileSize = 10, StorageUnit unit = StorageUnit.MEGABYTES) {
         this.triggerSize = StorageUnit.BYTES.approximate(fileSize, unit)
