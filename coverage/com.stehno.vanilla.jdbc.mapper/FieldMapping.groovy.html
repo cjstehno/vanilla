@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FieldMapping.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.jdbc.mapper</a> &gt; <span class="el_source">FieldMapping.groovy</span></div><h1>FieldMapping.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.jdbc.mapper
+
+import groovy.transform.ToString
+
+/**
+ * ResultSet mapper DSL model class representation of an object property mapping to a field in the database.
+ */
+@ToString(includeNames = true, includeFields = true) @SuppressWarnings('MethodCount')
+abstract class FieldMapping {
+
+    /**
+     * The name of the mapped object property.
+     */
+    final String propertyName
+
+    private Object extractor
+    private Object converter
+
+    protected FieldMapping(String propertyName) {
+<span class="fc" id="L35">        this.propertyName = propertyName</span>
+    }
+
+    /**
+     * Retrieves the object used to extract the property value from the database result set.
+     *
+     * @return the extraction object
+     */
+<span class="pc" id="L43">    Object getExtractor() { extractor }</span>
+
+    /**
+     * Retrieves the object used (if any) to convert the database field value into the desired value required by the mapped property.
+     *
+     * @return the converter object
+     */
+<span class="pc" id="L50">    Object getConverter() { converter }</span>
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an Object.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping from(columnIdentifier) {
+<span class="pc" id="L59">        fromObject columnIdentifier</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an Object.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromObject(columnIdentifier) {
+<span class="pc" id="L69">        extract columnIdentifier, 'getObject'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a String.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromString(columnIdentifier) {
+<span class="pc" id="L79">        extract columnIdentifier, 'getString'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Boolean.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBoolean(columnIdentifier) {
+<span class="nc" id="L89">        extract columnIdentifier, 'getBoolean'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a byte.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromByte(columnIdentifier) {
+<span class="pc" id="L99">        extract columnIdentifier, 'getByte'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a short.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromShort(columnIdentifier) {
+<span class="nc" id="L109">        extract columnIdentifier, 'getShort'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an int.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromInt(columnIdentifier) {
+<span class="pc" id="L119">        extract columnIdentifier, 'getInt'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a long.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromLong(columnIdentifier) {
+<span class="nc" id="L129">        extract columnIdentifier, 'getLong'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a float.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromFloat(columnIdentifier) {
+<span class="pc" id="L139">        extract columnIdentifier, 'getFloat'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a double.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromDouble(columnIdentifier) {
+<span class="nc" id="L149">        extract columnIdentifier, 'getDouble'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an array of bytes.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBytes(columnIdentifier) {
+<span class="nc" id="L159">        extract columnIdentifier, 'getBytes'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a SQL Date.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromDate(columnIdentifier) {
+<span class="pc" id="L169">        extract columnIdentifier, 'getDate'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Time instance.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromTime(columnIdentifier) {
+<span class="nc" id="L179">        extract columnIdentifier, 'getTime'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Timestamp instance.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromTimestamp(columnIdentifier) {
+<span class="nc" id="L189">        extract columnIdentifier, 'getTimestamp'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an ASCII stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromAsciiStream(columnIdentifier) {
+<span class="nc" id="L199">        extract columnIdentifier, 'getAsciiStream'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Unicode stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromUnicodeStream(columnIdentifier) {
+<span class="nc" id="L209">        extract columnIdentifier, 'getUnicodeStream'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a binary stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBinaryStream(columnIdentifier) {
+<span class="nc" id="L219">        extract columnIdentifier, 'getBinaryStream'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a character stream.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromCharacterStream(columnIdentifier) {
+<span class="nc" id="L229">        extract columnIdentifier, 'getCharacterStream'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a BigDecimal.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBigDecimal(columnIdentifier) {
+<span class="nc" id="L239">        extract columnIdentifier, 'getBigDecimal'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Ref.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromRef(columnIdentifier) {
+<span class="nc" id="L249">        extract columnIdentifier, 'getRef'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Blob.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromBlob(columnIdentifier) {
+<span class="nc" id="L259">        extract columnIdentifier, 'getBlob'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a Clob.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromClob(columnIdentifier) {
+<span class="nc" id="L269">        extract columnIdentifier, 'getClob'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as an Array.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromArray(columnIdentifier) {
+<span class="nc" id="L279">        extract columnIdentifier, 'getArray'</span>
+    }
+
+    /**
+     * Configures the FieldMapping to extract the database field value with the specified identifier as a URL.
+     *
+     * @param columnIdentifier the column identifier
+     * @return a reference to this FieldMapping object
+     */
+    FieldMapping fromURL(columnIdentifier) {
+<span class="nc" id="L289">        extract columnIdentifier, 'getURL'</span>
+    }
+
+    FieldMapping fromMapper(mapper) {
+<span class="pc" id="L293">        extract mapper</span>
+    }
+
+    /**
+     * DSL method used to apply a converter object to the field mapping.
+     *
+     * @param converter the converter object to be used
+     */
+    void using(converter) {
+<span class="fc" id="L302">        this.converter = converter</span>
+    }
+
+    /**
+     * Used to extract and apply the construct needed to map a specific field based on the underlying implementation.
+     *
+     * @param nameOrPosition the identifier for the name or position lookup
+     * @param getterName the full name of the getter method to be called on the ResultSet
+     * @return a reference to this FieldMapping
+     */
+    protected abstract FieldMapping extract(nameOrPosition, String getterName)
+
+    protected abstract FieldMapping extract(mapper)
+
+    protected void setExtractor(Object extractor) {
+<span class="fc" id="L317">        this.extractor = extractor</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

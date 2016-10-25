@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResultSetBuilder.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.test.jdbc.mock</a> &gt; <span class="el_source">ResultSetBuilder.groovy</span></div><h1>ResultSetBuilder.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.test.jdbc.mock
+
+import com.mockrunner.mock.jdbc.MockResultSet
+
+import java.sql.ResultSet
+
+import static com.stehno.vanilla.Affirmations.affirm
+import static com.stehno.vanilla.util.Strings.underscoreToCamelCase
+import static groovy.lang.Closure.DELEGATE_FIRST
+
+/**
+ * Builder used to simplify the creation of MockResultSet objects using the builder pattern or the provided ResultSet
+ * DSL.
+ */
+class ResultSetBuilder implements ResultSetDsl {
+
+<span class="fc" id="L32">    private final List&lt;String&gt; columns = []</span>
+<span class="fc" id="L33">    private final List&lt;Object[]&gt; rows = []</span>
+
+    /**
+     * Creates a new &lt;code&gt;ResultSetBuilder&lt;/code&gt; based on the provided DSL closure.
+     *
+     * @param closure the DSL closure
+     * @return the configured ResultSetBuilder
+     */
+    static ResultSetBuilder builder(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
+<span class="fc" id="L42">        ResultSetBuilder factory = new ResultSetBuilder()</span>
+<span class="fc" id="L43">        closure.delegate = factory</span>
+<span class="fc" id="L44">        closure.resolveStrategy = DELEGATE_FIRST</span>
+<span class="fc" id="L45">        closure.call()</span>
+<span class="pc" id="L46">        factory</span>
+    }
+
+    /**
+     * Creates a new &lt;code&gt;ResultSet&lt;/code&gt; based on the provided DSL closure. The underlying implementation is an configured instance of
+     * &lt;code&gt;com.mockrunner.mock.jdbc.MockResultSet&lt;/code&gt;.
+     *
+     * @param closure the DSL closure
+     * @return the configured ResultSet
+     */
+    static ResultSet resultSet(@DelegatesTo(value = ResultSetDsl, strategy = DELEGATE_FIRST) Closure closure) {
+<span class="pc" id="L57">        builder(closure).build()</span>
+    }
+
+    @SuppressWarnings('ConfusingMethodName')
+    void columns(List&lt;String&gt; colNames) {
+<span class="nc" id="L62">        columns.addAll(colNames)</span>
+    }
+
+    @SuppressWarnings('ConfusingMethodName')
+    void columns(String... colNames) {
+<span class="fc" id="L67">        columns.addAll(colNames.collect())</span>
+    }
+
+    void data(List&lt;Object&gt; colValues) {
+<span class="fc" id="L71">        checkColumnSizes colValues.size()</span>
+<span class="fc" id="L72">        rows &lt;&lt; colValues.toArray()</span>
+    }
+
+    void data(Object... colValues) {
+<span class="fc" id="L76">        checkColumnSizes colValues.size()</span>
+<span class="fc" id="L77">        rows &lt;&lt; colValues</span>
+    }
+
+    void object(Object colValueObject) {
+<span class="fc" id="L81">        def row = columns.collect { col -&gt;</span>
+<span class="pc" id="L82">            colValueObject[underscoreToCamelCase(col)]</span>
+        }
+<span class="fc" id="L84">        rows &lt;&lt; (row as Object[])</span>
+    }
+
+    void map(Map&lt;String, Object&gt; colValueMap) {
+<span class="pc" id="L88">        def row = columns.collect { col -&gt; colValueMap[col] }</span>
+<span class="fc" id="L89">        rows &lt;&lt; (row as Object[])</span>
+    }
+
+    /**
+     * Builds a &lt;code&gt;ResultSet&lt;/code&gt; (implemented by &lt;code&gt;com.mockrunner.mock.jdbc.MockResultSet&lt;/code&gt;) based on the provided data.
+     *
+     * @return a configured ResultSet
+     */
+    ResultSet build() {
+<span class="fc" id="L98">        MockResultSet mrs = new MockResultSet(&quot;mock-${System.currentTimeMillis()}&quot;)</span>
+
+<span class="fc" id="L100">        columns.each { col -&gt;</span>
+<span class="pc" id="L101">            mrs.addColumn(col)</span>
+        }
+
+<span class="fc" id="L104">        rows.each { row -&gt;</span>
+<span class="pc" id="L105">            mrs.addRow(row as Object[])</span>
+        }
+
+<span class="pc" id="L108">        return mrs</span>
+    }
+
+    private void checkColumnSizes(int argCount) {
+<span class="fc" id="L112">        affirm(</span>
+<span class="fc" id="L113">            argCount == columns.size(),</span>
+<span class="fc" id="L114">            &quot;The column counts do not match: found ${argCount}, expected ${columns.size()} - did you specify the columns?&quot;</span>
+        )
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

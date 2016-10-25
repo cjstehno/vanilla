@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompositeConfigurationSource.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.config</a> &gt; <span class="el_source">CompositeConfigurationSource.groovy</span></div><h1>CompositeConfigurationSource.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.config
+
+import com.stehno.vanilla.mapper.ObjectMapper
+import com.stehno.vanilla.util.TimeSpan
+import groovy.transform.TypeChecked
+
+import java.nio.file.Path
+
+import static groovy.transform.TypeCheckingMode.SKIP
+
+/**
+ * Implementation of the ConfigurationSource interface that allows multiple ConfigurationSources to be layered such that the first source containing a value for a property will be used - this allows
+ * properties to be retrieved from multiple sources where each source does not necessarily contain all properties, or when there is a priority override system desired for property resolution.
+ */
+@TypeChecked
+class CompositeConfigurationSource implements ConfigurationSource {
+
+    private final List&lt;ConfigurationSource&gt; sources
+
+    /**
+     * Creates a composite ConfigurationSource from a list of other configuration sources. The sources are searched in the provided order such that those defined earlier in the list will be checked
+     * first, if no property is found, the next source will be searched.
+     *
+     * @param sources the ordered list of sources to be used
+     */
+<span class="nc" id="L41">    CompositeConfigurationSource(final List&lt;ConfigurationSource&gt; sources = []) {</span>
+<span class="fc" id="L42">        this.sources = sources</span>
+    }
+
+    /**
+     * Inserts the given ConfigurationSource at the specified index in the list.
+     *
+     * @param source the source to be added
+     * @param index the index
+     */
+    void insertSource(final ConfigurationSource source, final int index) {
+<span class="fc" id="L52">        sources.add index, source</span>
+    }
+
+    /**
+     * Adds the given source to the end of the composite search list.
+     *
+     * @param source the source to be added
+     */
+    void addSource(final ConfigurationSource source) {
+<span class="nc" id="L61">        sources &lt;&lt; source</span>
+    }
+
+    /**
+     * An alias to &quot;addSource(ConfigurationSource)&quot;.
+     *
+     * @param source the source to be added
+     */
+    void leftShift(final ConfigurationSource source) {
+<span class="nc" id="L70">        addSource source</span>
+    }
+
+    @Override
+    String getString(String key, String defaultValue = null) {
+<span class="pc" id="L75">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getString(key) }</span>
+    }
+
+    @Override
+    Integer getInt(String key, Integer defaultValue = null) {
+<span class="nc" id="L80">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getInt(key) }</span>
+    }
+
+    @Override
+    Long getLong(String key, Long defaultValue = null) {
+<span class="nc" id="L85">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getLong(key) }</span>
+    }
+
+    @Override
+    Float getFloat(String key, Float defaultValue = null) {
+<span class="nc" id="L90">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getFloat(key) }</span>
+    }
+
+    @Override
+    Double getDouble(String key, Double defaultValue = null) {
+<span class="nc" id="L95">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getDouble(key) }</span>
+    }
+
+    @Override
+    Path getPath(String key, Path defaultValue = null) {
+<span class="nc" id="L100">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getPath(key) }</span>
+    }
+
+    @Override
+    File getFile(String key, File defaultValue = null) {
+<span class="nc" id="L105">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getFile(key) }</span>
+    }
+
+    @Override
+    TimeSpan getTimeSpan(String key, TimeSpan defaultValue = null) {
+<span class="nc" id="L110">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getTimeSpan(key) }</span>
+    }
+
+    @Override
+    Boolean getBoolean(String key, Boolean defaultValue = null) {
+<span class="nc" id="L115">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getBoolean(key) }</span>
+    }
+
+    @Override
+    ConfigurationSource getConfiguration(String key) {
+<span class="nc" id="L120">        findValue { ConfigurationSource src -&gt; src.getConfiguration(key) }</span>
+    }
+
+    @Override
+    Map&lt;String, Object&gt; getMap(String key, Map&lt;String, Object&gt; defaultValue = null) {
+<span class="nc" id="L125">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getMap(key) }</span>
+    }
+
+    @Override
+    public &lt;T&gt; T getObject(String key, Class&lt;? extends T&gt; type, ObjectMapper mapper, T defaultValue = null) {
+<span class="nc" id="L130">        findValue(defaultValue) { ConfigurationSource src -&gt; src.getObject(key, type, mapper) }</span>
+    }
+
+    @TypeChecked(SKIP)
+    private &lt;T&gt; T findValue(final T defaultValue = null, final Closure&lt;T&gt; getter) {
+<span class="fc" id="L135">        T value = null</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        for (final ConfigurationSource source : sources) {</span>
+<span class="fc" id="L137">            value = getter(source)</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">            if (value != null) {</span>
+<span class="fc" id="L139">                break</span>
+            }
+        }
+<span class="pc bfc" id="L142" title="All 2 branches covered.">        value != null ? value : defaultValue</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FixtureBuilder.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.test</a> &gt; <span class="el_source">FixtureBuilder.groovy</span></div><h1>FixtureBuilder.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.test
+
+import groovy.transform.Immutable
+import groovy.transform.TypeChecked
+
+import static groovy.lang.Closure.DELEGATE_FIRST
+
+/**
+ * Builder used to simplify the reuse of testing fixtures based on maps of data.
+ *
+ * &lt;pre&gt;&lt;code&gt;
+ *     Fixture fixture = define {*         fix 'MyFixture', [ name:'Alpha', number: 42]
+ *         fix 'OtherFixture', [name:'Bravo', number:56]
+ *}* &lt;/code&gt;&lt;/pre&gt;
+ */
+@TypeChecked
+class FixtureBuilder {
+
+    private final Map&lt;Object, Object&gt; fixtures = [:]
+
+    /**
+     * Used to define the fixture maps.
+     *
+     * @param closure the DSL style closure for creating the fixtures (using &quot;fix&quot; method calls).
+     *
+     * @return the configured Fixture object
+     */
+    static Fixture define(@DelegatesTo(FixtureBuilder) Closure closure) {
+<span class="fc" id="L44">        def builder = new FixtureBuilder()</span>
+<span class="fc" id="L45">        closure.delegate = builder</span>
+<span class="fc" id="L46">        closure.resolveStrategy = DELEGATE_FIRST</span>
+<span class="fc" id="L47">        closure()</span>
+<span class="pc" id="L48">        builder.build()</span>
+    }
+
+    /**
+     * Called to configure a fixture on the builder.
+     *
+     * @param fix the identifier for the fixture (must be usable as a map key)
+     * @param attrs the map of attributes for the fixture
+     * @returns an instance of the builder for chained use
+     */
+    FixtureBuilder fix(Object fix, Map attrs) {
+<span class="fc" id="L59">        fixtures[fix] = attrs.asImmutable()</span>
+<span class="pc" id="L60">        this</span>
+    }
+
+    /**
+     * Called to configure a fixture built using the given PropertyRandomizer instance.
+     *
+     * @param fix the fixture identifier
+     * @param randomizer the PropertyRandomizer used to generate the fixture property (at configuration time).
+     * @return an instance of the FixtureBuilder for chained use
+     */
+    FixtureBuilder fix(Object fix, PropertyRandomizer randomizer) {
+<span class="fc" id="L71">        fixtures[fix] = randomizer.one() as Map</span>
+<span class="pc" id="L72">        this</span>
+    }
+
+    /**
+     * Used to build the resulting Fixture object. This only needs to be called if you are using the builder-style. The DSL will do this
+     * automatically.
+     *
+     * @return the configured Fixture.
+     */
+    Fixture build() {
+<span class="pc" id="L82">        new Fixture(fixtures.asImmutable())</span>
+    }
+}
+
+/**
+ * The immutable container for the configured fixtures.
+ */
+@Immutable
+class Fixture {
+
+    /**
+     * The raw map of fixtures. Generally, you should not access this directly; however, it is available.
+     */
+    Map fixtures
+
+    /**
+     * Used to retrieve a field with the given name from the specified fixture.
+     *
+     * @param name the field name
+     * @param fix the fixture key
+     * @return the value of the fixture field
+     */
+    def field(String name, Object fix = null) {
+<span class="pc" id="L105">        map(fix)[name]</span>
+    }
+
+    /**
+     * Used to retrieve the immutable map of fixture data for the specified fixture. If no fixture key is specified, the first configured fixture
+     * will be returned. If no fixtures are found, an assertion error is thrown.
+     *
+     * @param attrs optional extra attributes to be applied to the map to override or add properties of the fixture (internal fixture is unchanged)
+     * @param fix the fixture key
+     * @return the map of fixture data
+     */
+    Map&lt;String, Object&gt; map(Map&lt;String, Object&gt; attrs, Object fix = null) {
+<span class="fc bfc" id="L117" title="All 4 branches covered.">        def fixture = fix ? fixtures[fix] : (fixtures ? fixtures.entrySet().first().value : null)</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        assert fixture, &quot;Fixture($fix) does not exist.&quot;</span>
+<span class="pc" id="L119">        fixture + attrs</span>
+    }
+
+    Map&lt;String, Object&gt; map(Object fix = null) {
+<span class="pc" id="L123">        map([:], fix)</span>
+    }
+
+    /**
+     * Instantiates an instance of the specified type using the fixture data from the designated fixture. The class must allow a map-based
+     * constructor.
+     *
+     * @param attrs optional extra attributes to be applied to the map to override or add properties of the fixture (internal fixture is unchanged)
+     * @param type the type to be instantiated
+     * @param fix the fixture key
+     * @return a new instance of the specified type populated with the fixture data
+     */
+    def object(Map&lt;String, Object&gt; attrs, Class type, Object fix = null) {
+<span class="pc" id="L136">        type.newInstance(map(attrs, fix))</span>
+    }
+
+    def object(Class type, Object fix = null) {
+<span class="pc" id="L140">        object([:], type, fix)</span>
+    }
+
+    /**
+     * Used to verify that the contents of the given object match the properties defined by the specified fixture. Only the properties defined in
+     * the fixture will be tested.
+     *
+     * @param attrs optional extra attributes to be applied to the map to override or add properties of the fixture (internal fixture is unchanged)
+     * @param actual the instance to be tested
+     * @param fix the fixture key
+     * @returns true if all the properties match the expected fixture values
+     */
+    boolean verify(Map&lt;String, Object&gt; attrs, actual, Object fix = null) {
+<span class="pc" id="L153">        map(attrs, fix).every { name, val -&gt;</span>
+<span class="pc" id="L154">            actual[name] == val</span>
+        }
+    }
+
+    boolean verify(actual, Object fix = null) {
+<span class="pc" id="L159">        verify([:], actual, fix)</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
