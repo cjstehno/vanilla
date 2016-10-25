@@ -1,0 +1,26 @@
+== Layered Configuration
+
+The `com.stehno.vanilla.config` package contains a set of classes useful for providing a layered configuration framework similar to that provided by Ratpack or Spring, but without the other
+framework overhead.
+
+You could create a cached layered configuration mechanism with something like:
+
+[source,groovy]
+----
+ConfigurationSource config = new CachedConfigurationSource(new CompositeConfigurationSource([
+    new ZookeeperConfigurationSource(zkconfig),
+    new PropertiesConfigurationSource(props)
+]))
+
+String serverHost = config.getString('server.host', 'localhost:1234')
+----
+
+where the `ZookeeperConfigurationSource` would be your own implementation of the `ConfigurationSource` implementation used to extract configuration from Zookeeper.
+
+When a configuration property is requested, such as in the example above, the `ZookeeperConfigurationSource` will be checked for the desired property key (`server.host`), if it does not contain
+the key, the `PropertiesConfigurationSource` will be checked - if it is found, the value will be returned, if not, the default value of `localhost:1234` will be returned. The `CachedConfigurationSource`
+decorator is used to provide a top-level caching layer so that once a property is resolved, it will not need to be resolved again.
+
+The `ConfigurationSource` interface provides a rich set of property getter methods to retrieve properties as types other than just `String`s.
+
+Multiple levels of nested configurations could be configured in this manner.

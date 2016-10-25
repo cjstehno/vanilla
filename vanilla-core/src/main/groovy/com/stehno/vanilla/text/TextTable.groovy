@@ -28,6 +28,7 @@ class TextTable {
     final List<TableColumn> columns
     final List<List<String>> rows = []
 
+    private static final String SPACE = ' '
     private static final String PIPE = '|'
     private static final String NEW_LINE = '\n'
     private static final String PLUS = '+'
@@ -80,7 +81,7 @@ class TextTable {
 
         tbl.append(PIPE)
         columns.each { col ->
-            tbl.append(' ')
+            tbl.append(SPACE)
             tbl.append(col.name.padRight(col.minWidth - 1))
             tbl.append(PIPE)
         }
@@ -93,7 +94,7 @@ class TextTable {
         rows.each { row ->
             tbl.append(PIPE)
             row.eachWithIndex { cell, index ->
-                tbl.append(' ')
+                tbl.append(SPACE)
                 tbl.append(cell.padRight(columns[index].minWidth - 1))
                 tbl.append(PIPE)
             }

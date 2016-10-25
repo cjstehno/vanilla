@@ -36,7 +36,7 @@ class Randomizers {
 
     private static final String CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     private static final String NUMBERS = '0123456789'
-    private static TemplateEngine templateEngine = new GStringTemplateEngine()
+    private static final TemplateEngine templateEngine = new GStringTemplateEngine()
     private static final Map<String, Template> templateCache = [:]
 
     /**

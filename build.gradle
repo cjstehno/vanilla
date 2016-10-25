@@ -1,107 +1,91 @@
-/*
- * Copyright (c) 2014 Christopher J. Stehno
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 plugins {
-    id "com.stehno.gradle.dependency-checker" version "0.1.3"
-    id "com.github.ben-manes.versions" version "0.12.0"
+  id "org.asciidoctor.convert" version "1.5.3"
+  id "com.stehno.gradle.webpreview" version "0.1.1"
 }
 
-subprojects {
-    version = '0.4.0'
-    group = 'com.stehno.vanilla'
+repositories {
+    jcenter()
+}
 
-    apply plugin: 'groovy'
-    apply plugin: 'maven-publish'
-    apply plugin: 'codenarc'
-    apply plugin: 'jacoco'
+asciidoctor {
+    options doctype: 'book'
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    backends = ['html5']
 
-    repositories {
-        jcenter()
-    }
-
-    configurations {
-        groovyDoc
-    }
-
-    dependencies {
-        compile "org.codehaus.groovy:groovy-all:$groovyVersion"
-
-        testCompile 'junit:junit:4.12'
-        testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-
-        groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
-        groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
-
-        codenarc(
-            "org.codenarc:CodeNarc:$codeNarcVersion",
-            "org.codehaus.groovy:groovy-all:$groovyVersion"
-        )
-    }
-
-    groovydoc {
-        groovyClasspath = configurations.groovyDoc
-    }
-
-    tasks.check.dependsOn checkDependencies
-
-    codenarc {
-        toolVersion = codeNarcVersion
-    }
-
-    codenarcMain {
-        ignoreFailures false
-        configFile file('../config/codenarc-main.rules')
-
-        maxPriority1Violations 0
-        maxPriority2Violations 5
-        maxPriority3Violations 10
-    }
-
-    codenarcTest {
-        ignoreFailures true
-        configFile file('../config/codenarc-test.rules')
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled false
-            csv.enabled false
-            html.destination "${buildDir}/reports/coverage"
-        }
-    }
+    attributes 'source-highlighter'    : 'coderay',
+               'coderay-linenums-mode' : 'table',
+               icon                    : 'font',
+               linkattrs               : true,
+               encoding                : 'utf-8'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
+    gradleVersion = '3.1'
 }
 
-//
-// DOCUMENTATION HELPERS
-//
+task site(group: 'Documentation', description: 'Builds the documentation web site.', dependsOn: ['build', 'vanilla-core:build', 'vanilla-core:groovydoc', 'vanilla-core:jacocoTestReport', 'asciidoctor']) << {
+    logger.info 'Building documentation web site...'
 
-task compileGuide(type: GradleBuild) {
-    buildFile = 'vanilla-guide/build.gradle'
-    tasks = ['asciidoc']
+    // copy the templates
+    copy {
+        from 'src/site'
+        into 'build/site'
+        include '**/*.html'
+        expand([ project_version:project.subprojects[0].version, year:Calendar.instance.get(Calendar.YEAR) ])
+    }
+
+    // copy the assets
+    copy {
+        from 'src/site'
+        into 'build/site'
+        include '**/css/**'
+        include '**/fonts/**'
+        include '**/js/**'
+    }
+
+    copy {
+        from 'vanilla-core/build/docs'
+        from 'vanilla-core/build/reports'
+        include '**/**'
+        into 'build/site'
+    }
+
+    copy {
+        from 'build/asciidoc'
+        include '**/**'
+        into 'build/site/guide'
+    }
 }
 
-task compileSite(type: GradleBuild) {
-    buildFile = 'vanilla-site/build.gradle'
-    tasks = ['jbake']
+task publishSite(type: GradleBuild, group: 'Publishing', description: 'Publishes the documentation web site.', dependsOn: ['site']) {
+    buildFile = 'publish.gradle'
+    tasks = ['publishGhPages']
 }
-compileSite.dependsOn = ['vanilla-core:build', 'vanilla-core:test', 'compileGuide', 'vanilla-core:jacocoTestReport', 'vanilla-core:groovydoc']
+
+task updateVersion(group: 'Documentation', description: 'Updates the version in documentation based on the project version') << {
+    String newVersion = project.subprojects[0].version
+    String oldVersion = project.property('from')
+
+    logger.lifecycle "Updating documentation versions from ${oldVersion} to ${newVersion}..."
+
+    ant.replace(file: 'README.md', token: oldVersion, value: newVersion)
+    ant.replace(dir: 'src/docs/asciidoc', token: oldVersion, value: newVersion)
+}
+
+task checkVersion(group: 'Verification', description: 'Verify that the project version is reflected in the documentation.') << {
+    logger.lifecycle "Verifying that the documentation references version ${project.subprojects[0].version}..."
+
+    // Not the most efficient way to do this but should be ok for now
+    boolean documented = ['README.md', 'src/docs/asciidoc/index.adoc'].every { f ->
+        boolean ok = project.file(f).text.contains(project.subprojects[0].version)
+
+        logger.info " - Checking: $f: $ok"
+        ok
+    }
+
+    assert documented, 'The documented project version does not match the project version: Run "./gradlew updateVersion -Pfrom=OLD_VERSION" and try again.'
+}
+
+webPreview {
+    resourceDir = file('build/site')
+}
