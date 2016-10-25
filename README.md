@@ -49,7 +49,7 @@ which will make the site available at on a random available port (the URL will b
 
 To publish the web site (after full build with documentation - see above):
 
-    ./gradlew publishSite
+    ./gradlew publishSite --no-daemon
 
 ## Publish Artifact
 
