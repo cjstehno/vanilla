@@ -31,4 +31,4 @@ include::test-fixture.adoc[]
 
 include::rolling-file.adoc[]
 
-
+include::layered-config.adoc[]
