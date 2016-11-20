@@ -17,14 +17,14 @@ The Vanilla library is my attempt to bring together a bunch of my reusable and i
 
 They are available via the JCenter repository. For Gradle use:
 
-    compile 'com.stehno.vanilla:vanilla-core:0.5.0'
+    compile 'com.stehno.vanilla:vanilla-core:0.5.1'
     
 and for Maven:
 
     <dependency>
         <groupId>com.stehno.vanilla</groupId>
         <artifactId>vanilla-core</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1</version>
     </dependency>
 
 ## Build
@@ -49,7 +49,7 @@ which will make the site available at on a random available port (the URL will b
 
 To publish the web site (after full build with documentation - see above):
 
-    ./gradlew publishSite
+    ./gradlew publishSite --no-daemon
 
 ## Publish Artifact
 

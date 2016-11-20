@@ -20,7 +20,7 @@ asciidoctor {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.1'
+    gradleVersion = '3.2'
 }
 
 task site(group: 'Documentation', description: 'Builds the documentation web site.', dependsOn: ['build', 'vanilla-core:build', 'vanilla-core:groovydoc', 'vanilla-core:jacocoTestReport', 'asciidoctor']) << {

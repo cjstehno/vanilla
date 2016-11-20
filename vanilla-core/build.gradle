@@ -7,7 +7,7 @@ plugins {
     id 'com.github.hierynomus.license' version '0.12.1'
 }
 
-version = '0.5.0'
+version = '0.5.1'
 group = 'com.stehno.vanilla'
 
 sourceCompatibility = 1.8
