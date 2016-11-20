@@ -92,10 +92,10 @@ class Randomizers {
 <span class="pc" id="L92">        return { Random r, inst -&gt;</span>
 <span class="fc" id="L93">            Set&lt;T&gt; coll = [] as Set&lt;T&gt;</span>
 <span class="fc" id="L94">            nextInt(r, size.from as int, size.to as int).times {</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                if (valueRandomizer.maximumNumberOfParameters &gt; 1) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">                if (valueRandomizer.maximumNumberOfParameters &gt; 1) {</span>
 <span class="nc" id="L96">                    coll &lt;&lt; valueRandomizer.call(r, inst)</span>
                 } else {
-<span class="nc" id="L98">                    coll &lt;&lt; valueRandomizer.call(r)</span>
+<span class="pc" id="L98">                    coll &lt;&lt; valueRandomizer.call(r)</span>
                 }
             }
 <span class="pc" id="L101">            coll</span>
