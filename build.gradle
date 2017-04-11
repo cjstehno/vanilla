@@ -2,6 +2,7 @@ plugins {
     id "org.asciidoctor.convert" version "1.5.3"
     id "com.stehno.gradle.webpreview" version "0.2.0"
     id "com.stehno.gradle.site" version "0.0.3"
+    id 'com.github.kt3k.coveralls' version '2.7.1'
 }
 
 repositories {
