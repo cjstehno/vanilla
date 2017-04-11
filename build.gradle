@@ -34,3 +34,7 @@ site {
     assetDir( 'vanilla-core/build/reports', into:'core', external:true )
     assetDir( 'vanilla-core/build/docs/groovydoc', into:'core/groovydoc', external: true)
 }
+
+coveralls {
+    sourceDirs = subprojects.findAll().sourceSets.main.allSource.srcDirs.flatten()
+}
