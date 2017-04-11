@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InjectObjectMapperTransform.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.mapper.transform</a> &gt; <span class="el_source">InjectObjectMapperTransform.groovy</span></div><h1>InjectObjectMapperTransform.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.mapper.transform
+
+import com.stehno.vanilla.mapper.AbstractObjectMapper
+import com.stehno.vanilla.mapper.ObjectMapper
+import com.stehno.vanilla.mapper.ObjectMapperConfig
+import com.stehno.vanilla.mapper.PropertyMapping
+import groovy.transform.TypeChecked
+import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.expr.*
+import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
+import org.codehaus.groovy.control.SourceUnit
+import org.codehaus.groovy.transform.AbstractASTTransformation
+import org.codehaus.groovy.transform.GroovyASTTransformation
+
+import static java.lang.reflect.Modifier.*
+import static org.codehaus.groovy.ast.ClassHelper.*
+import static org.codehaus.groovy.ast.tools.GeneralUtils.*
+import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
+import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
+
+/**
+ * AST transformer used to process the Mapper annotated methods, properties and fields.
+ */
+@GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
+class InjectObjectMapperTransform extends AbstractASTTransformation {
+
+    public static final String DESTINATION = 'destination'
+    public static final String SOURCE = 'source'
+
+    @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
+    void visit(final ASTNode[] nodes, final SourceUnit source) {
+<span class="pc bpc" id="L48" title="3 of 6 branches missed.">        AnnotationNode annotationNode = nodes[0] as AnnotationNode</span>
+<span class="pc bpc" id="L49" title="3 of 6 branches missed.">        AnnotatedNode targetNode = nodes[1] as AnnotatedNode</span>
+
+<span class="pc bpc" id="L51" title="3 of 10 branches missed.">        if (targetNode instanceof FieldNode || targetNode instanceof PropertyNode || targetNode instanceof MethodNode) {</span>
+            try {
+<span class="fc" id="L53">                ClosureExpression dslClosureX = annotationNode.getMember('value') as ClosureExpression</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">                String mapperName = annotationNode.getMember('name')?.text?.capitalize() ?: ''</span>
+
+<span class="fc" id="L56">                ObjectMapperConfig mapperConfig = extractMapperConfig(dslClosureX)</span>
+
+                // generate the static object mapper to be used
+<span class="fc" id="L59">                ClassNode mapperClassNode = createObjectMapperClass(targetNode.declaringClass, mapperName, mapperConfig)</span>
+<span class="fc" id="L60">                source.AST.addClass(mapperClassNode)</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                if (targetNode instanceof MethodNode) {</span>
+<span class="fc" id="L63">                    transformMethodNode mapperName, targetNode, mapperClassNode</span>
+
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">                } else if (targetNode instanceof FieldNode) {</span>
+<span class="fc" id="L66">                    transformFieldNode targetNode, mapperClassNode</span>
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                } else if (targetNode instanceof PropertyNode) {</span>
+<span class="nc" id="L69">                    transformPropertyNode targetNode, mapperClassNode</span>
+
+                } else {
+<span class="pc" id="L72">                    addError &quot;Unsupported application of Mapper annotation for ${targetNode}&quot;, targetNode</span>
+                }
+
+            } catch (Exception ex) {
+<span class="nc" id="L76">                ex.printStackTrace()</span>
+<span class="pc" id="L77">                addError &quot;Problem creating ObjectMapper for ${targetNode}: ${ex.message}&quot;, targetNode</span>
+            }
+
+        } else {
+<span class="pc" id="L81">            addError &quot;Invalid member type for object mapper (${targetNode}) - only Fields, Properties and Methods are supported.&quot;, targetNode</span>
+        }
+    }
+
+    private void transformMethodNode(String mapperName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        String fieldName = &quot;_mapper${mapperName ? '_' + mapperName : ''}&quot;</span>
+
+<span class="fc" id="L88">        targetNode.declaringClass.addField(createFieldNode(fieldName, targetNode, mapperClassNode))</span>
+
+<span class="fc" id="L90">        MethodNode methodNode = targetNode as MethodNode</span>
+<span class="fc" id="L91">        methodNode.modifiers = PUBLIC | STATIC | FINAL</span>
+<span class="fc" id="L92">        methodNode.code = returnS(varX(fieldName))</span>
+    }
+
+    private void transformFieldNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
+<span class="fc" id="L96">        FieldNode fieldNode = targetNode as FieldNode</span>
+<span class="fc" id="L97">        fieldNode.modifiers = STATIC | FINAL | PUBLIC</span>
+<span class="fc" id="L98">        fieldNode.initialValueExpression = ctorX(newClass(mapperClassNode))</span>
+<span class="fc" id="L99">        fieldNode.type = make(ObjectMapper)</span>
+    }
+
+    private void transformPropertyNode(AnnotatedNode targetNode, ClassNode mapperClassNode) {
+<span class="nc" id="L103">        PropertyNode propertyNode = targetNode as PropertyNode</span>
+<span class="nc" id="L104">        propertyNode.field = createFieldNode(propertyNode.name, targetNode, mapperClassNode)</span>
+    }
+
+    private FieldNode createFieldNode(String fieldName, AnnotatedNode targetNode, ClassNode mapperClassNode) {
+<span class="fc" id="L108">        return new FieldNode(</span>
+            fieldName,
+<span class="fc" id="L110">            STATIC | FINAL | PRIVATE,</span>
+<span class="fc" id="L111">            make(ObjectMapper),</span>
+            targetNode.declaringClass,
+<span class="pc" id="L113">            ctorX(newClass(mapperClassNode))</span>
+        )
+    }
+
+    private ObjectMapperConfig extractMapperConfig(final ClosureExpression dslClosureX) {
+<span class="fc" id="L118">        ObjectMapperConfig mapperConfig = new ObjectMapperConfig()</span>
+
+<span class="fc" id="L120">        BlockStatement block = dslClosureX.code as BlockStatement</span>
+<span class="pc" id="L121">        block.statements.findAll { st -&gt; st instanceof ExpressionStatement }.each { es -&gt;</span>
+<span class="fc" id="L122">            Expression expression = (es as ExpressionStatement).expression</span>
+
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            if (expression instanceof MethodCallExpression) {</span>
+<span class="fc" id="L125">                def methodXs = [:]</span>
+<span class="fc" id="L126">                def node = expression</span>
+
+<span class="pc bpc" id="L128" title="1 of 6 branches missed.">                while (node &amp;&amp; node instanceof MethodCallExpression) {</span>
+<span class="fc" id="L129">                    def mex = node as MethodCallExpression</span>
+
+<span class="fc" id="L131">                    String methodName = (mex.method as ConstantExpression).text</span>
+<span class="fc" id="L132">                    Object argument = (mex.arguments as ArgumentListExpression)[0]</span>
+<span class="fc" id="L133">                    methodXs[methodName] = argument</span>
+
+<span class="fc" id="L135">                    node = (node as MethodCallExpression).objectExpression</span>
+                }
+
+<span class="pc bpc" id="L138" title="2 of 4 branches missed.">                if (!methodXs.containsKey('map')) {</span>
+<span class="nc" id="L139">                    throw new IllegalArgumentException('The static mapper DSL commands must at least contain \'map\' calls.')</span>
+                }
+
+<span class="fc" id="L142">                PropertyMapping propConfig = mapperConfig.map((methodXs.map as ConstantExpression).text)</span>
+
+<span class="fc bfc" id="L144" title="All 2 branches covered.">                if (methodXs.containsKey('into')) {</span>
+<span class="fc" id="L145">                    propConfig.into((methodXs.into as ConstantExpression).text)</span>
+                }
+
+<span class="fc bfc" id="L148" title="All 2 branches covered.">                if (methodXs.containsKey('using')) {</span>
+<span class="pc" id="L149">                    propConfig.using(methodXs.using)</span>
+                }
+            }
+        }
+
+<span class="pc" id="L154">        mapperConfig</span>
+    }
+
+    private static ClassNode createObjectMapperClass(final ClassNode classNode, final String mapperName, final ObjectMapperConfig config) {
+<span class="fc" id="L158">        ClassNode mapperClass = new ClassNode(</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            &quot;${classNode.packageName}.${mapperName ?: classNode.nameWithoutPackage + 'Mapper'}&quot;,</span>
+            PUBLIC,
+<span class="fc" id="L161">            make(AbstractObjectMapper),</span>
+<span class="fc" id="L162">            [] as ClassNode[],</span>
+<span class="fc" id="L163">            [] as MixinNode[]</span>
+        )
+
+<span class="fc" id="L166">        def code = block()</span>
+
+<span class="fc" id="L168">        config.mappings().each { pm -&gt;</span>
+<span class="fc" id="L169">            def sourceGetter = callX(varX(SOURCE), &quot;get${pm.sourceName.capitalize()}&quot;)</span>
+
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            if (pm.converter) {</span>
+<span class="fc" id="L172">                Expression convertX</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">                if (pm.converter instanceof ClosureExpression) {</span>
+<span class="fc" id="L174">                    ClosureExpression convertClosureX = pm.converter as ClosureExpression</span>
+
+<span class="fc" id="L176">                    def closureArgs = new ArgumentListExpression()</span>
+
+<span class="fc" id="L178">                    int paramCount = convertClosureX.parameters.size()</span>
+
+<span class="pc bpc" id="L180" title="2 of 4 branches missed.">                    if (paramCount &gt;= 0) {</span>
+<span class="fc" id="L181">                        closureArgs.addExpression(sourceGetter)</span>
+                    }
+
+<span class="fc bfc" id="L184" title="All 4 branches covered.">                    if (paramCount &gt;= 2) {</span>
+<span class="fc" id="L185">                        closureArgs.addExpression(varX(SOURCE))</span>
+                    }
+
+<span class="fc bfc" id="L188" title="All 4 branches covered.">                    if (paramCount &gt;= 3) {</span>
+<span class="fc" id="L189">                        closureArgs.addExpression(varX(DESTINATION))</span>
+                    }
+
+<span class="fc" id="L192">                    convertX = new MethodCallExpression(convertClosureX, 'call', closureArgs)</span>
+
+                } else {
+<span class="nc" id="L195">                    throw new IllegalArgumentException('The static mapper DSL only supports Closure-based converters.')</span>
+                }
+
+<span class="fc" id="L198">                code.addStatement(</span>
+<span class="fc" id="L199">                    stmt(</span>
+<span class="pc" id="L200">                        callX(varX(DESTINATION), &quot;set${pm.destinationName.capitalize()}&quot;, convertX)</span>
+                    )
+                )
+
+            } else {
+<span class="fc" id="L205">                code.addStatement(</span>
+<span class="fc" id="L206">                    stmt(</span>
+<span class="pc" id="L207">                        callX(varX(DESTINATION), &quot;set${pm.destinationName.capitalize()}&quot;, sourceGetter)</span>
+                    )
+                )
+            }
+        }
+
+<span class="fc" id="L213">        mapperClass.addMethod(new MethodNode(</span>
+            'copy',
+            PUBLIC,
+            VOID_TYPE,
+<span class="fc" id="L217">            params(param(OBJECT_TYPE, SOURCE), param(OBJECT_TYPE, DESTINATION)),</span>
+<span class="fc" id="L218">            [] as ClassNode[],</span>
+            code
+        ))
+
+<span class="pc" id="L222">        mapperClass</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

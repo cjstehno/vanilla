@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LazyImmutableTransform.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.transform</a> &gt; <span class="el_source">LazyImmutableTransform.groovy</span></div><h1>LazyImmutableTransform.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.transform
+
+import groovy.transform.Immutable
+import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.expr.EmptyExpression
+import org.codehaus.groovy.ast.expr.MapEntryExpression
+import org.codehaus.groovy.ast.expr.MapExpression
+import org.codehaus.groovy.ast.stmt.Statement
+import org.codehaus.groovy.control.SourceUnit
+import org.codehaus.groovy.transform.AbstractASTTransformation
+import org.codehaus.groovy.transform.GroovyASTTransformation
+import org.codehaus.groovy.transform.ImmutableASTTransformation
+
+import static java.lang.reflect.Modifier.PROTECTED
+import static java.lang.reflect.Modifier.PUBLIC
+import static org.codehaus.groovy.ast.ClassHelper.MAP_TYPE
+import static org.codehaus.groovy.ast.ClassHelper.make
+import static org.codehaus.groovy.ast.tools.GeneralUtils.*
+import static org.codehaus.groovy.ast.tools.GenericsUtils.newClass
+import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
+
+/**
+ * AST Transformation support for the `@LazyImmutable` annotation.
+ */
+@GroovyASTTransformation(phase = CANONICALIZATION)
+class LazyImmutableTransform extends AbstractASTTransformation {
+
+    private static final String KNOWN_IMMUTABLE_CLASSES = 'knownImmutableClasses'
+    private static final String KNOWN_IMMUTABLES = 'knownImmutables'
+    private static final String COPY_WITH = 'copyWith'
+    private static final String ATTRS = 'attrs'
+
+    @Override @SuppressWarnings(['CatchException', 'PrintStackTrace'])
+    void visit(final ASTNode[] nodes, final SourceUnit source) {
+<span class="pc bpc" id="L50" title="3 of 6 branches missed.">        AnnotationNode unmodifiableNode = nodes[0] as AnnotationNode</span>
+<span class="pc bpc" id="L51" title="3 of 6 branches missed.">        ClassNode classNode = nodes[1] as ClassNode</span>
+        try {
+
+            // TODO: should I do similar check as the Immutable transformer to pre-verify the object?
+
+<span class="fc" id="L56">            ClassNode immutableClassNode = createImmutableClass(classNode, unmodifiableNode, source)</span>
+
+<span class="fc" id="L58">            addAsImmutableMethod(classNode, immutableClassNode)</span>
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            if (unmodifiableNode.getMember(COPY_WITH)) {</span>
+<span class="pc" id="L61">                addCopyWithMethod(classNode)</span>
+            }
+
+        } catch (Exception ex) {
+<span class="nc" id="L65">            ex.printStackTrace()</span>
+<span class="pc" id="L66">            addError(&quot;Problem making ${classNode.name} unmodifiable: ${ex.message}&quot;, classNode)</span>
+        }
+    }
+
+    private static ClassNode createImmutableClass(ClassNode classNode, AnnotationNode unmodifiableNode, SourceUnit source) {
+        // TODO: would like this as a static InnerClassNode, but there were issues
+<span class="fc" id="L72">        ClassNode immutableClassNode = new ClassNode(</span>
+            &quot;${classNode.packageName}.Immutable${classNode.nameWithoutPackage}&quot;,
+            PROTECTED,
+<span class="fc" id="L75">            newClass(classNode)</span>
+        )
+
+        // Immutable transformation needs property reference on itself - the extends should do this, but I think
+        // that happens after this compile phase (or at runtime).
+<span class="fc" id="L80">        classNode.properties.each { PropertyNode propNode -&gt;</span>
+<span class="fc" id="L81">            def field = new FieldNode(</span>
+                propNode.field.name,
+                propNode.field.modifiers,
+<span class="fc" id="L84">                newClass(propNode.field.type),</span>
+<span class="fc" id="L85">                newClass(immutableClassNode),</span>
+<span class="fc" id="L86">                new EmptyExpression()</span>
+            )
+
+<span class="pc" id="L89">            immutableClassNode.addProperty(new PropertyNode(field, propNode.modifiers, null, null))</span>
+        }
+
+<span class="fc" id="L92">        def annotationNode = buildImmutableAnnotation(unmodifiableNode)</span>
+<span class="fc" id="L93">        immutableClassNode.addAnnotation(annotationNode)</span>
+
+<span class="fc" id="L95">        immutableClassNode.addMethod(methodN(</span>
+            classNode,
+            'asMutable',
+<span class="fc" id="L98">            block(returnS(ctorX(newClass(classNode), args(new MapExpression(</span>
+<span class="fc" id="L99">                classNode.properties.collect { PropertyNode pn -&gt;</span>
+<span class="pc" id="L100">                    new MapEntryExpression(constX(pn.name), varX(pn.name))</span>
+                }
+            )))))
+        ))
+
+<span class="fc" id="L105">        source.AST.addClass(immutableClassNode)</span>
+
+<span class="fc" id="L107">        new ImmutableASTTransformation().visit([annotationNode, immutableClassNode] as ASTNode[], source)</span>
+
+<span class="pc" id="L109">        immutableClassNode</span>
+    }
+
+    private static AnnotationNode buildImmutableAnnotation(AnnotationNode unmodifiableNode) {
+<span class="fc" id="L113">        def immutableNode = new AnnotationNode(make(Immutable))</span>
+
+<span class="fc" id="L115">        def knownImmutableClases = unmodifiableNode.getMember(KNOWN_IMMUTABLE_CLASSES)</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (knownImmutableClases) {</span>
+<span class="fc" id="L117">            immutableNode.setMember(KNOWN_IMMUTABLE_CLASSES, knownImmutableClases)</span>
+        }
+
+<span class="fc" id="L120">        def knownImmutables = unmodifiableNode.getMember(KNOWN_IMMUTABLES)</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (knownImmutables) {</span>
+<span class="fc" id="L122">            immutableNode.setMember(KNOWN_IMMUTABLES, knownImmutables)</span>
+        }
+
+<span class="fc" id="L125">        def copyWith = unmodifiableNode.getMember(COPY_WITH)</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (copyWith) {</span>
+<span class="fc" id="L127">            immutableNode.setMember(COPY_WITH, copyWith)</span>
+        }
+
+<span class="pc" id="L130">        immutableNode</span>
+    }
+
+    private static void addAsImmutableMethod(ClassNode classNode, ClassNode immutableClassNode) {
+<span class="fc" id="L134">        def props = classNode.properties.collect { PropertyNode pn -&gt;</span>
+<span class="pc" id="L135">            varX(pn.name, newClass(pn.type))</span>
+        }
+
+<span class="fc" id="L138">        classNode.addMethod(methodN(</span>
+            classNode,
+            'asImmutable',
+<span class="fc" id="L141">            block(returnS(ctorX(newClass(immutableClassNode), args(props))))</span>
+        ))
+    }
+
+    private static void addCopyWithMethod(ClassNode classNode) {
+<span class="fc" id="L146">        def code = block()</span>
+
+<span class="fc" id="L148">        code.addStatement(returnS(ctorX(newClass(classNode), args(varX(ATTRS)))))</span>
+
+<span class="fc" id="L150">        classNode.addMethod(methodN(</span>
+            classNode,
+            COPY_WITH,
+            code,
+<span class="fc" id="L154">            params(</span>
+<span class="fc" id="L155">                param(newClass(MAP_TYPE), ATTRS)</span>
+            )
+        ))
+    }
+
+<span class="pc" id="L160">    private static MethodNode methodN(ClassNode returnType, String name, Statement code, Parameter[] args = params()) {</span>
+<span class="fc" id="L161">        new MethodNode(</span>
+            name,
+            PUBLIC,
+<span class="fc" id="L164">            newClass(returnType),</span>
+            args,
+<span class="pc" id="L166">            [] as ClassNode[],</span>
+            code
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

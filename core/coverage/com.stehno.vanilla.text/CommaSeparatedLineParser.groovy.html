@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommaSeparatedLineParser.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.text</a> &gt; <span class="el_source">CommaSeparatedLineParser.groovy</span></div><h1>CommaSeparatedLineParser.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.text
+
+import groovy.transform.TypeChecked
+
+/**
+ * Simple comma-separated value implementation of the LineParser interface.
+ *
+ * This implementation provides optional line item parser configuration via conversion closures.
+ *
+ * Empty lines and lines starting with # will be ignored.
+ *
+ * There is no requirement that every line must have the same number of items.
+ *
+ * This LineParser should be used with the TextFileReader.trimmed = true (the default setting).
+ */
+@TypeChecked
+class CommaSeparatedLineParser implements LineParser {
+
+    private static final String HASH = '#'
+    private static final String COMMA = ','
+    private final Map&lt;Integer, Closure&gt; itemConverters = [:]
+
+    /**
+     * Creates an instance of the line parser with optional conversion closures. The map of Closures should use the
+     * column index (Integer) as the key for the map, with the Closure being the mapped value. The Closure should
+     * accept a single argument, being the line item to be parsed.
+     *
+     * If a column does not have a conversion closure defined, it will simply create Strings.
+     *
+     * @param converters the map of conversion closures
+     */
+    CommaSeparatedLineParser(Map&lt;Integer, Closure&gt; converters = [:]) {
+<span class="fc" id="L48">        itemConverters.putAll(converters)</span>
+    }
+
+    @Override
+    boolean parsable(String line) {
+<span class="pc bfc" id="L53" title="All 6 branches covered.">        line &amp;&amp; !line.startsWith(HASH)</span>
+    }
+
+    @Override
+    Object[] parseLine(String line) {
+<span class="fc" id="L58">        def data = []</span>
+
+<span class="fc" id="L60">        line.split(COMMA).eachWithIndex { item, int idx -&gt;</span>
+<span class="pc" id="L61">            data &lt;&lt; parseItem(item, idx)</span>
+        }
+
+<span class="pc" id="L64">        data as Object[]</span>
+    }
+
+    @Override
+    Object parseItem(Object item, int index) {
+<span class="fc" id="L69">        Closure converter = itemConverters[index]</span>
+<span class="pc bfc" id="L70" title="All 2 branches covered.">        return converter ? converter.call(item) : (item as String)</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

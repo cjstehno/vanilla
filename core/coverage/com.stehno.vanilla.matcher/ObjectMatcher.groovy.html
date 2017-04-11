@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObjectMatcher.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.matcher</a> &gt; <span class="el_source">ObjectMatcher.groovy</span></div><h1>ObjectMatcher.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.matcher
+
+import com.stehno.vanilla.mapper.ObjectMapperDsl
+
+import static groovy.lang.Closure.DELEGATE_FIRST
+
+/**
+ * An Object Matcher is a utility for determining whether or not an Object of a specified type matches a set of criteria configured via
+ * DSL.
+ *
+ * A matcher could implement actual equivalence, or it could ensure that an object is within a specified set of tolerance levels.
+ *
+ * An object matcher is defined using a simple DSL:
+ *
+ * &lt;code&gt;&lt;pre&gt;
+ *     ObjectMatcher matcher = ObjectMatcher.matcher(Person){
+ *         typeMatcher String, { v-&gt; v != null }
+ *         propertyMatchers([
+ *             age: { v -&gt; v &gt; 18 &amp;&amp; v &lt; 40 },
+ *             employed: { v-&gt; v }
+ *         ])
+ *     }
+ *
+ *     boolean matches = matcher.matches(somePerson)
+ *     float score = matcher.score(somePerson)
+ * &lt;/pre&gt;&lt;/code&gt;
+ *
+ * All properties and property types defined in the configuration will be used as the basis of match comparison, all others will
+ * be ignored.
+ */
+class ObjectMatcher implements ObjectMatcherDsl {
+
+    private final Map&lt;Class, Object&gt; classMatchers = [:]
+    private final Map&lt;String, Object&gt; propertyMatchers = [:]
+    private final Class target
+
+    private ObjectMatcher(final Class target) {
+<span class="fc" id="L53">        this.target = target</span>
+    }
+
+    /**
+     * Configures an ObjectMapper for the specified target type using the DSL.
+     *
+     * @param target the target type
+     * @param closure the DSL configuration closure
+     * @return the configured ObjectMapper instance
+     */
+    static ObjectMatcher matcher(Class target, @DelegatesTo(value = ObjectMapperDsl, strategy = DELEGATE_FIRST) Closure closure) {
+<span class="fc" id="L64">        def matcher = new ObjectMatcher(target)</span>
+
+<span class="fc" id="L66">        closure.delegate = matcher</span>
+<span class="fc" id="L67">        closure.resolveStrategy = DELEGATE_FIRST</span>
+<span class="fc" id="L68">        closure()</span>
+
+<span class="pc" id="L70">        matcher</span>
+    }
+
+    @Override
+    ObjectMatcher typeMatchers(Map&lt;Class, Object&gt; matchers, boolean clean = false) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (clean) {</span>
+<span class="nc" id="L76">            classMatchers.clear()</span>
+        }
+
+<span class="nc" id="L79">        classMatchers.putAll(matchers)</span>
+<span class="nc" id="L80">        this</span>
+    }
+
+    @Override
+    ObjectMatcher typeMatcher(Class type, Object matcher) {
+<span class="nc" id="L85">        classMatchers.put(type, matcher)</span>
+<span class="nc" id="L86">        this</span>
+    }
+
+    @Override
+    ObjectMatcher propertyMatchers(Map&lt;String, Object&gt; matchers) {
+<span class="fc" id="L91">        propertyMatchers.putAll(matchers)</span>
+<span class="pc" id="L92">        this</span>
+    }
+
+    @Override
+    ObjectMatcher propertyMatcher(String name, Object matcher) {
+<span class="nc" id="L97">        propertyMatchers.put(name, matcher)</span>
+<span class="nc" id="L98">        this</span>
+    }
+
+    /**
+     * Used to determine whether or not the specified object matches the configured criteria. Configured match criteria may be overridden
+     * at runtime for this call by specifying the property name and criteria in the overrides map.
+     *
+     * @param overrides an optional Map of property names to criteria closures which will override existing config with the same property name
+     * @param obj the object being tested
+     * @return true if the object being tested matched the configured criteria
+     */
+    boolean matches(final Map&lt;String, Object&gt; overrides = [:], final Object obj) {
+        // apply any call-based property overrides
+<span class="fc" id="L111">        def activePropertyMatchers = propertyMatchers + overrides</span>
+
+<span class="pc" id="L113">        target.metaClass.properties.findAll { MetaProperty p -&gt; p.setter }.every { MetaProperty p -&gt;</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">            def matcher = activePropertyMatchers[p.name] ?: classMatchers[p.type]</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            return matcher ? callMatcher(matcher, obj.&quot;get${p.name.capitalize()}&quot;()) : true</span>
+        }
+    }
+
+    /**
+     * Used to calculate the match percentage for the specified object. This percentage is based on the number of test criteria and
+     * the number of test criteria which are true.
+     *
+     * @param overrides an optional Map of property names to criteria closures which will override existing config with the same property name
+     * @param obj the object being tested
+     * @return the match percentage
+     */
+    float score(final Map&lt;String, Object&gt; overrides = [:], Object obj) {
+        // apply any call-based property overrides
+<span class="fc" id="L129">        def activePropertyMatchers = propertyMatchers + overrides</span>
+
+<span class="fc" id="L131">        int hits = 0</span>
+<span class="fc" id="L132">        int count = 0</span>
+
+<span class="pc" id="L134">        target.metaClass.properties.findAll { MetaProperty p -&gt; p.setter }.each { MetaProperty p -&gt;</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">            def matcher = activePropertyMatchers[p.name] ?: classMatchers[p.type]</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">            if (matcher) {</span>
+<span class="fc" id="L137">                boolean m = callMatcher(matcher, obj.&quot;get${p.name.capitalize()}&quot;())</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                if (m) {</span>
+<span class="fc" id="L139">                    hits++</span>
+                }
+<span class="pc" id="L141">                count++</span>
+
+            } else {
+<span class="nc" id="L144">                true</span>
+            }
+        }
+
+<span class="pc bpc" id="L148" title="4 of 8 branches missed.">        (hits as float) / (count as float)</span>
+    }
+
+    private boolean callMatcher(final Object matcher, final Object object) {
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">        if (matcher instanceof ObjectMatcher) {</span>
+<span class="nc" id="L153">            return matcher.matches(object)</span>
+
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        } else if (matcher instanceof Closure) {</span>
+<span class="pc" id="L156">            return matcher.call(object)</span>
+
+        } else {
+<span class="nc" id="L159">            throw new IllegalArgumentException(&quot;Matchers of type ${matcher.class} are not supported.&quot;)</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

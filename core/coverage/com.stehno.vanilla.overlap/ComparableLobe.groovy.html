@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComparableLobe.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.overlap</a> &gt; <span class="el_source">ComparableLobe.groovy</span></div><h1>ComparableLobe.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.overlap
+
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
+
+/**
+ *  A ComparableLobe is a Lobe implementation providing support for single Comparable values, Comparable range values and combinations of either type.
+ *
+ *  &lt;pre&gt;
+ *  new ComparableLobe( 100 )
+ *  new ComparableLobe( 100..1000 )
+ *  new ComparableLobe( 100, 'a'..'q', 10..15 )
+ *  &lt;/pre&gt;
+ */
+@ToString(includeFields = true, includeNames = true) @EqualsAndHashCode(includeFields = true)
+class ComparableLobe implements Lobe {
+
+<span class="fc" id="L33">    private final rules = []</span>
+
+    /**
+     * Creates a Lobe based on Comparable data.
+     *
+     * @param items the comparable data items making up the Lobe
+     */
+    ComparableLobe(Object... items) {
+<span class="fc" id="L41">        items?.each {</span>
+<span class="pc" id="L42">            addRule it</span>
+        }
+    }
+
+    /**
+     * Creates a Lobe based on Comparable data.
+     *
+     * @param items the comparable data items making up the Lobe
+     */
+    ComparableLobe(Collection items) {
+<span class="fc" id="L52">        items?.each {</span>
+<span class="pc" id="L53">            addRule it</span>
+        }
+    }
+
+    void addRule(item) {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        rules &lt;&lt; (item instanceof Range ? item : (item..item))</span>
+    }
+
+    /**
+     * Alias for &lt;code&gt;addRule(item)&lt;/code&gt;.
+     *
+     * @param item
+     */
+    void leftShift(item) {
+<span class="fc" id="L67">        addRule(item)</span>
+    }
+
+    boolean overlaps(Lobe other) {
+<span class="fc" id="L71">        boolean overlap = false</span>
+<span class="pc bpc" id="L72" title="3 of 6 branches missed.">        if (this.is(ANY) || other.is(ANY)) {</span>
+<span class="nc" id="L73">            overlap = true</span>
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        } else if (this == other) {</span>
+<span class="fc" id="L76">            overlap = true</span>
+
+        } else {
+<span class="fc" id="L79">            def overlappedRule = rules.find { rule -&gt;</span>
+<span class="pc" id="L80">                other.rules.find { orule -&gt; rangesOverlap(rule, orule) }</span>
+            }
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (overlappedRule) {</span>
+<span class="fc" id="L84">                overlap = true</span>
+            }
+        }
+<span class="pc" id="L87">        overlap</span>
+    }
+
+    private static boolean rangesOverlap(Range a, Range b) {
+<span class="pc bpc" id="L91" title="17 of 30 branches missed.">        (a.to &gt;= b.from &amp;&amp; a.to &lt;= b.to) || (b.to &gt;= a.from &amp;&amp; b.to &lt;= a.to)</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

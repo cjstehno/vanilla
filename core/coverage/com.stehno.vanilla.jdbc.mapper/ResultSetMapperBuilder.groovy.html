@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResultSetMapperBuilder.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla-core</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.jdbc.mapper</a> &gt; <span class="el_source">ResultSetMapperBuilder.groovy</span></div><h1>ResultSetMapperBuilder.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.jdbc.mapper
+
+import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeFieldMapping
+import com.stehno.vanilla.jdbc.mapper.runtime.RuntimeResultSetMapper
+import groovy.transform.ToString
+import groovy.transform.TypeChecked
+
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
+
+/**
+ * Configuration model implementation of the &lt;code&gt;ResultSetMapperDsl&lt;/code&gt; interface, used for configuration and creation of a
+ * &lt;code&gt;ResultSetMapper&lt;/code&gt;.
+ */
+@TypeChecked @ToString(includeFields = true, includeNames = true)
+class ResultSetMapperBuilder implements ResultSetMapperDslSupport {
+
+    /**
+     * The type of object being mapped.
+     */
+    final Class mappedType
+
+    /**
+     * The mapping style being used.
+     */
+    final MappingStyle style
+
+    /**
+     * Creates a new mapper builder for the given mapped type and mapping style.
+     *
+     * @param mappedType the type of object being mapped
+     * @param style the mapping style to be used (defaults to IMPLICIT if not specified)
+     */
+    ResultSetMapperBuilder(final Class mappedType, final MappingStyle style = IMPLICIT) {
+<span class="fc" id="L49">        this.mappedType = mappedType</span>
+<span class="fc" id="L50">        this.style = style</span>
+    }
+
+    /**
+     * Creates a &lt;code&gt;RuntimeResultSetMapper&lt;/code&gt; based on the configured mappings.
+     *
+     * @return a configured ResultSetMapper
+     */
+    ResultSetMapper build() {
+<span class="pc bpc" id="L59" title="5 of 10 branches missed.">        if (style == IMPLICIT) {</span>
+<span class="pc" id="L60">            applyImpliedMappings()</span>
+        }
+
+<span class="pc" id="L63">        new RuntimeResultSetMapper(mappedType, mappings, ignoredNames)</span>
+    }
+
+    @Override
+    FieldMapping createFieldMapping(final String propertyName) {
+<span class="pc" id="L68">        new RuntimeFieldMapping(propertyName)</span>
+    }
+
+    private void applyImpliedMappings() {
+<span class="fc" id="L72">        MetaClass mappedMeta = mappedType.metaClass</span>
+<span class="fc" id="L73">        def ignoredProperties = ['class'] + ignoredNames</span>
+
+<span class="pc" id="L75">        mappedMeta.properties.findAll { MetaProperty mp -&gt; isWritable(mappedMeta, mp.name, mp.type) }</span>
+<span class="pc bfc" id="L76" title="All 2 branches covered.">            .findAll { MetaProperty mp -&gt; !(mp.name in ignoredProperties) }</span>
+<span class="pc bfc" id="L77" title="All 2 branches covered.">            .findAll { MetaProperty mp -&gt; !mappings.containsKey(mp.name) }</span>
+<span class="pc" id="L78">            .each { MetaProperty mp -&gt; map mp.name }</span>
+    }
+
+    private static boolean isWritable(final MetaClass meta, final String name, final Class argType) {
+<span class="pc" id="L82">        return meta.getMetaMethod(MetaProperty.getSetterName(name), [argType] as Object[])</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
