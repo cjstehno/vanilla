@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
     id 'codenarc'
     id 'jacoco'
-    id 'com.jfrog.bintray' version '1.6'
-    id 'com.github.hierynomus.license' version '0.12.1'
+    id 'com.jfrog.bintray' version '1.7.3'
+    id "com.github.hierynomus.license" version "0.13.1"
 }
 
 version = '0.5.1'
@@ -62,9 +62,11 @@ codenarcTest {
 
 jacocoTestReport {
     reports {
-        xml.enabled false
-        csv.enabled false
-        html.destination "${buildDir}/reports/coverage"
+        xml.enabled = true // coveralls plugin depends on xml format report
+        xml.destination = '../build/reports/jacoco/test/jacocoTestReport.xml'
+
+        html.enabled = true
+        html.destination = "${buildDir}/reports/coverage"
     }
 }
 
