@@ -1,13 +1,122 @@
 plugins {
     id "org.asciidoctor.convert" version "1.5.3"
-    id "com.stehno.gradle.webpreview" version "0.2.0"
+    id "com.stehno.gradle.webpreview" version "0.3.0"
     id "com.stehno.gradle.site" version "0.0.3"
     id 'com.github.kt3k.coveralls' version '2.7.1'
     id 'groovy'
+    id 'maven-publish'
+    id 'codenarc'
+    id 'jacoco'
+    id 'com.jfrog.bintray' version '1.7.3'
+    id "com.github.hierynomus.license" version "0.13.1"
 }
+
+version = '0.5.1'
+group = 'com.stehno.vanilla'
+
+sourceCompatibility = 8
+targetCompatibility = 8
 
 repositories {
     jcenter()
+}
+
+configurations {
+    groovyDoc
+}
+
+dependencies {
+    compile 'com.mockrunner:mockrunner-jdbc:1.1.0'
+
+    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+
+    groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
+    groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
+
+    codenarc(
+        "org.codenarc:CodeNarc:$codeNarcVersion",
+        "org.codehaus.groovy:groovy-all:$groovyVersion"
+    )
+}
+
+groovydoc {
+    groovyClasspath = configurations.groovyDoc
+}
+
+codenarc {
+    toolVersion = codeNarcVersion
+}
+
+codenarcMain {
+    ignoreFailures true
+    configFile file('config/codenarc-main.rules')
+
+    maxPriority1Violations 0
+    maxPriority2Violations 5
+    maxPriority3Violations 10
+}
+
+codenarcTest {
+    ignoreFailures true
+    configFile file('config/codenarc-test.rules')
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+}
+
+jar.baseName = 'vanilla-core'
+
+task sourcesJar(type: Jar) {
+    description = 'Creates sources JAR.'
+    classifier = 'sources'
+
+    from project.sourceSets.main.allSource
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+            artifact sourcesJar
+        }
+    }
+}
+
+license {
+    header file('config/license_header.txt')
+    ext.name = 'Christopher J. Stehno'
+    ext.email = 'chris@stehno.com'
+    ext.year = Calendar.instance.get(Calendar.YEAR)
+
+    excludes(['**/*.txt'])
+}
+
+// NOTE: run bintrayUpload and then go to web and publish.
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'stehno'
+        name = 'vanilla-core'
+        desc = 'Reusable Groovy libraries.'
+        licenses = ['Apache-2.0']
+        labels = ['groovy']
+    }
 }
 
 asciidoctor {
@@ -22,7 +131,7 @@ asciidoctor {
         encoding: 'utf-8'
 }
 
-tasks.site.dependsOn = ['build', 'vanilla-core:build', 'vanilla-core:groovydoc', 'vanilla-core:jacocoTestReport', 'asciidoctor']
+tasks.site.dependsOn = ['build', 'groovydoc', 'jacocoTestReport', 'asciidoctor']
 
 task publishSite(type: GradleBuild, group: 'Publishing', description: 'Publishes the documentation web site.', dependsOn: ['site']) {
     buildFile = 'publish.gradle'
@@ -32,10 +141,10 @@ task publishSite(type: GradleBuild, group: 'Publishing', description: 'Publishes
 site {
     siteUrl = 'http://stehno.com/vanilla'
 
-    assetDir( 'vanilla-core/build/reports', into:'core', external:true )
-    assetDir( 'vanilla-core/build/docs/groovydoc', into:'core/groovydoc', external: true)
+    assetDir( 'build/reports', into:'core', external:true )
+    assetDir( 'build/docs/groovydoc', into:'core/groovydoc', external: true)
 }
 
-coveralls {
-    sourceDirs = subprojects.findAll().sourceSets.main.allSource.srcDirs.flatten()
+webPreview {
+    contextPath = 'vanilla'
 }
