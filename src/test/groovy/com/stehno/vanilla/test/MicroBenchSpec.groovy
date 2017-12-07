@@ -37,6 +37,7 @@ class MicroBenchSpec extends Specification {
 
         bench.test {
             Set<String> data = new HashSet<String>()
+            sleep 100
             for( final String s : items ){
                 data.add(s)
             }

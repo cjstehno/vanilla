@@ -78,7 +78,7 @@ class Randomizers {
                 }
             }
             list
-        }
+        } as Closure<List<T>>
     }
 
     /**
@@ -163,7 +163,7 @@ class Randomizers {
      * @param size the size range of the integer
      * @return the integer-generating closure
      */
-    static Closure<Integer> forInteger(IntRange range = (Integer.MIN_VALUE..Integer.MAX_VALUE)) {
+    static Closure<Integer> forInteger(IntRange range = new IntRange(Integer.MIN_VALUE / 2 as int, (Integer.MAX_VALUE / 2 - 1) as int)) {
         return { Random rng ->
             range ? nextInt(rng, range.from as int, range.to as int) : rng.nextInt()
         }
