@@ -42,6 +42,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  *
  * More information may be found in my blog post,
  * "<a href="http://coffeaelectronica.com/blog/2015/property-randomization.html">Property Randomization for Testing</a>"
+ * 
  */
 class PropertyRandomizer implements RandomizerDsl {
 
