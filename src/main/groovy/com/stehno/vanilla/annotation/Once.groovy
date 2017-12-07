@@ -25,11 +25,11 @@ import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 
 /**
- * When this annotation is applied to a method, it will wrap the contents of the method in a check so that the method body will only be executed once, no
- * matter how many times the method is called.
+ * When this annotation is applied to a method, it will wrap the contents of the method in a check so that the method body will only be executed
+ * once, no matter how many times the method is called.
  *
- * By default, subsequent calls to the method are ignored; however, by setting the "ignoreMultipleCalls" property to "false" you can cuase subsequent calls
- * to throw an IllegalStateException.
+ * By default, subsequent calls to the method are ignored; however, by setting the "ignoreMultipleCalls" property to "false" you can cause
+ * subsequent calls to throw an IllegalStateException.
  *
  * Note: This annotation only applies to methods that return "void".
  */
@@ -40,8 +40,8 @@ import java.lang.annotation.Target
 @interface Once {
 
     /**
-     * Specifies whether or not multiple calls to the annotated method are ignored or throw an IllegalStateException. Defaults to "true", denoting
-     * that subsequent calls will be ignored.
+     * Specifies whether or not multiple calls to the annotated method are ignored or throw an IllegalStateException. Defaults to "true",
+     * denoting that subsequent calls will be ignored.
      */
     boolean ignoreMultipleCalls() default true
 
@@ -51,8 +51,9 @@ import java.lang.annotation.Target
     String value() default ''
 
     /**
-     * The name of the status field created to store whether or not the method has been called. The field will be exposed as a read-only property with the specified name. If no value is provided,
-     * the field name will be based on the annotated method name as: "boolean is<methodName>Called()".
+     * The name of the status field created to store whether or not the method has been called. The field will be exposed as a read-only
+     * property with the specified name. If no value is provided, the field name will be based on the annotated method name as:
+     * "boolean is<methodName>Called()".
      */
     String fieldName() default ''
 }

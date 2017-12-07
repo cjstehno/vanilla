@@ -34,6 +34,7 @@ class MicroBench {
      *
      * @param iter
      */
+    @SuppressWarnings('ConfusingMethodName')
     void iterations(int iter) {
         this.iterations = iter
     }

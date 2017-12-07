@@ -24,8 +24,9 @@ import java.nio.file.Path
 import static groovy.transform.TypeCheckingMode.SKIP
 
 /**
- * Implementation of the ConfigurationSource interface that allows multiple ConfigurationSources to be layered such that the first source containing a value for a property will be used - this allows
- * properties to be retrieved from multiple sources where each source does not necessarily contain all properties, or when there is a priority override system desired for property resolution.
+ * Implementation of the ConfigurationSource interface that allows multiple ConfigurationSources to be layered such that the first source containing
+ * a value for a property will be used - this allows properties to be retrieved from multiple sources where each source does not necessarily contain
+ * all properties, or when there is a priority override system desired for property resolution.
  */
 @TypeChecked
 class CompositeConfigurationSource implements ConfigurationSource {
@@ -33,8 +34,8 @@ class CompositeConfigurationSource implements ConfigurationSource {
     private final List<ConfigurationSource> sources
 
     /**
-     * Creates a composite ConfigurationSource from a list of other configuration sources. The sources are searched in the provided order such that those defined earlier in the list will be checked
-     * first, if no property is found, the next source will be searched.
+     * Creates a composite ConfigurationSource from a list of other configuration sources. The sources are searched in the provided order such that
+     * those defined earlier in the list will be checked first, if no property is found, the next source will be searched.
      *
      * @param sources the ordered list of sources to be used
      */

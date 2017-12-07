@@ -61,6 +61,44 @@ class StorageUnitSpec extends Specification {
     }
 
     @Unroll
+    def 'convert(double): #source to #desired'() {
+        expect:
+        desired.convert(42.42d, source) == converted
+
+        where:
+        source    | desired   || converted
+        BYTES     | BYTES     || 42.42
+        BYTES     | KILOBYTES || 0.04142578125
+        BYTES     | MEGABYTES || 0.000040454864501953125
+        BYTES     | GIGABYTES || 3.95067036151886E-8
+        BYTES     | TERABYTES || 3.8580765249207616E-11
+
+        KILOBYTES | BYTES     || 43438.08
+        KILOBYTES | KILOBYTES || 42.42
+        KILOBYTES | MEGABYTES || 0.04142578125
+        KILOBYTES | GIGABYTES || 0.000040454864501953125
+        KILOBYTES | TERABYTES || 3.95067036151886E-8
+
+        MEGABYTES | BYTES     || 4.448059392E7
+        MEGABYTES | KILOBYTES || 43438.08
+        MEGABYTES | MEGABYTES || 42.42
+        MEGABYTES | GIGABYTES || 0.04142578125
+        MEGABYTES | TERABYTES || 4.045486450195313E-5
+
+        GIGABYTES | BYTES     || 4.554812817408E10
+        GIGABYTES | KILOBYTES || 4.448059392E7
+        GIGABYTES | MEGABYTES || 43438.08
+        GIGABYTES | GIGABYTES || 42.42
+        GIGABYTES | TERABYTES || 0.04142578125
+
+        TERABYTES | BYTES     || 4.664128325025792E13
+        TERABYTES | KILOBYTES || 4.554812817408E10
+        TERABYTES | MEGABYTES || 4.448059392E7
+        TERABYTES | GIGABYTES || 43438.08
+        TERABYTES | TERABYTES || 42.42
+    }
+
+    @Unroll
     def 'approximate: #source to #desired'() {
         expect:
         desired.approximate(4242, source) == converted

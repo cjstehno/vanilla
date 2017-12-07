@@ -115,8 +115,7 @@ class MapConfigurationSource implements ConfigurationSource {
             return defaultValue
         } else if (value instanceof String) {
             return factory(value)
-        } else {
-            return value as T
         }
+        return value as T
     }
 }

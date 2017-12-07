@@ -36,8 +36,8 @@ class Randomizers {
 
     private static final String CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     private static final String NUMBERS = '0123456789'
-    private static final TemplateEngine templateEngine = new GStringTemplateEngine()
-    private static final Map<String, Template> templateCache = [:]
+    private static final TemplateEngine TEMPLATE_ENGINE = new GStringTemplateEngine()
+    private static final Map<String, Template> TEMPLATE_CACHE = [:]
 
     /**
      * Produces a Closure which will always return the specified value when called.
@@ -366,10 +366,10 @@ class Randomizers {
      * @return the randomizer closure
      */
     static Closure<String> forTemplate(Map<String, Closure> randomizers = [:], String pattern) {
-        Template template = templateCache[pattern]
+        Template template = TEMPLATE_CACHE[pattern]
         if (!template) {
-            template = templateEngine.createTemplate(pattern)
-            templateCache[pattern] = template
+            template = TEMPLATE_ENGINE.createTemplate(pattern)
+            TEMPLATE_CACHE[pattern] = template
         }
 
         return { Random r ->
