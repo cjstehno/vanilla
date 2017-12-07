@@ -4,6 +4,7 @@
 *.iws
 *.ipr
 
+/out
 /target
 /build
 /.gradle
