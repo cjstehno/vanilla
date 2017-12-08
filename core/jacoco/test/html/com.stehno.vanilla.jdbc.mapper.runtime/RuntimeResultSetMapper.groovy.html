@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RuntimeResultSetMapper.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.jdbc.mapper.runtime</a> &gt; <span class="el_source">RuntimeResultSetMapper.groovy</span></div><h1>RuntimeResultSetMapper.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.jdbc.mapper.runtime
+
+import com.stehno.vanilla.jdbc.mapper.*
+import groovy.transform.TypeChecked
+
+import java.sql.ResultSet
+
+import static com.stehno.vanilla.jdbc.mapper.MappingStyle.IMPLICIT
+
+/**
+ * Dynamic runtime implementation of the &lt;code&gt;ResultSetMapper&lt;/code&gt; interface. The mapping information is immutable and the actual mapping
+ * and extraction operations occur at runtime.
+ *
+ * The mapper is reusable and thread-safe.
+ */
+@TypeChecked
+class RuntimeResultSetMapper implements ResultSetMapper {
+
+    String prefix = ''
+
+    private final Class mappedType
+    private final Map&lt;String, FieldMapping&gt; mappings
+<span class="fc" id="L38">    private final Collection&lt;String&gt; ignored = []</span>
+
+    /**
+     * Creates an instance of the mapper with the provided configuration information. Generally, the &lt;code&gt;ResultSetMapperBuilder&lt;/code&gt; is used to
+     * create instances of this mapper; however, using this constructor directly is acceptable.
+     *
+     * @param mappedType the type being mapped
+     * @param mappings the map of object property name to field mappings
+     * @param ignored the collection of ignored object properties (may be omitted)
+     */
+<span class="nc" id="L48">    RuntimeResultSetMapper(Class mappedType, Map&lt;String, FieldMapping&gt; mappings, Collection&lt;String&gt; ignored = []) {</span>
+<span class="fc" id="L49">        this.mappedType = mappedType</span>
+<span class="fc" id="L50">        this.mappings = mappings.asImmutable()</span>
+
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (ignored) {</span>
+<span class="fc" id="L53">            this.ignored.addAll(ignored)</span>
+        }
+    }
+
+    /**
+     * Used to build a &lt;code&gt;ResultSetMapper&lt;/code&gt; using the DSL.
+     *
+     * @param mappedType the type of object being mapped
+     * @param style the mapping style to be used (defaults to IMPLICIT if not specified)
+     * @param closure the DSL closure
+     * @return the configured ResultSetMapper
+     */
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT,
+                                  @DelegatesTo(ResultSetMapperDsl) Closure closure) {
+<span class="fc" id="L67">        ResultSetMapperBuilder builder = new ResultSetMapperBuilder(mappedType, style)</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (closure) {</span>
+<span class="fc" id="L70">            closure.delegate = builder</span>
+<span class="fc" id="L71">            closure.resolveStrategy = Closure.DELEGATE_FIRST</span>
+<span class="fc" id="L72">            closure.call()</span>
+        }
+
+<span class="pc" id="L75">        builder.build()</span>
+    }
+
+    static ResultSetMapper mapper(Class mappedType, MappingStyle style = IMPLICIT) {
+<span class="pc" id="L79">        mapper(mappedType, style, null)</span>
+    }
+
+    @SuppressWarnings('UnusedMethodParameter')
+    def mapRow(ResultSet rs, int rownum) {
+<span class="nc" id="L84">        call rs</span>
+    }
+
+    def call(ResultSet rs) {
+<span class="fc" id="L88">        def instanceProps = [:]</span>
+
+<span class="fc" id="L90">        mappings.each { String prop, FieldMapping mapping -&gt;</span>
+<span class="pc" id="L91">            applyMapping rs, mapping, instanceProps</span>
+        }
+
+<span class="pc" id="L94">        mappedType.newInstance(instanceProps)</span>
+    }
+
+    private void applyMapping(final ResultSet rs, final FieldMapping mapping, final Map&lt;String, Object&gt; instanceProps) {
+<span class="fc" id="L98">        def mappedValue = (mapping.extractor as Closure).call(rs, prefix)</span>
+
+<span class="fc" id="L100">        Closure converter = mapping.converter as Closure</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (converter) {</span>
+<span class="fc" id="L102">            int argCount = converter.maximumNumberOfParameters</span>
+<span class="pc bpc" id="L103" title="10 of 16 branches missed.">            if (argCount &gt; 0) {</span>
+<span class="pc" id="L104">                mappedValue = converter.call(mappedValue)</span>
+            } else {
+<span class="nc" id="L106">                mappedValue = converter.call()</span>
+            }
+        }
+
+<span class="fc" id="L110">        instanceProps[mapping.propertyName] = mappedValue</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

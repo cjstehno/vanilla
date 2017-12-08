@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OnceTransform.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.transform</a> &gt; <span class="el_source">OnceTransform.groovy</span></div><h1>OnceTransform.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.transform
+
+import groovy.transform.TypeChecked
+import org.codehaus.groovy.ast.ASTNode
+import org.codehaus.groovy.ast.AnnotationNode
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.expr.Expression
+import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.Statement
+import org.codehaus.groovy.control.SourceUnit
+import org.codehaus.groovy.control.messages.SyntaxErrorMessage
+import org.codehaus.groovy.syntax.SyntaxException
+import org.codehaus.groovy.transform.AbstractASTTransformation
+import org.codehaus.groovy.transform.GroovyASTTransformation
+
+import java.util.concurrent.atomic.AtomicBoolean
+
+import static java.lang.reflect.Modifier.FINAL
+import static java.lang.reflect.Modifier.PRIVATE
+import static java.lang.reflect.Modifier.PUBLIC
+import static org.codehaus.groovy.ast.ClassHelper.Boolean_TYPE
+import static org.codehaus.groovy.ast.ClassHelper.VOID_TYPE
+import static org.codehaus.groovy.ast.ClassHelper.make
+import static org.codehaus.groovy.ast.tools.GeneralUtils.args
+import static org.codehaus.groovy.ast.tools.GeneralUtils.block
+import static org.codehaus.groovy.ast.tools.GeneralUtils.callX
+import static org.codehaus.groovy.ast.tools.GeneralUtils.constX
+import static org.codehaus.groovy.ast.tools.GeneralUtils.ctorX
+import static org.codehaus.groovy.ast.tools.GeneralUtils.ifElseS
+import static org.codehaus.groovy.ast.tools.GeneralUtils.ifS
+import static org.codehaus.groovy.ast.tools.GeneralUtils.notX
+import static org.codehaus.groovy.ast.tools.GeneralUtils.params
+import static org.codehaus.groovy.ast.tools.GeneralUtils.returnS
+import static org.codehaus.groovy.ast.tools.GeneralUtils.throwS
+import static org.codehaus.groovy.ast.tools.GeneralUtils.varX
+import static org.codehaus.groovy.control.CompilePhase.CANONICALIZATION
+
+/**
+ * AST Transformation support for the @Once annotation.
+ */
+@GroovyASTTransformation(phase = CANONICALIZATION) @TypeChecked
+class OnceTransform extends AbstractASTTransformation {
+
+    @Override
+    void visit(final ASTNode[] nodes, final SourceUnit source) {
+<span class="pc bpc" id="L63" title="3 of 6 branches missed.">        AnnotationNode onceNode = nodes[0] as AnnotationNode</span>
+<span class="pc bpc" id="L64" title="3 of 6 branches missed.">        MethodNode methNode = nodes[1] as MethodNode</span>
+        try {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            if (methNode.returnType == VOID_TYPE) {</span>
+<span class="fc" id="L67">                ClassNode statusFlagClassNode = make(AtomicBoolean)</span>
+
+                // add boolean status field
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">                String fieldName = onceNode.getMember('fieldName')?.text ?: onceNode.getMember('value')?.text ?: &quot;${methNode.name}Called&quot;</span>
+
+<span class="fc" id="L72">                ClassNode ownerClass = methNode.declaringClass</span>
+<span class="fc" id="L73">                FieldNode statusField = new FieldNode(</span>
+                    fieldName,
+<span class="fc" id="L75">                    FINAL | PRIVATE,</span>
+                    statusFlagClassNode,
+                    ownerClass,
+<span class="fc" id="L78">                    ctorX(statusFlagClassNode, args(constX(false)))</span>
+                )
+
+<span class="fc" id="L81">                ownerClass.addField(statusField)</span>
+<span class="fc" id="L82">                ownerClass.addMethod(new MethodNode(</span>
+<span class="fc" id="L83">                    &quot;is${fieldName.capitalize()}&quot;,</span>
+                    PUBLIC,
+                    Boolean_TYPE,
+<span class="fc" id="L86">                    params(),</span>
+<span class="fc" id="L87">                    [] as ClassNode[],</span>
+<span class="fc" id="L88">                    returnS(callX(varX(fieldName), 'get')))</span>
+                )
+
+                // wrap the original method body
+<span class="fc" id="L92">                Statement originalCode = methNode.code</span>
+
+<span class="fc" id="L94">                BlockStatement code = block()</span>
+
+<span class="fc" id="L96">                Expression condition = notX(callX(varX(fieldName), 'getAndSet', args(constX(true))))</span>
+
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                if (ignoreMultipleCalls(onceNode)) {</span>
+<span class="fc" id="L99">                    code.addStatement(ifS(condition, originalCode))</span>
+
+                } else {
+<span class="fc" id="L102">                    code.addStatement(ifElseS(</span>
+                        condition,
+                        originalCode,
+<span class="fc" id="L105">                        throwS(ctorX(make(IllegalStateException), args(constX(&quot;Method ${methNode.name} was called more than once.&quot; as String))))</span>
+                    ))
+                }
+
+<span class="fc" id="L109">                methNode.code = code</span>
+
+            } else {
+<span class="pc" id="L112">                addError &quot;Methods annotated with @Once must have a void return type: $methNode.name returns $methNode.returnType.name&quot;, methNode</span>
+            }
+        } catch (Exception ex) {
+<span class="pc" id="L115">            addError &quot;Problem applying once transform tomethod ($methNode.name): $ex.message&quot;, methNode</span>
+        }
+    }
+
+    private static boolean ignoreMultipleCalls(AnnotationNode onceNode) {
+<span class="fc" id="L120">        Expression attr = onceNode.getMember('ignoreMultipleCalls')</span>
+<span class="pc bpc" id="L121" title="10 of 18 branches missed.">        !attr || attr?.text == 'true'</span>
+    }
+
+    void addError(String msg, ASTNode expr) {
+<span class="nc" id="L125">        sourceUnit.errorCollector.addErrorAndContinue(</span>
+<span class="nc" id="L126">            new SyntaxErrorMessage(new SyntaxException(</span>
+<span class="nc" id="L127">                msg + '\n',</span>
+                expr.lineNumber,
+                expr.columnNumber,
+                expr.lastLineNumber,
+                expr.lastColumnNumber
+            ), sourceUnit)
+        )
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

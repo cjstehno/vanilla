@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileSetBuilder.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.io</a> &gt; <span class="el_source">FileSetBuilder.groovy</span></div><h1>FileSetBuilder.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.io
+
+import groovy.io.FileType
+
+/**
+ * Builder used to create an immutable file set, may be used directly or via the DSL (see FileSet.fileSet(Closure)).
+ */
+class FileSetBuilder {
+
+<span class="fc" id="L25">    private final Set&lt;File&gt; files = [] as Set&lt;File&gt;</span>
+
+    /**
+     * Adds a single file (by path string) to the file set. The path will be converted to a File object before being added to the file set.
+     *
+     * @param filePath a file path string
+     */
+    void file(final String filePath) {
+<span class="fc" id="L33">        file new File(filePath)</span>
+    }
+
+    /**
+     * Adds a single file as a File object to the file set.
+     *
+     * @param file the file object to be added
+     */
+    void file(final File file) {
+<span class="fc" id="L42">        files &lt;&lt; checkFile(file)</span>
+    }
+
+    /**
+     * Adds a single directory (non-recursive) to the file set. An optional filtering closure may be provided; the closure should accept a File object
+     * and return a value of true if the file should be included in the file set, false if not.
+     *
+     * @param directory the directory to include
+     * @param filter the optional filtering closure
+     */
+    void dir(final String directory, final Closure filter = null) {
+<span class="fc" id="L53">        dir new File(directory), filter</span>
+    }
+
+    /**
+     * Adds a single directory (non-recursive) to the file set as a File object. An optional filtering closure may be provided; the closure should
+     * accept a File object and return a value of true if the file should be included in the file set, false if not.
+     *
+     * @param directory the directory to include
+     * @param filter the optional filtering closure
+     */
+    void dir(final File directory, final Closure filter = null) {
+<span class="fc" id="L64">        checkDirectory(directory).eachFile(FileType.FILES) { f -&gt;</span>
+<span class="fc bfc" id="L65" title="All 8 branches covered.">            if (!filter || filter(f)) {</span>
+<span class="pc" id="L66">                files &lt;&lt; f</span>
+            }
+        }
+    }
+
+    /**
+     * Adds a directory and its child directories recursively to the file set. An optional filtering closure may be provided; the closure should
+     * accept a File object and return a value of true if the file should be included in the file set, false if not.
+     *
+     * @param directory the directory to include
+     * @param filter the optional filtering closure
+     */
+    void dirs(final String directory, final Closure filter = null) {
+<span class="fc" id="L79">        dirs new File(directory), filter</span>
+    }
+
+    /**
+     * Adds a directory and its child directories recursively to the file set. An optional filtering closure may be provided; the closure should
+     * accept a File object and return a value of true if the file should be included in the file set, false if not.
+     *
+     * @param directory the directory to include
+     * @param filter the optional filtering closure
+     */
+    void dirs(final File directory, final Closure filter = null) {
+<span class="fc" id="L90">        checkDirectory(directory).eachFileRecurse(FileType.FILES) { f -&gt;</span>
+<span class="fc bfc" id="L91" title="All 8 branches covered.">            if (!filter || filter(f)) {</span>
+<span class="pc" id="L92">                files &lt;&lt; f</span>
+            }
+        }
+    }
+
+    /**
+     * Merge another file set into the file set being built. The external file set is unchanged.
+     *
+     * @param fs the file set to be merged
+     */
+    void merge(final FileSet fs) {
+<span class="fc" id="L103">        fs.each { f -&gt;</span>
+<span class="nc" id="L104">            files &lt;&lt; f</span>
+        }
+    }
+
+    /**
+     * Build the final immutable FileSet object.
+     *
+     * @return a populated FileSet object
+     */
+    FileSet build() {
+<span class="pc" id="L114">        new FileSet(files.asImmutable())</span>
+    }
+
+    private static File checkFile(final File file) {
+<span class="pc bpc" id="L118" title="2 of 10 branches missed.">        if (file.exists() &amp;&amp; file.file &amp;&amp; file.canRead()) {</span>
+<span class="fc" id="L119">            return file</span>
+        }
+<span class="pc" id="L121">        throw new IllegalArgumentException(&quot;Specified file ($file) cannot be read or does not exist.&quot;)</span>
+    }
+
+    private static File checkDirectory(final File directory) {
+<span class="pc bpc" id="L125" title="5 of 10 branches missed.">        if (directory.exists() &amp;&amp; directory.directory &amp;&amp; directory.canRead()) {</span>
+<span class="fc" id="L126">            return directory</span>
+        }
+<span class="nc" id="L128">        throw new IllegalArgumentException(&quot;Specified path ($directory) cannot be read or is not a directory.&quot;)</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

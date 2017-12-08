@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextFileWriter.groovy</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">vanilla</a> &gt; <a href="index.source.html" class="el_package">com.stehno.vanilla.text</a> &gt; <span class="el_source">TextFileWriter.groovy</span></div><h1>TextFileWriter.groovy</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2017 Christopher J. Stehno &lt;chris@stehno.com&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stehno.vanilla.text
+
+import groovy.transform.TypeChecked
+
+import java.nio.file.Path
+import java.nio.file.Paths
+
+/**
+ * Utility component for writing object data to a file as one line of text per object written. A configured LineFormatter
+ * is used to write the text to the file.
+ *
+ * Comments may also be written to the file and these will be passed through the LineFormatter so that they may be appropriately
+ * formatter for the implementation.
+ *
+ * This component will not be very performant. It is intended for non-critical path operations.
+ */
+@TypeChecked
+class TextFileWriter {
+
+    /**
+     * The Path of the text file being written.
+     */
+    Path filePath
+
+    /**
+     * The LineFormatter used to convert the incoming objects to the written line data.
+     */
+    LineFormatter lineFormatter
+
+    /**
+     * Used to specify the filePath of the file being written.
+     */
+    void setFilePath(Path path) {
+<span class="nc" id="L49">        this.filePath = path</span>
+    }
+
+    /**
+     * Alternate means of specifying the filePath, as a URI.
+     */
+    void setFilePath(URI uri) {
+<span class="fc" id="L56">        this.filePath = Paths.get(uri)</span>
+    }
+
+    /**
+     * Alternate means of specifying the filePath, as a URL.
+     */
+    void setFilePath(URL fileUrl) {
+<span class="nc" id="L63">        setFilePath(fileUrl.toURI())</span>
+    }
+
+    /**
+     * Alternate means of specifying the filePath, as a File.
+     */
+    void setFilePath(File file) {
+<span class="fc" id="L70">        setFilePath(file.toURI())</span>
+    }
+
+    /**
+     * Writes the given object to the file. The object will be processed by the LineFormatter.
+     *
+     * @param object the object to be written
+     */
+    void write(Object object) {
+<span class="fc" id="L79">        writeText lineFormatter.formatLine(object)</span>
+    }
+
+    /**
+     * Writes the given text as a comment in the file, using the LineFormatter to format the comment text.
+     *
+     * @param comment the comment text
+     */
+    void writeComment(String comment) {
+<span class="fc" id="L88">        writeText lineFormatter.formatComment(comment)</span>
+    }
+
+    /**
+     * A convenience method used to write all objects contained in the iterable to the file.
+     *
+     * @param objects the objects to be written
+     */
+    void writeAll(Iterable&lt;Object&gt; objects) {
+<span class="nc" id="L97">        objects.each { obj -&gt;</span>
+<span class="nc" id="L98">            write obj</span>
+        }
+    }
+
+    private void writeText(String text) {
+<span class="fc" id="L103">        filePath.append(text)</span>
+<span class="fc" id="L104">        filePath.append('\n')</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
