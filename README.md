@@ -17,14 +17,14 @@ The Vanilla library is my attempt to bring together a bunch of my reusable and i
 
 They are available via the JCenter repository. For Gradle use:
 
-    compile 'com.stehno.vanilla:vanilla-core:0.5.1'
+    compile 'com.stehno.vanilla:vanilla-core:0.6.0'
     
 and for Maven:
 
     <dependency>
         <groupId>com.stehno.vanilla</groupId>
         <artifactId>vanilla-core</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
     </dependency>
 
 ## Build

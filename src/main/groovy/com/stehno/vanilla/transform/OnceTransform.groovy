@@ -61,22 +61,35 @@ class OnceTransform extends AbstractASTTransformation {
     @Override
     void visit(final ASTNode[] nodes, final SourceUnit source) {
         AnnotationNode onceNode = nodes[0] as AnnotationNode
-        MethodNode methodNode = nodes[1] as MethodNode
+        MethodNode methNode = nodes[1] as MethodNode
         try {
-            if (methodNode.returnType == VOID_TYPE) {
+            if (methNode.returnType == VOID_TYPE) {
                 ClassNode statusFlagClassNode = make(AtomicBoolean)
 
                 // add boolean status field
-                String fieldName = onceNode.getMember('fieldName')?.text ?: onceNode.getMember('value')?.text ?: "${methodNode.name}Called"
+                String fieldName = onceNode.getMember('fieldName')?.text ?: onceNode.getMember('value')?.text ?: "${methNode.name}Called"
 
-                ClassNode ownerClass = methodNode.declaringClass
-                FieldNode statusField = new FieldNode(fieldName, FINAL | PRIVATE, statusFlagClassNode, ownerClass, ctorX(statusFlagClassNode, args(constX(false))))
+                ClassNode ownerClass = methNode.declaringClass
+                FieldNode statusField = new FieldNode(
+                    fieldName,
+                    FINAL | PRIVATE,
+                    statusFlagClassNode,
+                    ownerClass,
+                    ctorX(statusFlagClassNode, args(constX(false)))
+                )
 
                 ownerClass.addField(statusField)
-                ownerClass.addMethod(new MethodNode("is${fieldName.capitalize()}", PUBLIC, Boolean_TYPE, params(), [] as ClassNode[], returnS(callX(varX(fieldName), 'get'))))
+                ownerClass.addMethod(new MethodNode(
+                    "is${fieldName.capitalize()}",
+                    PUBLIC,
+                    Boolean_TYPE,
+                    params(),
+                    [] as ClassNode[],
+                    returnS(callX(varX(fieldName), 'get')))
+                )
 
                 // wrap the original method body
-                Statement originalCode = methodNode.code
+                Statement originalCode = methNode.code
 
                 BlockStatement code = block()
 
@@ -89,17 +102,17 @@ class OnceTransform extends AbstractASTTransformation {
                     code.addStatement(ifElseS(
                         condition,
                         originalCode,
-                        throwS(ctorX(make(IllegalStateException), args(constX("Method ${methodNode.name} was called more than once." as String))))
+                        throwS(ctorX(make(IllegalStateException), args(constX("Method ${methNode.name} was called more than once." as String))))
                     ))
                 }
 
-                methodNode.code = code
+                methNode.code = code
 
             } else {
-                addError("Methods annotated with @Once must have a void return type: ${methodNode.name} returns ${methodNode.returnType.name}", methodNode)
+                addError "Methods annotated with @Once must have a void return type: $methNode.name returns $methNode.returnType.name", methNode
             }
         } catch (Exception ex) {
-            addError("Problem applying once transform tomethod (${methodNode.name}): ${ex.message}", methodNode)
+            addError "Problem applying once transform tomethod ($methNode.name): $ex.message", methNode
         }
     }
 
@@ -108,9 +121,15 @@ class OnceTransform extends AbstractASTTransformation {
         !attr || attr?.text == 'true'
     }
 
-    public void addError(String msg, ASTNode expr) {
+    void addError(String msg, ASTNode expr) {
         sourceUnit.errorCollector.addErrorAndContinue(
-            new SyntaxErrorMessage(new SyntaxException(msg + '\n', expr.lineNumber, expr.columnNumber, expr.lastLineNumber, expr.lastColumnNumber), sourceUnit)
+            new SyntaxErrorMessage(new SyntaxException(
+                msg + '\n',
+                expr.lineNumber,
+                expr.columnNumber,
+                expr.lastLineNumber,
+                expr.lastColumnNumber
+            ), sourceUnit)
         )
     }
 }

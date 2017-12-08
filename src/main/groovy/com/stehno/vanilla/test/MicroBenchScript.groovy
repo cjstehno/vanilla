@@ -25,7 +25,7 @@ abstract class MicroBenchScript extends Script {
 
     @Delegate final MicroBench bench = new MicroBench()
 
-    abstract def runScript()
+    abstract runScript()
 
     def run() {
         runScript()

@@ -119,6 +119,6 @@ class PropertiesConfigurationSource implements ConfigurationSource {
 
     private <T> T getConfig(final String key, final T defaultValue, final Closure<T> factory) {
         String valueString = source.getProperty(key)
-        !valueString ? defaultValue : factory(valueString)
+        valueString ? factory(valueString) : defaultValue
     }
 }

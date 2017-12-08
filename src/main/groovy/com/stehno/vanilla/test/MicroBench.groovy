@@ -34,6 +34,7 @@ class MicroBench {
      *
      * @param iter
      */
+    @SuppressWarnings('ConfusingMethodName')
     void iterations(int iter) {
         this.iterations = iter
     }
@@ -56,7 +57,7 @@ class MicroBench {
         this.testing = closure
     }
 
-    String run(){
+    String run() {
         preparation.call()
 
         long started = System.currentTimeMillis()
@@ -69,6 +70,7 @@ class MicroBench {
     }
 
     private String report(final long elapsed) {
-        "Ran $iterations in $elapsed ms (${iterations / elapsed} /ms)"
+        String rate = elapsed ? "${iterations / elapsed}" : '?'
+        "Ran $iterations in $elapsed ms ($rate /ms)"
     }
 }

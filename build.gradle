@@ -1,17 +1,18 @@
 plugins {
-    id "org.asciidoctor.convert" version "1.5.3"
+    id "org.asciidoctor.convert" version "1.5.7"
     id "com.stehno.gradle.webpreview" version "0.3.0"
     id "com.stehno.gradle.site" version "0.0.3"
-    id 'com.github.kt3k.coveralls' version '2.7.1'
+    id 'com.github.kt3k.coveralls' version '2.8.2'
     id 'groovy'
     id 'maven-publish'
     id 'codenarc'
     id 'jacoco'
-    id 'com.jfrog.bintray' version '1.7.3'
-    id "com.github.hierynomus.license" version "0.13.1"
+    id 'com.jfrog.bintray' version '1.8.0'
+    id "com.github.hierynomus.license" version "0.14.0"
+    id "com.github.ben-manes.versions" version "0.17.0"
 }
 
-version = '0.5.1'
+version = '0.6.0'
 group = 'com.stehno.vanilla'
 
 sourceCompatibility = 8
@@ -26,12 +27,12 @@ configurations {
 }
 
 dependencies {
-    compile 'com.mockrunner:mockrunner-jdbc:1.1.0'
+    compile 'com.mockrunner:mockrunner-jdbc:1.1.2'
 
     compile "org.codehaus.groovy:groovy-all:$groovyVersion"
 
     testCompile 'junit:junit:4.12'
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 
     groovyDoc "org.codehaus.groovy:groovy-groovydoc:$groovyVersion"
     groovyDoc "org.codehaus.groovy:groovy-ant:$groovyVersion"
@@ -40,6 +41,10 @@ dependencies {
         "org.codenarc:CodeNarc:$codeNarcVersion",
         "org.codehaus.groovy:groovy-all:$groovyVersion"
     )
+}
+
+test {
+    maxParallelForks = Math.min(Runtime.runtime.availableProcessors(), 8)
 }
 
 groovydoc {
@@ -96,8 +101,6 @@ publishing {
 
 license {
     header file('config/license_header.txt')
-    ext.name = 'Christopher J. Stehno'
-    ext.email = 'chris@stehno.com'
     ext.year = Calendar.instance.get(Calendar.YEAR)
 
     excludes(['**/*.txt'])
@@ -105,8 +108,8 @@ license {
 
 // NOTE: run bintrayUpload and then go to web and publish.
 bintray {
-    user = bintrayUser
-    key = bintrayKey
+    user = project.property('user')
+    key = project.property('key')
 
     publications = ['mavenJava']
 

@@ -18,12 +18,14 @@ package com.stehno.vanilla.io
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 
+import static com.stehno.vanilla.Affirmations.affirm
 import static java.lang.Math.abs
+import static java.lang.Math.round
 
 /**
  * Enum used to denote file size and memory storage size units.
  */
-@CompileStatic @TupleConstructor
+@CompileStatic @TupleConstructor @SuppressWarnings(['DuplicateNumberLiteral', 'SpaceAroundOperator'])
 enum StorageUnit {
 
     BYTES(0),
@@ -37,29 +39,30 @@ enum StorageUnit {
     /**
      * Converts the given source value to the desired unit.
      *
-     * @param sourceValue the source size value
+     * @param sourceValue the source size value (non-null)
      * @param sourceUnit the source unit
      * @return the converted value in the desired units
      */
-    double convert(long sourceValue, StorageUnit sourceUnit) {
+    double convert(final Number sourceValue, final StorageUnit sourceUnit) {
+        affirm(sourceValue != null, 'The source value cannot be null.')
+
         int m = sourceUnit.mult - mult
         if (m == 0) {
-            return sourceValue as double
+            return sourceValue.doubleValue()
         } else if (m > 0) {
-            return (sourceValue * (1024**m)) as double
-        } else {
-            return (sourceValue / (1024**abs(m))) as double
+            return (sourceValue.doubleValue() * (1024**m)) as double
         }
+        return (sourceValue.doubleValue() / (1024**abs(m))) as double
     }
 
     /**
      * Converts the given source value to the desired unit as a long approximation (rounded).
      *
-     * @param sourceValue
-     * @param sourceUnit
-     * @return
+     * @param sourceValue the source size value (non-null)
+     * @param sourceUnit the source unit
+     * @return the converted value rounded to a long value
      */
-    long approximate(long sourceValue, StorageUnit sourceUnit) {
-        Math.round(convert(sourceValue, sourceUnit))
+    long approximate(final Number sourceValue, final StorageUnit sourceUnit) {
+        round(convert(sourceValue, sourceUnit))
     }
 }

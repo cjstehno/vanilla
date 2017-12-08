@@ -28,14 +28,10 @@ import static groovy.lang.Closure.DELEGATE_FIRST
  * An object matcher is defined using a simple DSL:
  *
  * <code><pre>
- *     ObjectMatcher matcher = ObjectMatcher.matcher(Person){
- *         typeMatcher String, { v-> v != null }
- *         propertyMatchers([
+ *     ObjectMatcher matcher = ObjectMatcher.matcher(Person){*         typeMatcher String, { v-> v != null }*         propertyMatchers([
  *             age: { v -> v > 18 && v < 40 },
- *             employed: { v-> v }
- *         ])
- *     }
- *
+ *             employed: { v-> v }*         ])
+ *}*
  *     boolean matches = matcher.matches(somePerson)
  *     float score = matcher.score(somePerson)
  * </pre></code>
@@ -86,7 +82,7 @@ class ObjectMatcher implements ObjectMatcherDsl {
         this
     }
 
-    @Override
+    @Override @SuppressWarnings('ConfusingMethodName')
     ObjectMatcher propertyMatchers(Map<String, Object> matchers) {
         propertyMatchers.putAll(matchers)
         this
@@ -148,15 +144,13 @@ class ObjectMatcher implements ObjectMatcherDsl {
         (hits as float) / (count as float)
     }
 
-    private boolean callMatcher(final Object matcher, final Object object) {
+    private static boolean callMatcher(final Object matcher, final Object object) {
         if (matcher instanceof ObjectMatcher) {
             return matcher.matches(object)
-
         } else if (matcher instanceof Closure) {
             return matcher.call(object)
 
-        } else {
-            throw new IllegalArgumentException("Matchers of type ${matcher.class} are not supported.")
         }
+        throw new IllegalArgumentException("Matchers of type ${matcher.class} are not supported.")
     }
 }
