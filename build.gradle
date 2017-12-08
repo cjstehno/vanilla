@@ -108,8 +108,8 @@ license {
 
 // NOTE: run bintrayUpload and then go to web and publish.
 bintray {
-    user = bintrayUser
-    key = bintrayKey
+    user = project.property('user')
+    key = project.property('key')
 
     publications = ['mavenJava']
 
