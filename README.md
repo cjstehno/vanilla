@@ -10,8 +10,8 @@ The Vanilla library is my attempt to bring together a bunch of my reusable and i
 
 * **Project:** https://github.org/cjstehno/vanilla
 * **Site:** http://stehno.com/vanilla
-* **User Guide:** http://stehno.com/vanilla/guide/html5
-* **API Docs:** http://stehno.com/vanilla/groovydoc
+* **User Guide:** http://stehno.com/vanilla/asciidoc/html5/
+* **API Docs:** http://stehno.com/vanilla/core/groovydoc/
 
 ## Artifacts
 
